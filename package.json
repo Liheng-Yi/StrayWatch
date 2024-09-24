@@ -1,0 +1,26 @@
+{
+  "name": "straywatch",
+  "version": "1.0.0",
+  "description": "A platform for reuniting lost pets with their owners. Users can upload and geotag photos or videos of stray animals, allowing pet owners to search and locate their missing pets.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd server && node app.js",
+    "client": "cd client && npm start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Liheng-Yi/StrayWatch.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Liheng-Yi/StrayWatch/issues"
+  },
+  "homepage": "https://github.com/Liheng-Yi/StrayWatch#readme",
+  "devDependencies": {
+    "concurrently": "^9.0.1"
+  }
+}
