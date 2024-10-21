@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './styles.css';
 
 // Define a type for the shelter form state
 type ShelterFormState = {
@@ -31,7 +32,15 @@ const ShelterForm: React.FC = () => {
 
   return (
     <div>
-      <h2>Add New Shelter</h2>
+      <div style={{ textAlign: 'center' }}>
+        <h1 className="mb-4">Search pets near San Jose, CA</h1>
+        <h2>Add New Shelter</h2>
+      </div>
+      <div  style={{ textAlign: 'center', marginTop: '20px' }}>
+        <button className="buttons-action-pet" style={{ marginRight: '10px' }}>I Lost a Pet</button>
+        <button className="buttons-action-pet">I Spot a Pet</button>
+      </div>
+
       <form onSubmit={handleSubmit}>
         <div>
           <label htmlFor="name">Shelter Name:</label>

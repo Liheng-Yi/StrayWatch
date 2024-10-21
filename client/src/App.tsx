@@ -1,18 +1,17 @@
 import React from 'react';
-import './App.css';
-import Map from './MainPage/Map/Map';
+import { BrowserRouter } from 'react-router-dom';
+import MainPage from './Pages';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
-const App: React.FC = () => {
+
+
+
+function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>StrayWatch</h1>
-      </header>
-      <main>
-        <Map />
-      </main>
-    </div>
+    <BrowserRouter>
+      <MainPage />
+    </BrowserRouter>
   );
-};
+}
 
 export default App;

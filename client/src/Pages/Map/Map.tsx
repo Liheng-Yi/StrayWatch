@@ -2,6 +2,7 @@ import React from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import './styles.css'; // Make sure this import is present
 
 // Import the necessary images
 import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
@@ -37,17 +38,22 @@ L.Marker.prototype.options.icon = defaultIcon;
 const Map: React.FC = () => {
   const mapCenter: [number, number] = [37.3387, -121.8853];
   return (
-    <MapContainer center={mapCenter} zoom={13} scrollWheelZoom={false} style={{ height: '400px', width: '100%' }}>
-      <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      />
-      {shelters.map(shelter => (
-        <Marker key={shelter.id} position={shelter.position}>
-          <Popup>{shelter.name}</Popup>
-        </Marker>
-      ))}
-    </MapContainer>
+    <div className="map-container">
+      <h1 className="map-title">Shelter Map</h1>
+      <div className="map-wrapper">
+        <MapContainer center={mapCenter} zoom={13} scrollWheelZoom={true}>
+          <TileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          />
+          {shelters.map(shelter => (
+            <Marker key={shelter.id} position={shelter.position}>
+              <Popup>{shelter.name}</Popup>
+            </Marker>
+          ))}
+        </MapContainer>
+      </div>
+    </div>
   );
 };
 
