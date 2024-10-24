@@ -24,6 +24,8 @@
     "concurrently": "^9.0.1"
   },
   "dependencies": {
-    "@types/google.maps": "^3.58.1"
+    "@types/google.maps": "^3.58.1",
+    "axios": "^1.7.7",
+    "mdb-react-ui-kit": "^9.0.0"
   }
 }
