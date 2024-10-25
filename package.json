@@ -22,5 +22,8 @@
   "homepage": "https://github.com/Liheng-Yi/StrayWatch#readme",
   "devDependencies": {
     "concurrently": "^9.0.1"
+  },
+  "dependencies": {
+    "@types/google.maps": "^3.58.1"
   }
 }
