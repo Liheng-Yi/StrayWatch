@@ -1,84 +1,67 @@
-import React, { useState } from 'react';
-import './styles.css';
+import React from 'react';
+import { Routes, useNavigate, Route, useLocation } from 'react-router-dom';
+import LostPetForm from './LostPetForm';
+import SpotPetForm from './SpotPetForm';
 
-// Define a type for the shelter form state
-type ShelterFormState = {
-  name: string;
-  latitude: string;
-  longitude: string;
+type LostPetFormState = {
+  ownerName: string;
+  petName: string;
+  petType: string;
+  lastSeenDate: string;
+  description: string;
 };
 
-const ShelterForm: React.FC = () => {
-  const [shelter, setShelter] = useState<ShelterFormState>({
-    name: '',
-    latitude: '',
-    longitude: ''
-  });
+const NewShelters: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-    setShelter(prevShelter => ({
-      ...prevShelter,
-      [name]: value
-    }));
+  const handleLostPetClick = () => {
+    navigate('/shelterform/lost');
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    console.log('Shelter Information:', shelter);
-    // Here you could also make an API call to send the shelter data to your server
-    alert('Shelter submitted! Check the console for details.');
+  const handleSpotPetClick = () => {
+    navigate('/shelterform/spot');
   };
+
+  const handleBack = () => {
+    navigate('/shelterform');
+  };
+
+  // Only show the initial content if we're at the base shelterform path
+  const showInitialContent = location.pathname === '/shelterform';
 
   return (
-    <div>
-      <div style={{ textAlign: 'center' }}>
-        <h1 className="mb-4">Search pets near San Jose, CA</h1>
-        <h2>Add New Shelter</h2>
-      </div>
-      <div  style={{ textAlign: 'center', marginTop: '20px' }}>
-        <button className="buttons-action-pet" style={{ marginRight: '10px' }}>I Lost a Pet</button>
-        <button className="buttons-action-pet">I Spot a Pet</button>
-      </div>
+    <>
+      {showInitialContent ? (
+        <div className="max-w-2xl mx-auto p-6">
+          <div className="text-center">
+            <h1 className="text-3xl font-bold mb-4">Search pets near San Jose, CA</h1>
+            <h2 className="text-2xl mb-6">Add New Shelter</h2>
+          </div>
 
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="name">Shelter Name:</label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            value={shelter.name}
-            onChange={handleChange}
-            required
-          />
+          <div className="text-center space-x-4 mb-8">
+            <button 
+              onClick={handleLostPetClick}
+              className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors"
+            >
+              I Lost a Pet
+            </button>
+            <button 
+              onClick={handleSpotPetClick}
+              className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg transition-colors"
+            >
+              I Spot a Pet
+            </button>
+          </div>
         </div>
-        <div>
-          <label htmlFor="latitude">Latitude:</label>
-          <input
-            type="text"
-            id="latitude"
-            name="latitude"
-            value={shelter.latitude}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="longitude">Longitude:</label>
-          <input
-            type="text"
-            id="longitude"
-            name="longitude"
-            value={shelter.longitude}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <button type="submit">Submit Shelter</button>
-      </form>
-    </div>
+      ) : null}
+
+      <Routes>
+        <Route path="lost" element={<LostPetForm />} />
+        <Route path="spot" element={<SpotPetForm />} />
+      </Routes>
+    </>
   );
 };
 
-export default ShelterForm;
+export default NewShelters;
