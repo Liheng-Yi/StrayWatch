@@ -30,6 +30,23 @@ app.post('/upload', upload.single('file'), (req, res) => {
     res.send(`File uploaded: ${req.file.filename}`);
 });
 
+/** route to profile and return user and his pet
+ * */ 
+
+// get user info from backend
+// const User = mongoose.model('User', UserSchema);
+// app.get('/profile/:username', async (req, res) => {
+//     try {
+//       const user = await User.findOne({ username: req.params.username });
+//       if (!user) {
+//         return res.status(404).send({ message: 'User not found' });
+//       }
+//       res.json(user);
+//     } catch (error) {
+//       res.status(500).send({ message: 'Server error' });
+//     }
+// });
+
 app.listen(port, () => {
     console.log(`Server running on http://localhost:${port}`);
 });
