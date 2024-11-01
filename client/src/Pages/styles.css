@@ -12,14 +12,14 @@
   height: 2px;
   bottom: 0;
   left: 0;
-  background-color: #007bff;  /* Bootstrap primary color */
+  background-color: #572c9c;  /* Bootstrap primary color */
   visibility: hidden;
   transform: scaleX(0);
   transition: all 0.3s ease-in-out;
 }
 
 .custom-nav-link:hover {
-  color: #007bff;  /* Bootstrap primary color */
+  color: #572c9c;  
 }
 
 .custom-nav-link:hover::before {
@@ -28,5 +28,39 @@
 }
 
 .custom-bg {
-  background-color: #B19CD9;
+  background-color: #dccdf0   ;
+}
+
+.main-page-bg {
+  background-color: #f4effa;
+  min-height: 100vh;
+}
+
+.main-page-text {
+  margin-top: 100px;
+}
+
+.lost-found-button {
+  background-color: #7758aa;
+  color: white;
+  padding: 0.75rem 2rem;
+  border-radius: 9999px;
+  transition: all 0.3s ease;
+  margin: 0 1.5rem;
+  min-width: 200px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.lost-found-button:hover {
+  background-color: #4a2589;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 8px -1px rgba(0, 0, 0, 0.1), 0 4px 6px -1px rgba(0, 0, 0, 0.06);
+}
+
+.lost-found-button:active {
+  transform: translateY(0px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }

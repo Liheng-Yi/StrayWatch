@@ -8,8 +8,8 @@ import './styles.css';
 
 export default function MainPage() {
   return (
-    <div id="wd-mainpage">
-      <nav className="navbar navbar-expand-lg navbar-light custom-bg">
+    <div id="wd-mainpage" className="main-page-bg flex flex-col">
+      <nav className="navbar navbar-expand-lg custom-bg">
         <div className="container position-relative">
           {/* Center navigation items */}
           <div className="navbar-nav position-absolute start-50 translate-middle-x flex-row">
@@ -30,7 +30,7 @@ export default function MainPage() {
         </div>
       </nav>
       
-      <div>
+      <div className="flex-1 ">
         <Routes>
           <Route path="/" element={<Navigate to="/shelterform" />} />
           <Route path="/map" element={<Map />} />

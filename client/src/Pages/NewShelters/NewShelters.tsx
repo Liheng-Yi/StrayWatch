@@ -33,22 +33,22 @@ const NewShelters: React.FC = () => {
   return (
     <>
       {showInitialContent ? (
-        <div className="max-w-2xl mx-auto p-6">
+        <div className="main-page-text max-w-2xl mx-auto p-6">
           <div className="text-center">
-            <h1 className="text-3xl font-bold mb-4">Search pets near San Jose, CA</h1>
-            <h2 className="text-2xl mb-6">Add New Shelter</h2>
+            <h1 className="text-3xl font-bold mb-4 text-gray-900 ">Don't worry, we are here to help!</h1>
+            <h2 className="text-2xl mb-6">Tell us about the lost pet</h2>
           </div>
 
-          <div className="text-center space-x-4 mb-8">
+          <div className="text-center mb-8 p-3">
             <button 
               onClick={handleLostPetClick}
-              className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors"
+              className="lost-found-button"
             >
               I Lost a Pet
             </button>
             <button 
               onClick={handleSpotPetClick}
-              className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg transition-colors"
+              className="lost-found-button"
             >
               I Spot a Pet
             </button>

@@ -1,3 +1,32 @@
 .buttons-action-pet{
-  border-radius: 10px;
+  border-radius: 15px;
+}
+
+.custom-input {
+  background-color: rgb(93, 30, 160) !important; /* bg-purple-50 equivalent */
+}
+
+.lost-found-button {
+  background-color: #7758aa;
+  color: white;
+  padding: 0.75rem 2rem;
+  border-radius: 9999px;
+  transition: all 0.3s ease;
+   margin: 0 auto;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  width: 200px; /* Added fixed width to make button narrower */
+}
+
+.lost-found-button:hover {
+  background-color: #4a2589;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 8px -1px rgba(0, 0, 0, 0.1), 0 4px 6px -1px rgba(0, 0, 0, 0.06);
+}
+
+.lost-found-button:active {
+  transform: translateY(0px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
