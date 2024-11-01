@@ -1,10 +1,13 @@
-import React from 'react';
+import React from "react";
 import { Routes, Route, Navigate } from "react-router";
 import { UserCircle } from "lucide-react";
-import Map from './Map';
-import NewShelters from './NewShelters';
-import { Link } from 'react-router-dom';
-import './styles.css';
+import Map from "./Map";
+import NewShelters from "./NewShelters";
+import { Link } from "react-router-dom";
+import SignIn from "./Signin/signin";
+import SignUp from "./Signin/signup";
+import "./styles.css";
+import { Sign } from "crypto";
 
 export default function MainPage() {
   return (
@@ -13,14 +16,21 @@ export default function MainPage() {
         <div className="container position-relative">
           {/* Center navigation items */}
           <div className="navbar-nav position-absolute start-50 translate-middle-x flex-row">
-            <Link className="nav-item nav-link mx-2 custom-nav-link" to="/shelterform">Shelter Form</Link>
-            <Link className="nav-item nav-link mx-2 custom-nav-link" to="/map">Map</Link>
+            <Link
+              className="nav-item nav-link mx-2 custom-nav-link"
+              to="/shelterform"
+            >
+              Shelter Form
+            </Link>
+            <Link className="nav-item nav-link mx-2 custom-nav-link" to="/map">
+              Map
+            </Link>
           </div>
 
           {/* Right side login link */}
           <div className="navbar-nav ms-auto flex-row">
-            <Link 
-              className="nav-item nav-link mx-2 custom-nav-link flex items-center" 
+            <Link
+              className="nav-item nav-link mx-2 custom-nav-link flex items-center"
               to="/login"
             >
               <UserCircle className="w-6 h-6 mr-1" />
@@ -29,13 +39,15 @@ export default function MainPage() {
           </div>
         </div>
       </nav>
-      
+
       <div className="flex-1 ">
         <Routes>
           <Route path="/" element={<Navigate to="/shelterform" />} />
           <Route path="/map" element={<Map />} />
           <Route path="/shelterform/*" element={<NewShelters />} />
-          <Route path="/login" element={<Navigate to="/login" />} />
+          <Route path="/login" element={<SignIn />} />
+          <Route path="/signup" element={<SignUp />} />{" "}
+          {/* Route for SignUp component */}
         </Routes>
       </div>
     </div>
