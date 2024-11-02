@@ -16,7 +16,10 @@ interface MapHandlerProps {
   place: google.maps.places.PlaceResult | null;
   marker: google.maps.marker.AdvancedMarkerElement | null;
 }
-
+interface Location {
+  lat: number;
+  lng: number;
+}
 interface PlaceAutocompleteProps {
   onPlaceSelect: (place: google.maps.places.PlaceResult | null) => void;
   onAddressConfirm: () => void;
@@ -30,6 +33,7 @@ const LostPetForm = () => {
   const [selectedPlace, setSelectedPlace] = useState<google.maps.places.PlaceResult | null>(null);
   const [markerRef, marker] = useAdvancedMarkerRef();
   const [isAddressConfirmed, setIsAddressConfirmed] = useState(false);
+
   const [formData, setFormData] = useState({
     petName: '',
     petType: '',
@@ -113,6 +117,9 @@ const PlaceAutocomplete = ({ onPlaceSelect, onAddressConfirm, selectedPlace, for
   const [placeAutocomplete, setPlaceAutocomplete] = useState<google.maps.places.Autocomplete | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const places = useMapsLibrary('places');
+  const [isLoadingLocation, setIsLoadingLocation] = useState(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
+  const [currentLocation, setCurrentLocation] = useState<Location | null>(null);
 
   useEffect(() => {
     if (!places || !inputRef.current) return;
@@ -133,7 +140,48 @@ const PlaceAutocomplete = ({ onPlaceSelect, onAddressConfirm, selectedPlace, for
       onPlaceSelect(placeAutocomplete.getPlace());
     });
   }, [onPlaceSelect, placeAutocomplete]);
+  const getCurrentLocation = () => {
+    setIsLoadingLocation(true);
+    setLocationError(null);
 
+    if (!navigator.geolocation) {
+      setLocationError("Geolocation is not supported by your browser");
+      setIsLoadingLocation(false);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
+          const response = await fetch(
+            `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}`
+          );
+          const data = await response.json();
+          
+          if (data.results && data.results[0]) {
+            const address = data.results[0].formatted_address;
+            if (inputRef.current) {
+              inputRef.current.value = address;
+            }
+            onPlaceSelect(data.results[0]);
+          }
+        } catch (error) {
+          setLocationError("Failed to get address from coordinates");
+        } finally {
+          setIsLoadingLocation(false);
+        }
+      },
+      (error) => {
+        setLocationError(
+          error.code === 1
+            ? "Location access denied. Please enable location services."
+            : "Failed to get your location"
+        );
+        setIsLoadingLocation(false);
+      }
+    );
+  };
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     // Add your form submission logic here
@@ -151,21 +199,45 @@ const PlaceAutocomplete = ({ onPlaceSelect, onAddressConfirm, selectedPlace, for
           </p>
 
           <form onSubmit={handleSubmit} className="mb-3">
-            {/* Pet Name and Type Row */}
-            <div className="mb-3">
+            
+            <div>
               <label className="form-label fw-semibold">
                 Address<span className="text-primary">*</span>
               </label>
-              <input
-                type="text"
-                id="address"
-                name="address"
-                className="form-control"
-                placeholder="Enter address"
-                required
-                ref={inputRef}
-              />
+              <div className="input-group">
+                <input
+                  type="text"
+                  id="address"
+                  name="address"
+                  className="form-control"
+                  placeholder="Enter address"
+                  required
+                  ref={inputRef}
+                />
+              </div>
             </div>
+            {/* Location button moved to its own row */}
+            <div className="d-flex ms-3 justify-content-start w-100 mb-2">
+              <button
+                type="button"
+                onClick={getCurrentLocation}
+                className="btn btn-link p-0 text-decoration-underline" 
+                disabled={isLoadingLocation}
+              >
+                {isLoadingLocation ? (
+                  <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                ) : (
+                  <span>🐾 Use My Location</span>
+                )}
+              </button>
+            </div>
+            
+            {locationError && (
+              <div className="text-danger small mt-1">
+                {locationError}
+              </div>
+            )}
+            
 
             {/* Address and Email Row */}
             <div className="row mb-3">
