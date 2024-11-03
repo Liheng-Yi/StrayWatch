@@ -2,7 +2,7 @@ import React from "react";
 import { Routes, Route, Navigate } from "react-router";
 import { UserCircle } from "lucide-react";
 import Map from "./Map";
-import NewShelters from "./NewShelters";
+import Landing from "./Landing";
 import { Link } from "react-router-dom";
 import SignIn from "./Signin/signin";
 import SignUp from "./Signin/signup";
@@ -18,7 +18,7 @@ export default function MainPage() {
           <div className="navbar-nav position-absolute start-50 translate-middle-x flex-row">
             <Link
               className="nav-item nav-link mx-2 custom-nav-link"
-              to="/shelterform"
+              to="/home"
             >
               Shelter Form
             </Link>
@@ -42,9 +42,9 @@ export default function MainPage() {
 
       <div className="flex-1 ">
         <Routes>
-          <Route path="/" element={<Navigate to="/shelterform" />} />
+          <Route path="/" element={<Navigate to="/home" />} />
           <Route path="/map" element={<Map />} />
-          <Route path="/shelterform/*" element={<NewShelters />} />
+          <Route path="/home/*" element={<Landing />} />
           <Route path="/login" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />{" "}
           {/* Route for SignUp component */}

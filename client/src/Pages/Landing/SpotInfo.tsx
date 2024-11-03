@@ -1,125 +1,33 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import {
-  APIProvider,
-  ControlPosition,
-  MapControl,
-  AdvancedMarker,
-  Map,
-  useMap,
-  useMapsLibrary,
-  useAdvancedMarkerRef,
-  AdvancedMarkerRef
-} from '@vis.gl/react-google-maps';
-
-interface MapHandlerProps {
-  place: google.maps.places.PlaceResult | null;
-  marker: google.maps.marker.AdvancedMarkerElement | null;
-}
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { useMapsLibrary } from '@vis.gl/react-google-maps';
+import { Upload } from 'lucide-react';
+import './styles.css';
 interface Location {
   lat: number;
   lng: number;
 }
-interface PlaceAutocompleteProps {
-  onPlaceSelect: (place: google.maps.places.PlaceResult | null) => void;
-  onAddressConfirm: () => void;
-  selectedPlace: google.maps.places.PlaceResult | null;
-  formData: any;
-  handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
-}
 
-const LostPetForm = () => {
-  const navigate = useNavigate();
+const SpotInfo = () => {
+  const [SpotInfo, setSpotInfo] = useState<google.maps.places.Autocomplete | null>(null);
   const [selectedPlace, setSelectedPlace] = useState<google.maps.places.PlaceResult | null>(null);
-  const [markerRef, marker] = useAdvancedMarkerRef();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const places = useMapsLibrary('places');
+  const [isLoadingLocation, setIsLoadingLocation] = useState(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
+  const [currentLocation, setCurrentLocation] = useState<Location | null>(null);
   const [isAddressConfirmed, setIsAddressConfirmed] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   const [formData, setFormData] = useState({
     petName: '',
     petType: '',
     lastSeenAddress: '',
     email: '',
-    phone: ''
+    phone: '',
+    image: null as File | null
   });
-
-  const handleBack = () => {
-    navigate('/');
-  };
-
-  const handleAddressConfirm = () => {
-    setIsAddressConfirmed(true);
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    alert('Form submitted successfully!\n' + JSON.stringify(formData, null, 2));
-  };
-
-  return (
-    <div>
-      <button 
-        onClick={handleBack}
-        className="mb-6 text-blue-500 hover:text-blue-600"
-      >
-        ← Back to Main Page
-      </button>
-      <div className="text-center max-w-4xl mx-auto p-6">
-        <h1 className="text-3xl font-bold mb-4">Report Lost Pet</h1>
-
-        <APIProvider
-          apiKey={(() => {
-            console.log("API Key:", process.env.REACT_APP_GOOGLE_MAPS_API_KEY);
-            return process.env.REACT_APP_GOOGLE_MAPS_API_KEY ?? "";
-          })()}
-          solutionChannel="GMP_devsite_samples_v3_rgmautocomplete"
-        >
-          <div className="h-96 mb-6 rounded-lg overflow-hidden">
-            <div className="m-2">
-              <PlaceAutocomplete 
-                onPlaceSelect={setSelectedPlace} 
-                onAddressConfirm={handleAddressConfirm}
-                selectedPlace={selectedPlace}
-                formData={formData}
-                handleChange={handleChange}
-              />
-            </div>
-          </div>
-        </APIProvider>
-      </div>
-    </div>
-  );
-};
-
-const MapHandler = ({ place, marker }: MapHandlerProps) => {
-  const map = useMap();
-
-  useEffect(() => {
-    if (!map || !place || !marker) return;
-
-    if (place.geometry?.viewport) {
-      map.fitBounds(place.geometry.viewport);
-    }
-    marker.position = place.geometry?.location;
-  }, [map, place, marker]);
-
-  return null;
-};
-
-const PlaceAutocomplete = ({ onPlaceSelect, onAddressConfirm, selectedPlace, formData, handleChange }: PlaceAutocompleteProps) => {
-  const [placeAutocomplete, setPlaceAutocomplete] = useState<google.maps.places.Autocomplete | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const places = useMapsLibrary('places');
-  const [isLoadingLocation, setIsLoadingLocation] = useState(false);
-  const [locationError, setLocationError] = useState<string | null>(null);
-  const [currentLocation, setCurrentLocation] = useState<Location | null>(null);
 
   useEffect(() => {
     if (!places || !inputRef.current) return;
@@ -130,16 +38,48 @@ const PlaceAutocomplete = ({ onPlaceSelect, onAddressConfirm, selectedPlace, for
       componentRestrictions: { country: 'us' }
     };
 
-    setPlaceAutocomplete(new places.Autocomplete(inputRef.current, options));
+    setSpotInfo(new places.Autocomplete(inputRef.current, options));
   }, [places]);
 
   useEffect(() => {
-    if (!placeAutocomplete) return;
+    if (!SpotInfo) return;
 
-    placeAutocomplete.addListener('place_changed', () => {
-      onPlaceSelect(placeAutocomplete.getPlace());
+    SpotInfo.addListener('place_changed', () => {
+      setSelectedPlace(SpotInfo.getPlace());
     });
-  }, [onPlaceSelect, placeAutocomplete]);
+  }, [SpotInfo]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleImageChange = (input: React.ChangeEvent<HTMLInputElement> | File) => {
+    const file = input instanceof File ? input : input.target.files?.[0];
+    if (file) {
+      setFormData(prev => ({
+        ...prev,
+        image: file
+      }));
+      const previewUrl = URL.createObjectURL(file);
+      setImagePreview(previewUrl);
+    }
+  };
+
+  const removeImage = () => {
+    setFormData(prev => ({
+      ...prev,
+      image: null
+    }));
+    if (imagePreview) {
+      URL.revokeObjectURL(imagePreview);
+      setImagePreview(null);
+    }
+  };
+
   const getCurrentLocation = () => {
     setIsLoadingLocation(true);
     setLocationError(null);
@@ -164,7 +104,7 @@ const PlaceAutocomplete = ({ onPlaceSelect, onAddressConfirm, selectedPlace, for
             if (inputRef.current) {
               inputRef.current.value = address;
             }
-            onPlaceSelect(data.results[0]);
+            setSelectedPlace(data.results[0]);
           }
         } catch (error) {
           setLocationError("Failed to get address from coordinates");
@@ -182,9 +122,11 @@ const PlaceAutocomplete = ({ onPlaceSelect, onAddressConfirm, selectedPlace, for
       }
     );
   };
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Add your form submission logic here
+    // Handle form submission here
+    console.log('Form submitted:', formData);
   };
 
   return (
@@ -199,7 +141,6 @@ const PlaceAutocomplete = ({ onPlaceSelect, onAddressConfirm, selectedPlace, for
           </p>
 
           <form onSubmit={handleSubmit} className="mb-3">
-            
             <div>
               <label className="form-label fw-semibold">
                 Address<span className="text-primary">*</span>
@@ -216,7 +157,6 @@ const PlaceAutocomplete = ({ onPlaceSelect, onAddressConfirm, selectedPlace, for
                 />
               </div>
             </div>
-            {/* Location button moved to its own row */}
             <div className="d-flex ms-3 justify-content-start w-100 mb-2">
               <button
                 type="button"
@@ -237,25 +177,9 @@ const PlaceAutocomplete = ({ onPlaceSelect, onAddressConfirm, selectedPlace, for
                 {locationError}
               </div>
             )}
-            
 
-            {/* Address and Email Row */}
             <div className="row mb-3">
-              <div className="col-md-6">
-                <label className="form-label fw-semibold">
-                  Pet Name<span className="text-primary">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="petName"
-                  placeholder="if unsure, put unknown"
-                  value={formData.petName}
-                  onChange={handleChange}
-                  className="form-control"
-                  required
-                />
-              </div>
-              <div className="col-md-6">
+              <div className="col-md-4">
                 <label className="form-label fw-semibold">
                   Kind of Pet<span className="text-primary">*</span>
                 </label>
@@ -266,17 +190,14 @@ const PlaceAutocomplete = ({ onPlaceSelect, onAddressConfirm, selectedPlace, for
                   className="form-select"
                   required
                 >
+                  <option value="">Select pet type</option>
                   <option value="Dog">Dog</option>
                   <option value="Cat">Cat</option>
                 </select>
               </div>
-            </div>
-
-            {/* Phone Field */}
-            <div className="row mb-3">
-              <div className="col-md-6">
+              <div className="col-md-4">
                 <label className="form-label fw-semibold">
-                  Phone<span className="text-primary">*</span>
+                  Phone<span className="text-primary"></span>
                 </label>
                 <input
                   type="tel"
@@ -284,10 +205,9 @@ const PlaceAutocomplete = ({ onPlaceSelect, onAddressConfirm, selectedPlace, for
                   value={formData.phone}
                   onChange={handleChange}
                   className="form-control"
-                  required
                 />
               </div>
-              <div className="col-md-6">
+              <div className="col-md-4">
                 <label className="form-label fw-semibold">
                   Email Address<span className="text-primary">*</span>
                 </label>
@@ -301,10 +221,81 @@ const PlaceAutocomplete = ({ onPlaceSelect, onAddressConfirm, selectedPlace, for
                 />
               </div>
             </div>
+            
+
+
+<div className="mb-3">
+  <div
+    className={`
+      
+      d-flex
+      flex-column
+      align-items-center
+      justify-content-center
+      rounded
+      border-2
+      border-dashed
+      p-4
+    `}
+    style={{
+      height: '280px',
+      cursor: 'pointer',
+      transition: 'all 0.3s ease',
+    }}
+    onDragOver={(e) => {
+      e.preventDefault();
+      setIsDragging(true);
+    }}
+    onDragLeave={() => setIsDragging(false)}
+    onDrop={(e) => {
+      e.preventDefault();
+      setIsDragging(false);
+      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+        handleImageChange(e.dataTransfer.files[0]);
+      }
+    }}
+    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fff'}
+    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f4effa'}
+    onClick={() => fileInputRef.current?.click()}
+  >
+    <input
+      ref={fileInputRef}
+      type="file"
+      style={{ display: 'none' }}
+      accept="image/*"
+      onChange={(e) => {
+        if (e.target.files?.[0]) {
+          handleImageChange(e.target.files[0]);
+        }
+      }}
+    />
+
+    {imagePreview ? (
+      <img 
+        src={imagePreview} 
+        alt="Preview" 
+        className="w-100 h-100"
+        style={{ objectFit: 'cover' }}
+      />
+    ) : (
+      <>
+        <i className="" ></i>
+        <h3 className="fs-4 fw-semibold text-dark mb-2">
+          Photo Upload
+        </h3>
+        <p className="text-secondary">
+          Drag and drop to upload or{' '}
+          <span className="text-secondary text-decoration-underline">browse</span>
+        </p>
+      </>
+    )}
+  </div>
+</div>
+            
 
             <div className="text-center">
-              <button type="submit" className="lost-found-button">
-                FIND MY PET
+              <button type="submit" className="lost-found-button w-50">
+                REPORT FOUND PET
               </button>
             </div>
           </form>
@@ -314,4 +305,4 @@ const PlaceAutocomplete = ({ onPlaceSelect, onAddressConfirm, selectedPlace, for
   );
 };
 
-export default LostPetForm;
+export default SpotInfo;
