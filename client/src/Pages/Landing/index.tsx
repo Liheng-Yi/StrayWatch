@@ -1,6 +1,6 @@
 import React from 'react';
 import { Routes, useNavigate, Route, useLocation } from 'react-router-dom';
-import LostPetForm from './LostPetForm';
+import LostPetForm from './LostInfo';
 import SpotPetForm from './SpotPetForm';
 
 type LostPetFormState = {
@@ -11,24 +11,24 @@ type LostPetFormState = {
   description: string;
 };
 
-const NewShelters: React.FC = () => {
+const Landing: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
   const handleLostPetClick = () => {
-    navigate('/shelterform/lost');
+    navigate('/home/lost');
   };
 
   const handleSpotPetClick = () => {
-    navigate('/shelterform/spot');
+    navigate('/home/spot');
   };
 
   const handleBack = () => {
-    navigate('/shelterform');
+    navigate('/home');
   };
 
-  // Only show the initial content if we're at the base shelterform path
-  const showInitialContent = location.pathname === '/shelterform';
+  // Only show the initial content if we're at the base home path
+  const showInitialContent = location.pathname === '/home';
 
   return (
     <>
@@ -64,4 +64,4 @@ const NewShelters: React.FC = () => {
   );
 };
 
-export default NewShelters;
+export default Landing;
