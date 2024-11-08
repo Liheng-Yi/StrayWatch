@@ -1,5 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useState } from "react";
+import {useDispatch} from 'react-redux';
 import {
   MDBContainer,
   MDBRow,
@@ -13,19 +14,28 @@ import {
 } from "mdb-react-ui-kit";
 import axios from "axios";
 
+
 /**
    @todo: read from databse to fufill image,username,location,bio,pet info
 **/
 const Profile = () => {
-  const [user, setUser] = useState(null);
-  const username = "olive"; // todo: replace
+  const dispatch = useDispatch();
+  const [user, setCurrentUser] = useState({id:"001"});
+  const username = "olive";
+  const [profile, setProfile] = useState<any>({});
+
+  const updateProfile = async () => {
+    const updatedProfile = {id:"001",email:"sss"};
+    // dispatch(setCurrentUser(updateProfile));
+  };
+
 
   useEffect(() => {
     axios
-      .get(`/profile/${username}`)
+      .get(`/profile/${user.id}`)
       .then((response) => {
-        setUser(response.data);
-      }) // todo: define response structure
+        setCurrentUser(response.data);
+      }) 
       .catch((error) => {
         console.error("Error fetching user data:", error);
       });
@@ -50,6 +60,7 @@ const Profile = () => {
                     style={{ width: "65%", borderRadius: "100%" }}
                   />
                   <br />
+                  <button onClick = {updateProfile} className="btn btn-link p-0 text-decoration-underline"> Update Profile</button>
                 </div>
               </MDBCol>
 
@@ -57,6 +68,9 @@ const Profile = () => {
                 <div className="container">
                   <p> Username</p>
                   <p>San Francisco, CA</p>
+                  {/* email and phone are invisible to other users */}
+                  <p> email </p> 
+                  <p> phone </p>
                 </div>
 
                 <hr />

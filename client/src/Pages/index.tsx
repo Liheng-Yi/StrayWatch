@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import SignIn from "./Signin/signin";
 import SignUp from "./Signin/signup";
 import "./styles.css";
+import Profile  from "./Profile";
 import { Sign } from "crypto";
 
 export default function MainPage() {
@@ -46,6 +47,7 @@ export default function MainPage() {
           <Route path="/map" element={<Map />} />
           <Route path="/home/*" element={<Landing />} />
           <Route path="/login" element={<SignIn />} />
+          <Route path="/profile" element={<Profile/>}/>
           <Route path="/signup" element={<SignUp />} />{" "}
           {/* Route for SignUp component */}
         </Routes>
