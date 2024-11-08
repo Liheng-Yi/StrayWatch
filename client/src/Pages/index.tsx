@@ -8,6 +8,7 @@ import SignIn from "./Signin/signin";
 import SignUp from "./Signin/signup";
 import "./styles.css";
 import { Sign } from "crypto";
+import Profile  from "./Profile/index";
 
 export default function MainPage() {
   return (
@@ -48,6 +49,7 @@ export default function MainPage() {
           <Route path="/login" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />{" "}
           {/* Route for SignUp component */}
+          <Route path="/profile" element={<Profile/>} />
         </Routes>
       </div>
     </div>
