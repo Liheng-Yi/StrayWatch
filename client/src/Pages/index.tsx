@@ -1,6 +1,6 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router";
-import { UserCircle } from "lucide-react";
+import { UserCircle,PawPrint } from "lucide-react";
 import Map from "./Map";
 import Landing from "./Landing";
 import { Link } from "react-router-dom";
@@ -9,6 +9,7 @@ import SignUp from "./Signin/signup";
 import "./styles.css";
 import { Sign } from "crypto";
 import Profile  from "./Profile/index";
+
 
 export default function MainPage() {
   return (
@@ -36,6 +37,13 @@ export default function MainPage() {
             >
               <UserCircle className="w-6 h-6 mr-1" />
               <span>Sign in</span>
+            </Link>
+            <Link
+              className="nav-item nav-link mx-2 custom-nav-link flex items-center"
+              to="/profile"
+            >
+              <PawPrint className="w-6 h-6 mr-1" />
+              <span>Profile</span>
             </Link>
           </div>
         </div>
