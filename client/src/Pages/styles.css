@@ -6,20 +6,20 @@
 }
 
 .custom-nav-link::before {
-  content: '';
+  content: "";
   position: absolute;
   width: 100%;
   height: 2px;
   bottom: 0;
   left: 0;
-  background-color: #572c9c;  /* Bootstrap primary color */
+  background-color: #572c9c; /* Bootstrap primary color */
   visibility: hidden;
   transform: scaleX(0);
   transition: all 0.3s ease-in-out;
 }
 
 .custom-nav-link:hover {
-  color: #572c9c;  
+  color: #572c9c;
 }
 
 .custom-nav-link:hover::before {
@@ -28,7 +28,7 @@
 }
 
 .custom-bg {
-  background-color: #dccdf0   ;
+  background-color: #dccdf0;
 }
 
 .main-page-bg {
@@ -49,18 +49,22 @@
   margin: 0 1.5rem;
   min-width: 200px;
   font-weight: 600;
+
   border: none;
   cursor: pointer;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .lost-found-button:hover {
   background-color: #4a2589;
   transform: translateY(-1px);
-  box-shadow: 0 6px 8px -1px rgba(0, 0, 0, 0.1), 0 4px 6px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 6px 8px -1px rgba(0, 0, 0, 0.1),
+    0 4px 6px -1px rgba(0, 0, 0, 0.06);
 }
 
 .lost-found-button:active {
   transform: translateY(0px);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }

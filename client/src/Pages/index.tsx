@@ -19,68 +19,89 @@ export default function MainPage() {
         const user = JSON.parse(userStr);
         setCurrentUser(user);
       } catch (e) {
+        console.error("Error parsing user data:", e);
         localStorage.removeItem("currentUser");
       }
     }
-  }, []);
+  }, []); // Empty dependency array means this runs once on mount
+
+  // Add this function to help with debugging
+  const checkCurrentUser = () => {
+    console.log("Current user:", currentUser);
+    console.log("LocalStorage user:", localStorage.getItem("currentUser"));
+  };
 
   const handleSignOut = () => {
     localStorage.removeItem("currentUser");
     setCurrentUser(null);
-    window.location.reload();
   };
 
-  return (
-    <div id="wd-mainpage" className="main-page-bg flex flex-col">
-      <nav className="navbar navbar-expand-lg custom-bg">
-        <div className="container position-relative">
-          {/* Center navigation items */}
-          <div className="navbar-nav position-absolute start-50 translate-middle-x flex-row">
-            <Link className="nav-item nav-link mx-2 custom-nav-link" to="/home">
-              Home
-            </Link>
-            <Link className="nav-item nav-link mx-2 custom-nav-link" to="/map">
-              Map
-            </Link>
-          </div>
+  // For debugging purposes
+  useEffect(() => {
+    console.log("currentUser state updated:", currentUser);
+  }, [currentUser]);
 
-          {/* Right side user menu */}
-          <div className="navbar-nav ms-auto flex-row">
+  return (
+    <div id="wd-mainpage" className="min-vh-100 d-flex flex-column">
+      <nav className="navbar navbar-expand navbar-light custom-bg">
+        <div className="container">
+          {/* Center Links */}
+          <ul className="navbar-nav mx-auto">
+            <li className="nav-item">
+              <Link className="nav-link mx-2" to="/home">
+                Home
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link className="nav-link mx-2" to="/map">
+                Map
+              </Link>
+            </li>
+          </ul>
+
+          {/* Right Side Menu */}
+          <ul className="navbar-nav ms-auto">
             {currentUser ? (
               <>
-                <div className="d-flex align-items-center">
-                  <span className="nav-item nav-link mx-2">
-                    Welcome, {currentUser.firstName}
+                <li className="nav-item">
+                  <span className="nav-link">
+                    Welcome, {currentUser.firstName || currentUser.username}
                   </span>
+                </li>
+                <li className="nav-item">
                   <Link
-                    className="nav-item nav-link mx-2 custom-nav-link flex items-center"
+                    className="nav-link d-flex align-items-center"
                     to="/profile"
                   >
-                    <PawPrint className="w-6 h-6 mr-1" />
-                    <span>Profile</span>
+                    <PawPrint size={20} className="me-1" />
+                    Profile
                   </Link>
+                </li>
+                <li className="nav-item">
                   <button
                     onClick={handleSignOut}
-                    className="btn btn-outline-primary mx-2"
+                    className="btn btn-outline-primary ms-2"
                   >
                     Sign Out
                   </button>
-                </div>
+                </li>
               </>
             ) : (
-              <Link
-                className="nav-item nav-link mx-2 custom-nav-link flex items-center"
-                to="/login"
-              >
-                <UserCircle className="w-6 h-6 mr-1" />
-                <span>Sign in</span>
-              </Link>
+              <li className="nav-item">
+                <Link
+                  className="nav-link d-flex align-items-center"
+                  to="/login"
+                >
+                  <UserCircle size={20} className="me-1" />
+                  Sign in
+                </Link>
+              </li>
             )}
-          </div>
+          </ul>
         </div>
       </nav>
 
-      <div className="flex-1">
+      <div className="flex-grow-1">
         <Routes>
           <Route path="/" element={<Navigate to="/home" />} />
           <Route path="/map" element={<Map />} />
