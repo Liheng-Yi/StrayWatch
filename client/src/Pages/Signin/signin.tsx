@@ -20,18 +20,33 @@ function SignIn() {
 
     try {
       const user = await client.signin(credentials);
-      // Store user info in localStorage or state management system
-      localStorage.setItem("currentUser", JSON.stringify(user));
+
+      // Make sure user data includes necessary fields
+      const userData = {
+        ...user,
+        username: user.username || credentials.username, // Fallback to entered username
+        firstName: user.firstName || user.username, // Fallback to username if firstName isn't available
+      };
+
+      // Store user info in localStorage
+      localStorage.setItem("currentUser", JSON.stringify(userData));
       setIsLoading(false);
 
-      // Navigate to main page (assuming "/" is your main page route)
-      navigate("/");
-
-      // Optional: Refresh the page to update the navigation bar
-      // window.location.reload();
+      // Force a page reload to ensure the navigation bar updates
+      window.location.href = "/home"; // This will force a full page reload
     } catch (err: any) {
       setIsLoading(false);
       setError(err.message || "Invalid credentials");
+      console.error("Sign in error:", err);
+    }
+  };
+
+  // Add this function to help with debugging
+  const checkLoginStatus = () => {
+    const userStr = localStorage.getItem("currentUser");
+    console.log("Current localStorage:", userStr);
+    if (userStr) {
+      console.log("Parsed user:", JSON.parse(userStr));
     }
   };
 
@@ -118,6 +133,17 @@ function SignIn() {
             Sign up
           </Link>
         </div>
+
+        {/* Add this button during development to help with debugging */}
+        {process.env.NODE_ENV === "development" && (
+          <button
+            type="button"
+            onClick={checkLoginStatus}
+            className="btn btn-secondary w-100"
+          >
+            Check Login Status
+          </button>
+        )}
       </form>
     </div>
   );
