@@ -68,3 +68,35 @@
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
     0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
+
+.main-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* Full viewport height */
+  width: 100%;
+}
+
+.search-section {
+  height: 25vh; /* 25% of viewport height */
+  width: 100%;
+}
+
+.content-section {
+  height: 75vh; /* Remaining 75% of viewport height */
+  width: 100%;
+  overflow-y: auto; /* Makes content scrollable if it overflows */
+  padding: 20px;
+}
+
+/* If you need responsive adjustments */
+@media (max-width: 768px) {
+  .search-section {
+    height: auto;
+    min-height: 25vh;
+  }
+  
+  .content-section {
+    height: auto;
+    flex: 1;
+  }
+}

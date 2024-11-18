@@ -6,6 +6,7 @@ import Landing from "./Landing";
 import SignIn from "./Signin/signin";
 import SignUp from "./Signin/signup";
 import Profile from "./Profile/index";
+import Search from "./Search";
 import "./styles.css";
 
 export default function MainPage() {
@@ -57,6 +58,11 @@ export default function MainPage() {
                 Map
               </Link>
             </li>
+            <li className="nav-item">
+              <Link className="nav-link mx-2" to="/search">
+                Search
+              </Link>
+            </li>
           </ul>
 
           {/* Right Side Menu */}
@@ -106,6 +112,7 @@ export default function MainPage() {
           <Route path="/" element={<Navigate to="/home" />} />
           <Route path="/map" element={<Map />} />
           <Route path="/home/*" element={<Landing />} />
+          <Route path="/search" element={<Search />} />
           <Route
             path="/login"
             element={currentUser ? <Navigate to="/" /> : <SignIn />}
