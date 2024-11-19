@@ -1,4 +1,5 @@
 import users from "./users.json";
+import foundPets from "./foundPets.json";
 
 // Add user types
 export interface User {
@@ -10,6 +11,20 @@ export interface User {
   email: string;
   roles: string[];
   createdAt: string;
+}
+
+// Add Pet type
+export interface Pet {
+  id: string;
+  name: string;
+  species: string;
+  breed: string;
+  color: string;
+  location: string;
+  dateFound: string;
+  imageUrl: string;
+  description: string;
+  contactInfo: string;
 }
 
 // Mock database functions
@@ -54,4 +69,4 @@ export const deleteUser = (userId: string) => {
   localUsers = localUsers.filter((user) => user._id !== userId);
 };
 
-export { users };
+export { users, foundPets };
