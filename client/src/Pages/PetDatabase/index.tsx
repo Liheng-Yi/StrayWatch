@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Share2, MapPin } from 'lucide-react';
 import dogImage from '..//public/dog1.jpg';
-import PurpleButton from '../../Components/lightPurpleButton';
+import PurpleButton from '../../Components/UI/lightPurpleButton';
 
 interface Pet {
   _id: string;
