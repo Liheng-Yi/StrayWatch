@@ -6,7 +6,9 @@ import Landing from "./Landing";
 import SignIn from "./Signin/signin";
 import SignUp from "./Signin/signup";
 import Profile from "./Profile/index";
+import PetSearch from "./PetDatabase";
 import "./styles.css";
+import SearchBar from "./NavBar";
 
 export default function MainPage() {
   const [currentUser, setCurrentUser] = useState<any>(null);
@@ -23,7 +25,7 @@ export default function MainPage() {
         localStorage.removeItem("currentUser");
       }
     }
-  }, []); // Empty dependency array means this runs once on mount
+  }, []);
 
   // Add this function to help with debugging
   const checkCurrentUser = () => {
@@ -46,10 +48,15 @@ export default function MainPage() {
       <nav className="navbar navbar-expand navbar-light custom-bg">
         <div className="container">
           {/* Center Links */}
-          <ul className="navbar-nav mx-auto">
+          <ul className="custom-nav navbar-nav mx-auto">
             <li className="nav-item">
               <Link className="nav-link mx-2" to="/home">
                 Home
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link className="nav-link mx-2" to="/petdatabase">
+                Lost Pets
               </Link>
             </li>
             <li className="nav-item">
@@ -57,9 +64,10 @@ export default function MainPage() {
                 Map
               </Link>
             </li>
-          </ul>
 
+          </ul>
           {/* Right Side Menu */}
+          {/* <SearchBar /> */}
           <ul className="navbar-nav ms-auto">
             {currentUser ? (
               <>
@@ -106,6 +114,7 @@ export default function MainPage() {
           <Route path="/" element={<Navigate to="/home" />} />
           <Route path="/map" element={<Map />} />
           <Route path="/home/*" element={<Landing />} />
+          <Route path="/petdatabase" element={<PetSearch />} />
           <Route
             path="/login"
             element={currentUser ? <Navigate to="/" /> : <SignIn />}
@@ -118,6 +127,7 @@ export default function MainPage() {
             path="/profile"
             element={currentUser ? <Profile /> : <Navigate to="/login" />}
           />
+          
         </Routes>
       </div>
     </div>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
-import MainPage from './Pages';
+import Pages from './Pages';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 
@@ -9,7 +9,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 function App() {
   return (
     <BrowserRouter>
-      <MainPage />
+      <Pages />
     </BrowserRouter>
   );
 }
