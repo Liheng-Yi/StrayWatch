@@ -46,28 +46,28 @@ export default function MainPage() {
   return (
     <div id="wd-mainpage" className="min-vh-100 d-flex flex-column">
       <nav className="navbar navbar-expand navbar-light custom-bg">
-        <div className="container">
-          {/* Center Links */}
-          <ul className="custom-nav navbar-nav mx-auto">
-            <li className="nav-item">
-              <Link className="nav-link mx-2" to="/home">
-                Home
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link className="nav-link mx-2" to="/petdatabase">
-                Lost Pets
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link className="nav-link mx-2" to="/map">
-                Map
-              </Link>
-            </li>
-
-          </ul>
+        <div className="container position-relative">
+          {/* Center Links - Using position-absolute for true center */}
+          <div className="position-absolute start-50 translate-middle-x">
+            <ul className="custom-nav navbar-nav fs-5 d-flex flex-row">
+              <li className="nav-item">
+                <Link className="nav-link mx-2 custom-nav-link" to="/home">
+                  Home
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link className="nav-link mx-2 custom-nav-link" to="/petdatabase">
+                  Lost Pets
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link className="nav-link mx-2 custom-nav-link" to="/map">
+                  Map
+                </Link>
+              </li>
+            </ul>
+          </div>
           {/* Right Side Menu */}
-          {/* <SearchBar /> */}
           <ul className="navbar-nav ms-auto">
             {currentUser ? (
               <>
