@@ -9,3 +9,9 @@ Create a `.env` file in the root/client directory with the following content:
 ```env
 # Google Maps API Key
 REACT_APP_GOOGLE_MAPS_API_KEY=your_google_maps_key_here
+```
+
+## To run
+
+Split the terminal and go to ./client and ./server run "npm run dev" individually
+
