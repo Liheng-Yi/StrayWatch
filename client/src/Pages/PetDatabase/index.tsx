@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Share2, MapPin } from 'lucide-react';
-import dogImage from '..//public/dog1.jpg';
 import PurpleButton from '../../Components/UI/lightPurpleButton';
 
 interface Pet {
@@ -16,73 +15,31 @@ interface Pet {
 
 const PetSearch: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'all' | 'dogs' | 'cats'>('all');
-  
-  const pets: Pet[] = [
-    {
-      _id: '1',
-      color: 'Brown and Black',
-      name: 'Max/kevin',
-      kind: 'Dog',
-      status: 'Lost',
-      location: 'Chandler, MN',
-      picture: '/pic/dog1.png',
-      description: 'Border Collie/German Shepherd mix, very friendly'
-    },
-    {
-      _id: '2',
-      color: 'Gray Tabby',
-      name: 'susan',
-      kind: 'Cat',
-      status: 'Lost',
-      location: 'Minneapolis',
-      picture: '/pic/cat1.png',
-      description: 'Indoor cat, very shy, wearing a blue collar'
-    },
-        {
-      _id: '2',
-      color: 'Gray Tabby',
-      name: 'susan',
-      kind: 'Cat',
-      status: 'Lost',
-      location: 'Minneapolis',
-      picture: '/pic/cat1.png',
-      description: 'Indoor cat, very shy, wearing a blue collar'
-    },
-        {
-      _id: '2',
-      color: 'Gray Tabby',
-      name: 'susan',
-      kind: 'Cat',
-      status: 'Lost',
-      location: 'Minneapolis',
-      picture: '/pic/cat1.png',
-      description: 'Indoor cat, very shy, wearing a blue collar'
-    },
-        {
-      _id: '2',
-      color: 'Gray Tabby',
-      name: 'susan',
-      kind: 'Cat',
-      status: 'Lost',
-      location: 'Minneapolis',
-      picture: '/pic/cat1.png',
-      description: 'Indoor cat, very shy, wearing a blue collar'
-    },
-        {
-      _id: '2',
-      color: 'Gray Tabby',
-      name: 'susan',
-      kind: 'Cat',
-      status: 'Lost',
-      location: 'Minneapolis',
-      picture: '/pic/cat1.png',
-      description: 'Indoor cat, very shy, wearing a blue collar'
-    }
-  ];
+  const [pets, setPets] = useState<Pet[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const filteredPets = activeTab === 'all' 
-    ? pets 
-    : pets.filter(pet => pet.kind.toLowerCase() === activeTab.slice(0, -1));
+  useEffect(() => {
+    const fetchPets = async () => {
+      try {
+        const type = activeTab === 'all' ? 'all' : activeTab.slice(0, -1);
+        console.log("type:", type);
+        const response = await fetch(`http://localhost:5000/api/pets?type=${type}`);
+        if (!response.ok) throw new Error('Failed to fetch pets');
+        const data = await response.json();
+        setPets(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPets();
+  }, [activeTab]);
+
+  if (loading) return <div className="text-center py-4">Loading...</div>;
+  if (error) return <div className="text-center py-4 text-danger">{error}</div>;
 
   return (
     <div className="container py-4">
@@ -124,7 +81,7 @@ const PetSearch: React.FC = () => {
 
       {/* Pet Cards Grid */}
       <div className="row row-cols-1 row-cols-md-2 g-4">
-        {filteredPets.map((pet) => (
+        {pets.map((pet) => (
           <div key={pet._id} className="col">
             <div className="card h-100">
               <div className="row g-0">
@@ -181,7 +138,7 @@ const PetSearch: React.FC = () => {
         ))}
       </div>
 
-      {filteredPets.length === 0 && (
+      {pets.length === 0 && (
         <div className="text-center py-4 text-muted">
           No {activeTab === 'all' ? 'pets' : activeTab} found.
         </div>
