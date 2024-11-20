@@ -1,13 +1,35 @@
-const express = require('express');
-const multer = require('multer');
-const cors = require('cors');
-const path = require('path');
+import express from 'express';
+import multer from 'multer';
+import cors from 'cors';
+import path from 'path';
+import { connectToDb } from './db/connector.js';
+import dotenv from 'dotenv';
 
-const app = express();
-const port = 5000;
+// Load environment variables
+dotenv.config();
 
-// Middleware
-app.use(cors());
+// Routes
+import petsRoutes from './Pets/routs.js';
+
+const app = express()
+app.use(
+ cors({
+   credentials: true,
+   origin: process.env.NETLIFY_URL || "http://localhost:3000",
+ })
+);
+const port = process.env.PORT || 5000;
+
+// Connect to MongoDB
+connectToDb()
+    .then(() => {
+        console.log("Database connected successfully");
+    })
+    .catch((err) => {
+        console.error("Failed to connect to database:", err);
+        process.exit(1);
+    });
+
 app.use(express.static('uploads'));
 
 // Set up multer for file uploads
@@ -22,6 +44,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
+
 // Routes
 app.post('/upload', upload.single('file'), (req, res) => {
     if (!req.file) {
@@ -30,22 +53,7 @@ app.post('/upload', upload.single('file'), (req, res) => {
     res.send(`File uploaded: ${req.file.filename}`);
 });
 
-/** route to profile and return user and his pet
- * */ 
-
-// get user info from backend
-// const User = mongoose.model('User', UserSchema);
-// app.get('/profile/:username', async (req, res) => {
-//     try {
-//       const user = await User.findOne({ username: req.params.username });
-//       if (!user) {
-//         return res.status(404).send({ message: 'User not found' });
-//       }
-//       res.json(user);
-//     } catch (error) {
-//       res.status(500).send({ message: 'Server error' });
-//     }
-// });
+app.use('/api/pets', petsRoutes);
 
 app.listen(port, () => {
     console.log(`Server running on http://localhost:${port}`);
