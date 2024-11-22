@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const uri = process.env.MONGODB_URI;
+console.log(uri);
 if (!uri) {
     throw new Error('MONGODB_URI is not defined in environment variables');
 }
@@ -15,7 +16,7 @@ let db;
 
 async function connectToDb() {
     try {
-        await client.connect();
+        await client.connect(uri);
         console.log("Connected to MongoDB");
         db = client.db("appDB");
         
