@@ -6,6 +6,7 @@ import Landing from "./Landing";
 import SignIn from "./Signin/signin";
 import SignUp from "./Signin/signup";
 import Profile from "./Profile/index";
+import AddPet from "./Profile/AddPet";
 import PetSearch from "./PetDatabase";
 import "./styles.css";
 import SearchBar from "./NavBar";
@@ -127,7 +128,7 @@ export default function MainPage() {
             path="/profile"
             element={currentUser ? <Profile /> : <Navigate to="/login" />}
           />
-          
+             <Route path="/add-pet" element={<AddPet />} />  
         </Routes>
       </div>
     </div>

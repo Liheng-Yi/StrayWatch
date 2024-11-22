@@ -40,5 +40,40 @@ router.get('/:id', async (req, res) => {
     }
 });
 
+// TODO: Add pet for user
+router.post('/add/:userId', async (req, res) => {
+    try {
+        const db = client.db("appDB");
+        const petsCollection = db.collection("pets");
+        
+        const newPet = {
+            userId: req.params.userId,
+            name: req.body.name,
+            kind: req.body.kind,
+            color: req.body.color,
+            status: req.body.status,
+           
+            
+            description: req.body.description,
+            createdAt: new Date()
+        };
+        
+        const result = await petsCollection.insertOne(newPet);
+        
+        if (!result.acknowledged) {
+            return res.status(400).json({ message: 'Failed to add pet' });
+        }
+
+        res.status(201).json({ 
+            message: 'Pet added successfully',
+            pet: { ...newPet, _id: result.insertedId }
+        });
+    } catch (err) {
+        console.error("Error adding pet:", err);
+        res.status(500).json({ message: "Error adding pet" });
+    }
+});
+
+
 export default router;
 

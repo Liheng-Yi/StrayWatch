@@ -10,6 +10,8 @@ dotenv.config();
 
 // Routes
 import petsRoutes from './Pets/routs.js';
+import profileRoutes from './Profile/routes.js';
+import userRoutes from './Users/routes.js';
 
 const app = express()
 app.use(
@@ -54,6 +56,9 @@ app.post('/upload', upload.single('file'), (req, res) => {
 });
 
 app.use('/api/pets', petsRoutes);
+app.use('/api/profile',profileRoutes);
+app.use('/api/users',userRoutes);
+
 
 app.listen(port, () => {
     console.log(`Server running on http://localhost:${port}`);
