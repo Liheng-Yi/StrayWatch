@@ -45,7 +45,11 @@ export default function MainPage() {
   }, [currentUser]);
 
   return (
-    <div id="wd-mainpage" className="min-vh-100 d-flex flex-column">
+    <div id="wd-mainpage" className="min-vh-100 d-flex flex-column main-container">
+      <div className="background-decorations">
+        <div className="paw-pattern-overlay"></div>
+      </div>
+      
       <nav className="navbar navbar-expand navbar-light custom-bg">
         <div className="container position-relative">
           {/* Center Links - Using position-absolute for true center */}
@@ -110,7 +114,7 @@ export default function MainPage() {
         </div>
       </nav>
 
-      <div className="flex-grow-1">
+      <div className="flex-grow-1 content-container">
         <Routes>
           <Route path="/" element={<Navigate to="/home" />} />
           <Route path="/map" element={<Map />} />
