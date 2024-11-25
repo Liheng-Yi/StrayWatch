@@ -57,12 +57,12 @@ router.post('/add/:userId', async (req, res) => {
             description: req.body.description,
             createdAt: new Date()
         };
-        
         const result = await petsCollection.insertOne(newPet);
         
         if (!result.acknowledged) {
             return res.status(400).json({ message: 'Failed to add pet' });
         }
+        console.log('Pet added successfully:',result.insertedId);
 
         res.status(201).json({ 
             message: 'Pet added successfully',

@@ -13,7 +13,9 @@ import petsRoutes from './Pets/routs.js';
 import profileRoutes from './Profile/routes.js';
 import userRoutes from './Users/routes.js';
 
-const app = express()
+const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(
  cors({
    credentials: true,
