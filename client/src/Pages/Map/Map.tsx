@@ -5,12 +5,16 @@ import 'leaflet/dist/leaflet.css';
 import './styles.css';
 import { useEffect, useState } from 'react';
 import './shelterForm';
+import ShelterList from './shelterList';
+import { Modal } from 'bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import ShelterForm from './shelterForm';
 
 // Import the necessary images
 import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
 import iconUrl from 'leaflet/dist/images/marker-icon.png';
 import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
-import ShelterForm from './shelterForm';
 
 // Create a new default icon instance using L.icon
 const defaultIcon = L.icon({
@@ -39,13 +43,14 @@ L.Marker.prototype.options.icon = defaultIcon;
 
 const Map: React.FC = () => {
   const mapCenter: [number, number] = [37.3387, -121.8853];
-  
+  const [showForm, setShowForm] = useState(false);
+
   return (
     <div className="container-fluid">
       {/* Map Section */}
       <div className="row mb-4">
         <div className="col-12">
-          <div className="map-container" style={{ height: '500px' }}>
+          <div className="map-container position-relative" style={{ height: '500px' }}>
             <MapContainer 
               center={mapCenter} 
               zoom={13} 
@@ -63,16 +68,73 @@ const Map: React.FC = () => {
                 </Marker>
               ))}
             </MapContainer>
+            
+            {/* Bootstrap Floating Action Button */}
+            <button
+              className="btn rounded-circle position-fixed"
+              style={{
+                bottom: '2rem',
+                right: '2rem',
+                width: '4rem',
+                height: '4rem',
+                backgroundColor: '#6f42c1', // Purple color
+                color: 'white',
+                boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
+                zIndex: 1000,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+              onClick={() => setShowForm(true)}
+              title="Add New Shelter"
+            >
+              New Shelter
+            </button>
           </div>
         </div>
       </div>
-      
-      {/* Form Section */}
-      <div className="row justify-content-center">
-        <div className="col-md-6">
-          <ShelterForm />
+
+      {/* Shelter List */}
+      <div className="row">
+        <div className="col-12">
+          <ShelterList />
         </div>
       </div>
+
+      {/* Bootstrap Modal */}
+      <div 
+        className={`modal fade ${showForm ? 'show' : ''}`} 
+        id="shelterFormModal"
+        tabIndex={-1}
+        aria-labelledby="shelterFormModalLabel"
+        aria-hidden={!showForm}
+        style={{ display: showForm ? 'block' : 'none' }}
+      >
+        <div className="modal-dialog modal-dialog-centered modal-lg">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title" id="shelterFormModalLabel">Add New Shelter</h5>
+              <button
+                type="button"
+                className="btn-close"
+                onClick={() => setShowForm(false)}
+                aria-label="Close"
+              ></button>
+            </div>
+            <div className="modal-body">
+              <ShelterForm onClose={() => setShowForm(false)} />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Modal Backdrop */}
+      {showForm && (
+        <div 
+          className="modal-backdrop fade show" 
+          onClick={() => setShowForm(false)}
+        ></div>
+      )}
     </div>
   );
 };

@@ -28,3 +28,21 @@
 .leaflet-popup-content p {
   margin: 18px 0;
 }
+
+/* Ensure the modal appears above the map */
+.modal {
+  z-index: 1050;
+}
+
+/* Style for the floating action button hover state */
+.btn-primary.rounded-circle:hover {
+  transform: scale(1.1);
+  transition: transform 0.2s ease;
+}
+
+/* Center the plus icon in the button */
+.btn-primary.rounded-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

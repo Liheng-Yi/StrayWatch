@@ -1,8 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PurpleButton from '../../../Components/UI/lightPurpleButton';
 import GooglePlacesAutocomplete from '../../../Components/UI/AddressAutocomplete';
+import { registerShelter } from './client';
 
-const ShelterForm = () => {
+interface ShelterFormProps {
+  onClose: () => void;
+}
+
+const ShelterForm = ({ onClose }: ShelterFormProps) => {
   const [selectedPlace, setSelectedPlace] = useState<google.maps.places.PlaceResult | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
 
@@ -11,14 +16,34 @@ const ShelterForm = () => {
     shelterAddress: '',
     shelterPhone: '',
     shelterEmail: '',
-    shelterWebsite: '',
-    shelterDescription: '',
-    shelterServices: {
-      emergency: false,
-      overnight: false,
-      medical: false
-    }
+    shelterWebsite: ''
   });
+
+  const formRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (formRef.current && !formRef.current.contains(event.target as Node)) {
+        onClose();
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [onClose]);
+
+  // Fill form data with dummy data for debugging
+  useEffect(() => {
+    setFormData({
+      shelterName: 'Debug Shelter',
+      shelterAddress: '123 Debug St, Debug City, DB 12345',
+      shelterPhone: '(123) 456-7890',
+      shelterEmail: 'debug@shelter.com',
+      shelterWebsite: 'https://www.debugshelter.com'
+    });
+  }, []);
 
   const handlePlaceSelect = (place: google.maps.places.PlaceResult) => {
     setSelectedPlace(place);
@@ -41,10 +66,6 @@ const ShelterForm = () => {
       const { checked } = e.target as HTMLInputElement;
       setFormData(prev => ({
         ...prev,
-        shelterServices: {
-          ...prev.shelterServices,
-          [name]: checked
-        }
       }));
     } else {
       setFormData(prev => ({
@@ -54,13 +75,53 @@ const ShelterForm = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log('Shelter Form Data:', formData);
+    
+    try {
+      if (!selectedPlace?.geometry?.location) {
+        setLocationError('Please select a valid address');
+        return;
+      }
+
+      // Get the lat/lng values by calling the methods
+      const lat = typeof selectedPlace.geometry.location.lat === 'function' 
+        ? selectedPlace.geometry.location.lat() 
+        : selectedPlace.geometry.location.lat;
+      
+      const lng = typeof selectedPlace.geometry.location.lng === 'function' 
+        ? selectedPlace.geometry.location.lng() 
+        : selectedPlace.geometry.location.lng;
+
+      const location = {
+        type: 'Point',
+        coordinates: [lng, lat] // Use the extracted values directly
+      };
+
+      const shelterData = {
+        ...formData,
+        location
+      };
+      console.log(shelterData);
+      await registerShelter(shelterData);
+      // Reset form or show success message
+      setFormData({
+        shelterName: '',
+        shelterAddress: '',
+        shelterPhone: '',
+        shelterEmail: '',
+        shelterWebsite: ''
+      });
+      setSelectedPlace(null);
+      alert('Shelter registered successfully!');
+    } catch (error) {
+      console.error('Error details:', error);
+      setLocationError(error instanceof Error ? error.message : 'Failed to register shelter');
+    }
   };
 
   return (
-    <div className="container py-5">
+    <div className="container py-5" ref={formRef}>
       <div className="row justify-content-center">
         <div className="col-lg-8">
           <div className="card shadow-sm">
@@ -73,7 +134,6 @@ const ShelterForm = () => {
                   <div className="col-12">
                     <h5 className="border-bottom pb-2 mb-3">Basic Information</h5>
                   </div>
-
                   <div className="col-12">
                     <label className="form-label">
                       Shelter Name <span className='text-danger'>*</span>
@@ -170,7 +230,6 @@ const ShelterForm = () => {
                   </div>
 
                   
-
                   <div className="col-12 mt-4 text-center">
                     <PurpleButton type="submit" className="btn btn-lg">
                       Register Shelter

@@ -1,0 +1,34 @@
+.shelter-card {
+  transition: all 0.2s ease-in-out;
+}
+
+.shelter-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important;
+}
+
+.shelter-info {
+  min-height: 120px;
+}
+
+/* Optional: Custom button styles to match your theme */
+.btn-primary {
+  background-color: #7758aa;
+  border-color: #7758aa;
+}
+
+.btn-primary:hover {
+  background-color: #4a2589;
+  border-color: #4a2589;
+}
+
+.btn-outline-secondary {
+  border-color: #7758aa;
+  color: #7758aa;
+}
+
+.btn-outline-secondary:hover {
+  background-color: #7758aa;
+  border-color: #7758aa;
+  color: white;
+}
