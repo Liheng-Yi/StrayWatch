@@ -5,6 +5,9 @@ import { getCurrentUserId } from "../../Components/UI/auth";
 
 const AddPet: React.FC = () => {
   const navigate = useNavigate();
+  const API_URL = process.env.NODE_ENV === 'production' 
+      ? process.env.API_URL 
+      : 'http://localhost:5000';
   const [petData, setPetData] = useState({
     name: '',
     kind: '',
@@ -29,7 +32,9 @@ const AddPet: React.FC = () => {
     const userId = getCurrentUserId();
     console.log("userId",userId);
     try {
-        const response = await fetch(`/api/pets/add/${userId}`, {
+        console.log('Request URL:', `/api/pets/add/${userId}`);
+        console.log('Request body:', petData);
+        const response = await fetch(`${API_URL}/api/pets/add/${userId}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -46,8 +51,7 @@ const AddPet: React.FC = () => {
         if (!response.ok) {
           throw new Error('Failed to add pet');
         }
-    
-        navigate('/profile'); // Redirect to profile after success
+        navigate('/profile'); 
       } catch (error) {
         console.error('Error adding pet:', error);
         setError('Failed to add pet. Please try again.');
