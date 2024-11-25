@@ -12,7 +12,7 @@ dotenv.config();
 import petsRoutes from './Pets/routs.js';
 import profileRoutes from './Profile/routes.js';
 import userRoutes from './Users/routes.js';
-
+import shelterRoutes from './Shelter/routes.js';
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -60,7 +60,7 @@ app.post('/upload', upload.single('file'), (req, res) => {
 app.use('/api/pets', petsRoutes);
 app.use('/api/profile',profileRoutes);
 app.use('/api/users',userRoutes);
-
+app.use('/api/shelters',shelterRoutes);
 
 app.listen(port, () => {
     console.log(`Server running on http://localhost:${port}`);
