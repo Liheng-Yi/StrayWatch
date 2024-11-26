@@ -18,13 +18,16 @@ const PetSearch: React.FC = () => {
   const [pets, setPets] = useState<Pet[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const API_URL = process.env.NODE_ENV === 'production' 
+  ? process.env.API_URL 
+  : 'http://localhost:5000';
 
   useEffect(() => {
     const fetchPets = async () => {
       try {
         const type = activeTab === 'all' ? 'all' : activeTab.slice(0, -1);
         console.log("type:", type);
-        const response = await fetch(`http://localhost:5000/api/pets?type=${type}`);
+        const response = await fetch(`${API_URL}/api/pets?type=${type}`);
         if (!response.ok) throw new Error('Failed to fetch pets');
         const data = await response.json();
         setPets(data);

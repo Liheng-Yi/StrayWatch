@@ -5,6 +5,7 @@ import './styles.css';
 import PurpleButton from "../../Components/UI/lightPurpleButton";
 import {getCurrentUserId} from "../../Components/UI/auth";
 
+// TODO: fetch profile from database
 const Profile: React.FC = () => {
   const {userId} = useParams();
   const [isOwnProfile, setIsOwnProfile] = useState(false);
@@ -19,14 +20,13 @@ const Profile: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [newUsername, setNewUsername] = useState("");
 
-  // TODO: get current user id
+  
   const currentUserId = getCurrentUserId();
-  console.log(currentUserId);
+  const API_URL = process.env.API_URL;
 
   const handleUpdateUsername = async () => {
     
     try {
-      
       const response = await fetch(`/api/users/${userId || currentUserId}`, {
         method: 'PATCH',
         headers: {

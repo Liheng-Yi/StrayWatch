@@ -2,14 +2,15 @@ import express from 'express';
 import { client } from '../db/connector.js';
 
 const router = express.Router();
+// routes in this page start with /api/profile
 
-// get user profile by userId
-router.get('/:id',async (req,res)=>{
+// get user profile by username
+router.get('/:username',async (req,res)=>{
     try {
         const db = client.db("appDB");
         const usersCollection = db.collection("users");
         
-        const user = await usersCollection.findOne({ _id: req.params.id });
+        const user = await usersCollection.findOne({ username: req.params.username });
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
