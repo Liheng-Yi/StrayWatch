@@ -23,7 +23,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-// Get pet by ID
+// Get pet by petID
 router.get('/:id', async (req, res) => {
     try {
         const db = client.db("appDB");
@@ -40,7 +40,7 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// TODO: Add pet for user
+// Add pet for user
 router.post('/add/:userId', async (req, res) => {
     try {
         const db = client.db("appDB");
@@ -52,8 +52,6 @@ router.post('/add/:userId', async (req, res) => {
             kind: req.body.kind,
             color: req.body.color,
             status: req.body.status,
-           
-            
             description: req.body.description,
             createdAt: new Date()
         };
@@ -73,6 +71,26 @@ router.post('/add/:userId', async (req, res) => {
         res.status(500).json({ message: "Error adding pet" });
     }
 });
+
+// Get user's pets
+router.get('/user/:userId', async (req, res) => {
+    try {
+        const db = client.db("appDB");
+        const petsCollection = db.collection("pets");
+        
+        const pets = await petsCollection.find({ userId: req.params.userId }).toArray();
+        
+        if (!pets.length) {
+            return res.status(404).json({ message: 'No pets found for this user' });
+        }
+        
+        res.json(pets);
+    } catch (err) {
+        console.error("Error fetching user's pets:", err);
+        res.status(500).json({ message: "Error fetching user's pets" });
+    }
+});
+
 
 
 export default router;
