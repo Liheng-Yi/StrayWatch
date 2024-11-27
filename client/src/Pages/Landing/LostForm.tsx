@@ -37,13 +37,11 @@ const PlaceAutocomplete = () => {
       types: ['address'],
       componentRestrictions: { country: 'us' }
     };
-
     setPlaceAutocomplete(new places.Autocomplete(inputRef.current, options));
   }, [places]);
 
   useEffect(() => {
     if (!placeAutocomplete) return;
-
     placeAutocomplete.addListener('place_changed', () => {
       setSelectedPlace(placeAutocomplete.getPlace());
     });
