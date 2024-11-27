@@ -60,4 +60,34 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Add this after your existing routes
+router.patch('/:id/toggle-verification', async (req, res) => {
+  try {
+    const db = client.db("appDB");
+    const sheltersCollection = db.collection("shelters");
+    
+    const shelter = await sheltersCollection.findOne({ _id: new ObjectId(req.params.id) });
+    if (!shelter) {
+      return res.status(404).json({ message: 'Shelter not found' });
+    }
+
+    const result = await sheltersCollection.updateOne(
+      { _id: new ObjectId(req.params.id) },
+      { $set: { verified: !shelter.verified } }
+    );
+
+    if (!result.acknowledged) {
+      return res.status(400).json({ message: 'Failed to update shelter' });
+    }
+
+    res.status(200).json({ 
+      message: 'Shelter verification status updated',
+      verified: !shelter.verified
+    });
+  } catch (err) {
+    console.error("Error updating shelter verification:", err);
+    res.status(500).json({ message: "Error updating shelter verification" });
+  }
+});
+
 export default router;
