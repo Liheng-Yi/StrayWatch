@@ -67,7 +67,7 @@ export default function MainPage() {
               </li>
               <li className="nav-item">
                 <Link className="nav-link mx-2 custom-nav-link" to="/map">
-                  Map
+                  Nearby Shelters
                 </Link>
               </li>
             </ul>
