@@ -16,7 +16,8 @@ const ShelterForm = ({ onClose }: ShelterFormProps) => {
     shelterAddress: '',
     shelterPhone: '',
     shelterEmail: '',
-    shelterWebsite: ''
+    shelterWebsite: '',
+    verified: false
   });
 
   const formRef = useRef<HTMLDivElement>(null);
@@ -41,7 +42,8 @@ const ShelterForm = ({ onClose }: ShelterFormProps) => {
       shelterAddress: '123 Debug St, Debug City, DB 12345',
       shelterPhone: '(123) 456-7890',
       shelterEmail: 'debug@shelter.com',
-      shelterWebsite: 'https://www.debugshelter.com'
+      shelterWebsite: 'https://www.debugshelter.com',
+      verified: false
     });
   }, []);
 
@@ -95,25 +97,27 @@ const ShelterForm = ({ onClose }: ShelterFormProps) => {
 
       const location = {
         type: 'Point',
-        coordinates: [lng, lat] // Use the extracted values directly
+        coordinates: [lng, lat]
       };
 
       const shelterData = {
         ...formData,
         location
       };
-      console.log(shelterData);
+      
       await registerShelter(shelterData);
-      // Reset form or show success message
+      
+      // Reset form
       setFormData({
         shelterName: '',
         shelterAddress: '',
         shelterPhone: '',
         shelterEmail: '',
-        shelterWebsite: ''
+        shelterWebsite: '',
+        verified: false
       });
       setSelectedPlace(null);
-      alert('Shelter registered successfully!');
+      onClose(); // Close the form after successful registration
     } catch (error) {
       console.error('Error details:', error);
       setLocationError(error instanceof Error ? error.message : 'Failed to register shelter');

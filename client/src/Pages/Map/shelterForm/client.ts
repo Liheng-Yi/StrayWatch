@@ -10,7 +10,8 @@ export interface ShelterFormData {
   shelterPhone: string;
   shelterEmail: string;
   shelterWebsite: string;
-  location?: any
+  location?: any;
+  verified: boolean;
 }
 
 export const registerShelter = async (shelterData: ShelterFormData) => {

@@ -28,15 +28,13 @@ const defaultIcon = L.icon({
 });
 
 type Shelter = {
-  id: number;
-  position: [number, number];
+  _id: string;
   name: string;
+  location: {
+    type: string;
+    coordinates: [number, number];
+  };
 };
-
-const shelters: Shelter[] = [
-  { id: 1, position: [37.3327, -121.8853], name: "Shelter 1" },
-  { id: 2, position: [37.3387, -121.783], name: "Shelter 2" },
-];
 
 // Set the default icon for all Marker components
 L.Marker.prototype.options.icon = defaultIcon;
@@ -44,6 +42,29 @@ L.Marker.prototype.options.icon = defaultIcon;
 const Map: React.FC = () => {
   const mapCenter: [number, number] = [37.3387, -121.8853];
   const [showForm, setShowForm] = useState(false);
+  const [shelters, setShelters] = useState<Shelter[]>([]);
+
+  const fetchShelters = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/shelters');
+      if (!response.ok) {
+        throw new Error('Failed to fetch shelters');
+      }
+      const data = await response.json();
+      setShelters(data);
+    } catch (error) {
+      console.error('Error fetching shelters:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchShelters();
+  }, []);
+
+  const handleShelterAdded = () => {
+    fetchShelters();
+    setShowForm(false);
+  };
 
   return (
     <div className="container-fluid">
@@ -62,8 +83,11 @@ const Map: React.FC = () => {
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               />
-              {shelters.map(shelter => (
-                <Marker key={shelter.id} position={shelter.position}>
+              {shelters.map(shelter => shelter.location && (
+                <Marker 
+                  key={shelter._id} 
+                  position={[shelter.location.coordinates[1], shelter.location.coordinates[0]]}
+                >
                   <Popup>{shelter.name}</Popup>
                 </Marker>
               ))}
@@ -77,7 +101,7 @@ const Map: React.FC = () => {
                 right: '2rem',
                 width: '4rem',
                 height: '4rem',
-                backgroundColor: '#6f42c1', // Purple color
+                backgroundColor: '#6f42c1',
                 color: 'white',
                 boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
                 zIndex: 1000,
@@ -97,7 +121,7 @@ const Map: React.FC = () => {
       {/* Shelter List */}
       <div className="row">
         <div className="col-12">
-          <ShelterList />
+          <ShelterList onShelterUpdate={fetchShelters} />
         </div>
       </div>
 
@@ -122,7 +146,7 @@ const Map: React.FC = () => {
               ></button>
             </div>
             <div className="modal-body">
-              <ShelterForm onClose={() => setShowForm(false)} />
+              <ShelterForm onClose={handleShelterAdded} />
             </div>
           </div>
         </div>
