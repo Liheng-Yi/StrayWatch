@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Share2, MapPin } from 'lucide-react';
+import { Share2, MapPin, Search } from 'lucide-react';
 import PurpleButton from '../../Components/UI/lightPurpleButton';
 
 interface Pet {
@@ -18,6 +18,7 @@ const PetSearch: React.FC = () => {
   const [pets, setPets] = useState<Pet[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const API_URL = process.env.NODE_ENV === 'production' 
   ? process.env.API_URL 
   : 'http://localhost:5000';
@@ -41,6 +42,19 @@ const PetSearch: React.FC = () => {
     fetchPets();
   }, [activeTab]);
 
+  const filteredPets = pets?.filter((pet) => {
+    if (!pet) return false;
+    
+    const searchTerm = searchQuery.toLowerCase();
+    return (
+      (pet.name?.toLowerCase() || '').includes(searchTerm) ||
+      (pet.color?.toLowerCase() || '').includes(searchTerm) ||
+      (pet.kind?.toLowerCase() || '').includes(searchTerm) ||
+      (pet.location?.toLowerCase() || '').includes(searchTerm) ||
+      (pet.description?.toLowerCase() || '').includes(searchTerm)
+    );
+  }) || [];
+
   if (loading) return <div className="text-center py-4">Loading...</div>;
   if (error) return <div className="text-center py-4 text-danger">{error}</div>;
 
@@ -48,6 +62,23 @@ const PetSearch: React.FC = () => {
     <div className="container py-4">
       <h1 className="text-center mb-4">Lost Pets Search Database</h1>
       
+      <div className="row mb-4">
+        <div className="col-md-6 mx-auto">
+          <div className="input-group">
+            <span className="input-group-text bg-white">
+              <Search size={18} className="text-muted" />
+            </span>
+            <input
+              type="text"
+              className="form-control border-start-0"
+              placeholder="Search by name, color, type..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+        </div>
+      </div>
+
       {/* Navigation Tabs */}
       <ul className="nav nav-pills justify-content-center mb-4">
         <li className="nav-item mx-2">
@@ -84,7 +115,7 @@ const PetSearch: React.FC = () => {
 
       {/* Pet Cards Grid */}
       <div className="row row-cols-1 row-cols-md-2 g-4">
-        {pets.map((pet) => (
+        {filteredPets.map((pet) => (
           <div key={pet._id} className="col">
             <div className="card h-100">
               <div className="row g-0">
@@ -141,9 +172,12 @@ const PetSearch: React.FC = () => {
         ))}
       </div>
 
-      {pets.length === 0 && (
+      {filteredPets.length === 0 && (
         <div className="text-center py-4 text-muted">
-          No {activeTab === 'all' ? 'pets' : activeTab} found.
+          {searchQuery 
+            ? `No pets found matching "${searchQuery}"`
+            : `No ${activeTab === 'all' ? 'pets' : activeTab} found.`
+          }
         </div>
       )}
     </div>
