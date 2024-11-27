@@ -74,7 +74,7 @@ router.post('/add/:userId', async (req, res) => {
     }
 });
 
-// Get user's pets
+// Get user's pets by userId
 router.get('/user/:userId', async (req, res) => {
     try {
         const db = client.db("appDB");
