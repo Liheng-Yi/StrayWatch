@@ -45,11 +45,14 @@ export default function MainPage() {
   }, [currentUser]);
 
   return (
-    <div id="wd-mainpage" className="min-vh-100 d-flex flex-column main-container">
+    <div
+      id="wd-mainpage"
+      className="min-vh-100 d-flex flex-column main-container"
+    >
       <div className="background-decorations">
         <div className="paw-pattern-overlay"></div>
       </div>
-      
+
       <nav className="navbar navbar-expand navbar-light custom-bg">
         <div className="container position-relative">
           {/* Center Links - Using position-absolute for true center */}
@@ -61,7 +64,10 @@ export default function MainPage() {
                 </Link>
               </li>
               <li className="nav-item">
-                <Link className="nav-link mx-2 custom-nav-link" to="/petdatabase">
+                <Link
+                  className="nav-link mx-2 custom-nav-link"
+                  to="/petdatabase"
+                >
                   Lost Pets
                 </Link>
               </li>
@@ -132,7 +138,8 @@ export default function MainPage() {
             path="/profile"
             element={currentUser ? <Profile /> : <Navigate to="/login" />}
           />
-             <Route path="/add-pet" element={<AddPet />} />  
+          <Route path="/profile/:userId" element={<Profile />} />
+          <Route path="/add-pet" element={<AddPet />} />
         </Routes>
       </div>
     </div>
