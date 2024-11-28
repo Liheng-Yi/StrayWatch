@@ -34,8 +34,8 @@ router.get('/', async (req, res) => {
         }
         const db = client.db("appDB");
         const usersCollection = db.collection("users");
-        
-        const user = await usersCollection.findOne({ _id: currentUserId });
+        const currentUserObjectId = new ObjectId(currentUserId.toString());
+        const user = await usersCollection.findOne({ _id: currentUserObjectId });
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
