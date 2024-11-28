@@ -25,6 +25,7 @@ const Profile: React.FC = () => {
   const currentUserId = getCurrentUserId();
   const API_URL = process.env.API_URL;
 
+
   useEffect(() => {
     const fetchUserPets = async () => {
       try {

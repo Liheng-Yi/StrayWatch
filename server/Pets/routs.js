@@ -75,12 +75,14 @@ router.post('/add/:userId', async (req, res) => {
 });
 
 // Get user's pets by userId
+
 router.get('/user/:userId', async (req, res) => {
     try {
         const db = client.db("appDB");
         const petsCollection = db.collection("pets");
         const userObjectId = new ObjectId(req.params.userId);
         const pets = await petsCollection.find({ userId: userObjectId }).toArray();
+        
         if (!pets.length) {
             return res.status(404).json({ message: 'No pets found for this user' });
         }

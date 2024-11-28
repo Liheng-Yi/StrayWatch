@@ -5,6 +5,7 @@ import { ObjectId } from 'mongodb';
 const router = express.Router();
 // routes in this page start with /api/profile
 
+
 // get user profile by userId
 router.get('/:userId',async (req,res)=>{
     try {
