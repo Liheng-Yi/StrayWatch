@@ -1,5 +1,6 @@
 import express from 'express';
 import { client } from '../db/connector.js';
+import { ObjectId } from 'mongodb';
 
 const router = express.Router();
 
@@ -28,8 +29,8 @@ router.get('/:id', async (req, res) => {
     try {
         const db = client.db("appDB");
         const petsCollection = db.collection("pets");
-        
-        const pet = await petsCollection.findOne({ _id: req.params.id });
+        const petId = new ObjectId(req.params.id);
+        const pet = await petsCollection.findOne({ _id: petId });
         if (!pet) {
             return res.status(404).json({ message: 'Pet not found' });
         }
@@ -40,14 +41,31 @@ router.get('/:id', async (req, res) => {
     }
 });
 
+// delete pet by petID
+router.delete('/:id',async(req,res)=>{
+    try{
+        const db = client.db("appDB");
+        const petsCollection = db.collection("pets");
+        const petId = new ObjectId(req.params.id);
+        const result = await petsCollection.deleteOne({_id:petId});
+        if (result.deletedCount === 0) {
+            return res.status(404).json({ message: 'Pet not found' });
+        }
+        res.json({ message: 'Pet deleted successfully' });
+    } catch (err) {
+        console.error("Error deleting pet:", err);
+    }
+});
+
 // Add pet for user
 router.post('/add/:userId', async (req, res) => {
     try {
         const db = client.db("appDB");
         const petsCollection = db.collection("pets");
+        const userObjectId = new ObjectId(req.params.userId);
         
         const newPet = {
-            userId: req.params.userId,
+            userId: userObjectId,
             name: req.body.name,
             kind: req.body.kind,
             color: req.body.color,
@@ -72,13 +90,14 @@ router.post('/add/:userId', async (req, res) => {
     }
 });
 
-// Get user's pets
+// Get user's pets by userId
+
 router.get('/user/:userId', async (req, res) => {
     try {
         const db = client.db("appDB");
         const petsCollection = db.collection("pets");
-        
-        const pets = await petsCollection.find({ userId: req.params.userId }).toArray();
+        const userObjectId = new ObjectId(req.params.userId);
+        const pets = await petsCollection.find({ userId: userObjectId }).toArray();
         
         if (!pets.length) {
             return res.status(404).json({ message: 'No pets found for this user' });

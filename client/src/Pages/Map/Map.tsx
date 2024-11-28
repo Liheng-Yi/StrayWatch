@@ -10,6 +10,7 @@ import { Modal } from 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import ShelterForm from './shelterForm';
+import { APIProvider } from '@vis.gl/react-google-maps';
 
 // Import the necessary images
 import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
@@ -146,7 +147,19 @@ const Map: React.FC = () => {
               ></button>
             </div>
             <div className="modal-body">
-              <ShelterForm onClose={handleShelterAdded} />
+              <APIProvider
+                apiKey={(() => {
+                  console.log("[map]API Key:", process.env.REACT_APP_GOOGLE_MAPS_API_KEY);
+                  return process.env.REACT_APP_GOOGLE_MAPS_API_KEY ?? "";
+                })()}
+                solutionChannel="GMP_devsite_samples_v3_rgmautocomplete"
+              >
+                <div className="rounded-lg overflow-hidden">
+                  <div className="m-2">
+                    <ShelterForm onClose={handleShelterAdded} />
+                  </div>
+                </div>
+              </APIProvider>
             </div>
           </div>
         </div>

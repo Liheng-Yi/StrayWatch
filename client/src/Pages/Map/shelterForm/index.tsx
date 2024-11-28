@@ -1,16 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PurpleButton from '../../../Components/UI/lightPurpleButton';
-import GooglePlacesAutocomplete from '../../../Components/UI/AddressAutocomplete';
 import { registerShelter } from './client';
+import { APIProvider, useMapsLibrary } from '@vis.gl/react-google-maps';
 
 interface ShelterFormProps {
   onClose: () => void;
 }
 
 const ShelterForm = ({ onClose }: ShelterFormProps) => {
-  const [selectedPlace, setSelectedPlace] = useState<google.maps.places.PlaceResult | null>(null);
+  const [placeAutocomplete, setPlaceAutocomplete] = useState<google.maps.places.Autocomplete | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
-
+  const [selectedPlace, setSelectedPlace] = useState<google.maps.places.PlaceResult | null>(null);
+  const places = useMapsLibrary('places');
+  const inputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     shelterName: '',
     shelterAddress: '',
@@ -21,10 +23,37 @@ const ShelterForm = ({ onClose }: ShelterFormProps) => {
   });
 
   const formRef = useRef<HTMLDivElement>(null);
+  const [isLoadingLocation, setIsLoadingLocation] = useState(false);
+
+    useEffect(() => {
+    if (!places || !inputRef.current) return;
+
+    const options = {
+      fields: ['geometry', 'formatted_address'],
+      types: ['address'],
+      componentRestrictions: { country: 'us' }
+    };
+    setPlaceAutocomplete(new places.Autocomplete(inputRef.current, options));
+  }, [places]);
+
+  useEffect(() => {
+    if (!placeAutocomplete) return;
+    placeAutocomplete.addListener('place_changed', () => {
+      const place = placeAutocomplete.getPlace();
+      handlePlaceSelect(place);
+      setSelectedPlace(place);
+    });
+  }, [placeAutocomplete]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (formRef.current && !formRef.current.contains(event.target as Node)) {
+      // Check if the click is on a Google Places autocomplete element
+      const target = event.target as HTMLElement;
+      if (target.closest('.pac-container')) {
+        return;
+      }
+
+      if (formRef.current && !formRef.current.contains(target as Node)) {
         onClose();
       }
     };
@@ -46,15 +75,62 @@ const ShelterForm = ({ onClose }: ShelterFormProps) => {
       verified: false
     });
   }, []);
+    const getCurrentLocation = () => {
+    setIsLoadingLocation(true);
+    setLocationError(null);
 
+    if (!navigator.geolocation) {
+      setLocationError("Geolocation is not supported by your browser");
+      setIsLoadingLocation(false);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
+          const response = await fetch(
+            `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}`
+          );
+          const data = await response.json();
+          
+          if (data.results && data.results[0]) {
+            const address = data.results[0].formatted_address;
+            if (inputRef.current) {
+              inputRef.current.value = address;
+            }
+            setSelectedPlace(data.results[0]);
+          }
+        } catch (error) {
+          setLocationError("Failed to get address from coordinates");
+        } finally {
+          setIsLoadingLocation(false);
+        }
+      },
+      (error) => {
+        setLocationError(
+          error.code === 1
+            ? "Location access denied. Please enable location services."
+            : "Failed to get your location"
+        );
+        setIsLoadingLocation(false);
+      }
+    );
+  };
   const handlePlaceSelect = (place: google.maps.places.PlaceResult) => {
     setSelectedPlace(place);
+    //console.log('[Sform]API Key:', process.env.REACT_APP_GOOGLE_MAPS_API_KEY);
+    // Update form data with place information
     setFormData(prev => ({
       ...prev,
       shelterAddress: place.formatted_address || '',
-      shelterPhone: place.formatted_phone_number || '',
-      shelterWebsite: place.website || ''
+      shelterPhone: place.formatted_phone_number || prev.shelterPhone,
+      shelterWebsite: place.website || prev.shelterWebsite,
+      shelterName: !prev.shelterName && place.name ? place.name : prev.shelterName
     }));
+
+    // Clear any previous location errors
+    setLocationError(null);
   };
 
   const handleLocationError = (error: string) => {
@@ -160,15 +236,31 @@ const ShelterForm = ({ onClose }: ShelterFormProps) => {
 
                   <div className="col-12">
                     <div className="position-relative">
-                      <GooglePlacesAutocomplete
-                        onPlaceSelect={handlePlaceSelect}
-                        onError={handleLocationError}
-                        placeholder="Search for shelter address"
-                        required={true}
-                        useCurrentLocation={true}
-                        types={['establishment']}
-                        fields={['geometry', 'formatted_address', 'name', 'website', 'formatted_phone_number']}
-                      />
+
+                <input
+                  type="text"
+                  id="address"
+                  name="address"
+                  className="form-control"
+                  placeholder="Enter address"
+                  required
+                  ref={inputRef}
+                />
+                            <div className="d-flex ms-3 justify-content-start w-100 mb-2">
+              <button
+                type="button"
+                onClick={getCurrentLocation}
+                className="btn btn-link p-0 text-decoration-underline" 
+                disabled={isLoadingLocation}
+              >
+                {isLoadingLocation ? (
+                  <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                ) : (
+                  <span>🐾 Use My Location</span>
+                )}
+              </button>
+            </div>
+
                       {locationError && (
                         <div className="text-danger small mt-1">
                           {locationError}
