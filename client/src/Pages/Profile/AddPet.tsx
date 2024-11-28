@@ -1,9 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState,useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { APIProvider,useMapsLibrary } from '@vis.gl/react-google-maps';
 import PurpleButton from "../../Components/UI/lightPurpleButton";
 import { getCurrentUserId } from "../../Components/UI/auth";
 
 const AddPet: React.FC = () => {
+  const [isLoadingLocation, setIsLoadingLocation] = useState(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const places = useMapsLibrary('places');
+
   const navigate = useNavigate();
   const API_URL = process.env.NODE_ENV === 'production' 
       ? process.env.API_URL 
@@ -18,6 +24,67 @@ const AddPet: React.FC = () => {
     description: ''
   });
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (!places || !inputRef.current) return;
+
+    const options = {
+      fields: ['geometry', 'formatted_address'],
+      types: ['address'],
+      componentRestrictions: { country: 'us' }
+    };
+    const autocomplete = new places.Autocomplete(inputRef.current, options);
+    autocomplete.addListener('place_changed', () => {
+      const place = autocomplete.getPlace();
+      setPetData(prev => ({
+        ...prev,
+        location: place.formatted_address || ''
+      }));
+    });
+  }, [places]);
+
+  const getCurrentLocation = () => {
+    setIsLoadingLocation(true);
+    setLocationError(null);
+
+    if (!navigator.geolocation) {
+      setLocationError("Geolocation is not supported by your browser");
+      setIsLoadingLocation(false);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
+          const response = await fetch(
+            `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}`
+          );
+          const data = await response.json();
+          
+          if (data.results && data.results[0]) {
+            const address = data.results[0].formatted_address;
+            setPetData(prev => ({
+              ...prev,
+              location: address
+            }));
+          }
+        } catch (error) {
+          setLocationError("Failed to get address from coordinates");
+        } finally {
+          setIsLoadingLocation(false);
+        }
+      },
+      (error) => {
+        setLocationError(
+          error.code === 1
+            ? "Location access denied. Please enable location services."
+            : "Failed to get your location"
+        );
+        setIsLoadingLocation(false);
+      }
+    );
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -59,6 +126,7 @@ const AddPet: React.FC = () => {
   };
 
   return (
+    <APIProvider apiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY ?? ""}>
     <div className="container mt-4">
       <h2 className="mb-4">Add New Pet</h2>
       <form onSubmit={handleSubmit} className="col-lg-8 mx-auto">
@@ -108,11 +176,12 @@ const AddPet: React.FC = () => {
             required
           >
             <option value="lost">Lost</option>
-            <option value="notLost">Not Lost</option>
+            <option value="Found">Not Lost</option>
           </select>
         </div>
 
         <div className="mb-3">
+          <label className="form-label">Location</label>
           <label className="form-label">Location</label>
           <input
             type="text"
@@ -120,10 +189,29 @@ const AddPet: React.FC = () => {
             className="form-control"
             value={petData.location}
             onChange={handleInputChange}
+            ref={inputRef}
             required
           />
+          <div className="d-flex ms-3 justify-content-start w-100 mb-2">
+            <button
+              type="button"
+              onClick={getCurrentLocation}
+              className="btn btn-link p-0 text-decoration-underline"
+              disabled={isLoadingLocation}
+            >
+              {isLoadingLocation ? (
+                <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+              ) : (
+                <span>🐾 Use My Location</span>
+              )}
+            </button>
+          </div>
+          {locationError && (
+            <div className="text-danger small mt-1">
+              {locationError}
+            </div>
+          )}
         </div>
-
         <div className="mb-3">
           <label className="form-label">Description</label>
           <textarea
@@ -143,6 +231,7 @@ const AddPet: React.FC = () => {
         </div>
       </form>
     </div>
+    </APIProvider>
 );
 }
 

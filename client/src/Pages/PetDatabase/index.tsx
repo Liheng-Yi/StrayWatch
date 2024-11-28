@@ -18,10 +18,9 @@ const PetSearch: React.FC = () => {
   const [pets, setPets] = useState<Pet[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-<<<<<<< HEAD
+
   const [searchQuery, setSearchQuery] = useState('');
-=======
->>>>>>> 8d7731f (add route to get pets by userId)
+
   const API_URL = process.env.NODE_ENV === 'production' 
   ? process.env.API_URL 
   : 'http://localhost:5000';
