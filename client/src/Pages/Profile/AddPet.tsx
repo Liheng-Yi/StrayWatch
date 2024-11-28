@@ -25,6 +25,7 @@ const AddPet: React.FC = () => {
   });
   const [error, setError] = useState('');
 
+  // set up Google Places autocomplete functionality
   useEffect(() => {
     if (!places || !inputRef.current) return;
 
@@ -100,13 +101,13 @@ const AddPet: React.FC = () => {
     console.log("userId",userId);
     try {
         console.log('Request URL:', `/api/pets/add/${userId}`);
-        console.log('Request body:', petData);
         const response = await fetch(`${API_URL}/api/pets/add/${userId}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
+            userId:userId,
             name:petData.name,
             kind:petData.kind,
             color:petData.color,
@@ -176,12 +177,11 @@ const AddPet: React.FC = () => {
             required
           >
             <option value="lost">Lost</option>
-            <option value="Found">Not Lost</option>
+            <option value="Found">Found</option>
           </select>
         </div>
 
         <div className="mb-3">
-          <label className="form-label">Location</label>
           <label className="form-label">Location</label>
           <input
             type="text"

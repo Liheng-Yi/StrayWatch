@@ -15,14 +15,32 @@ const Profile: React.FC = () => {
     phone: "123456",
   });
   
-  const [pets,setPets] = useState<any>([{name:"Catty",status:true,location:"SF",description:"Cute!!"},{name:"Missy",status:false,location:"SF",description:"Cute!!"}])
+  const [pets,setPets] = useState<any>([{name:"Catty",status:"Lost",location:"SF",description:"Cute!!"},{name:"Missy",status:false,location:"SF",description:"Cute!!"}])
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [newUsername, setNewUsername] = useState("");
+  const [error, setError] = useState<string>('');
 
   
   const currentUserId = getCurrentUserId();
   const API_URL = process.env.API_URL;
+
+  useEffect(() => {
+    const fetchUserPets = async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/pets/user/${userId}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch pets');
+        }
+        const data = await response.json();
+        setPets(data);
+      } catch (error) {
+        console.error('Error fetching pets:', error);
+        setError('Failed to load pets');
+      }
+    };
+    fetchUserPets();
+  }, [API_URL]);
 
   const handleUpdateUsername = async () => {
     
@@ -53,9 +71,9 @@ const Profile: React.FC = () => {
     // Fetch user data
     const fetchUserData = async () => {
       try {
-        // TODO: Replace with actual API call
-        const response = await fetch(`/api/users/${userId || currentUserId}`);
+        const response = await fetch(`/api/profile/${userId || currentUserId}`);
         const userData = await response.json();
+        console.log("userData",userData);
         setUser(userData);
         if (userData.pets && userData.pets.length > 0) {
           const petPromises = userData.pets.map((petId: string) =>
@@ -135,7 +153,12 @@ const Profile: React.FC = () => {
           <div className="card-header">Pet Profile</div>
           <div className="card-body">
             <h5 className="card-title">{pet.name}</h5>
-            <p className="card-text">{pet.location} , {pet.status}</p>
+            <span className={`badge ${
+                        pet.status === 'Lost' ? 'bg-danger' : 'bg-success'
+                      }`}>
+                        {pet.status}
+                      </span>
+            <p className="card-text">{pet.location} </p>
             <p className="card-text">{pet.description}</p>
             <br/>
             {pet.picture && (
