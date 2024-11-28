@@ -4,18 +4,15 @@ export const signup = async (userData: {
   username: string;
   password: string;
   email: string;
-  firstName: string;
-  lastName: string;
-  roles: string[];
+  phone: string;
+  role?: "user" | "shelter" | "admin";
 }) => {
-  // Check if username already exists
-  const existingUser = db.findUserByUsername(userData.username);
-  if (existingUser) {
-    throw new Error("Username already exists");
-  }
+  const newUser = db.createUser({
+    ...userData,
+    role: userData.role || "user", // default to 'user' if not specified
+    pets: [], // initialize empty pets array
+  });
 
-  // Create new user
-  const newUser = db.createUser(userData);
   const { password, ...userWithoutPassword } = newUser;
   return userWithoutPassword;
 };

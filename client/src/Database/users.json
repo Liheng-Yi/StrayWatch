@@ -3,30 +3,27 @@
     "_id": "1",
     "username": "alice_petowner",
     "password": "alice123",
-    "firstName": "Alice",
-    "lastName": "Johnson",
+    "role": "user",
+    "phone": "123-456-7890",
     "email": "alice@example.com",
-    "roles": ["PET_OWNER"],
-    "createdAt": "2024-01-01T00:00:00.000Z"
+    "pets": ["pet1", "pet2"]
   },
   {
     "_id": "2",
     "username": "bob_shelter",
     "password": "bob123",
-    "firstName": "Bob",
-    "lastName": "Smith",
+    "role": "shelter",
+    "phone": "234-567-8901",
     "email": "bob@shelter.com",
-    "roles": ["SHELTER_WORKER"],
-    "createdAt": "2024-01-01T00:00:00.000Z"
+    "pets": []
   },
   {
     "_id": "3",
     "username": "carol_admin",
     "password": "carol123",
-    "firstName": "Carol",
-    "lastName": "Wilson",
+    "role": "admin",
+    "phone": "345-678-9012",
     "email": "carol@admin.com",
-    "roles": ["ADMIN"],
-    "createdAt": "2024-01-01T00:00:00.000Z"
+    "pets": []
   }
 ]

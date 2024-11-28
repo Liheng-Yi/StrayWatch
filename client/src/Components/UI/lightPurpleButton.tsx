@@ -1,25 +1,28 @@
-import React from 'react';
+import React from "react";
 
-interface PurpleButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'solid' | 'outline';
+interface PurpleButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: "solid" | "outline";
   children: React.ReactNode;
   className?: string;
-  size?: 'sm' | 'md' | 'lg';
+  size?: "sm" | "md" | "lg";
 }
 
-const PurpleButton: React.FC<PurpleButtonProps> = ({ 
-  variant = 'solid', 
-  children, 
-  className = '',
-  color = '#9F7AEA',
-  size = 'md',
-  ...props 
+const PurpleButton: React.FC<PurpleButtonProps> = ({
+  variant = "solid",
+  children,
+  className = "",
+  color = "#9F7AEA",
+  size = "md",
+  ...props
 }) => {
-  const baseClasses = 'btn rounded-pill px-4 py-2 d-inline-flex align-items-center gap-2';
-  const variantClasses = variant === 'outline'
-    ? 'btn-outline-purple border-2 text-purple hover:bg-purple-50'
-    : 'btn-purple text-white';
-    
+  const baseClasses =
+    "btn rounded-pill px-4 py-2 d-inline-flex align-items-center gap-2";
+  const variantClasses =
+    variant === "outline"
+      ? "btn-outline-purple border-2 text-purple hover:bg-purple-50"
+      : "btn-purple text-white";
+
   const customStyles = `
     .btn-purple {
       background-color: #9F7AEA;
@@ -42,7 +45,7 @@ const PurpleButton: React.FC<PurpleButtonProps> = ({
   return (
     <>
       <style>{customStyles}</style>
-      <button 
+      <button
         className={`${baseClasses} ${variantClasses} ${className}`}
         {...props}
       >

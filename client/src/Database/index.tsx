@@ -1,15 +1,16 @@
 import users from "./users.json";
 
 // Add user types
+export type UserRole = "admin" | "user" | "shelter";
+
 export interface User {
   _id: string;
   username: string;
   password: string;
-  firstName: string;
-  lastName: string;
+  role: UserRole;
+  phone: string;
   email: string;
-  roles: string[];
-  createdAt: string;
+  pets: string[]; // Array of ObjectIds as strings
 }
 
 // Mock database functions

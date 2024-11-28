@@ -1,16 +1,17 @@
-import React from 'react';
-import { BrowserRouter } from 'react-router-dom';
-import Pages from './Pages';
-import 'bootstrap/dist/css/bootstrap.min.css';
-
-
-
+import React from "react";
+import { BrowserRouter } from "react-router-dom";
+import Pages from "./Pages";
+import "bootstrap/dist/css/bootstrap.min.css";
+import { Provider } from "react-redux";
+import { store } from "./store";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Pages />
-    </BrowserRouter>
+    <Provider store={store}>
+      <BrowserRouter>
+        <Pages />
+      </BrowserRouter>
+    </Provider>
   );
 }
 
