@@ -4,6 +4,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import './styles.css';
 import PurpleButton from "../../Components/UI/lightPurpleButton";
 import {getCurrentUserId} from "../../Components/UI/auth";
+import { FaTrash } from 'react-icons/fa';
 
 // TODO: fetch profile from database
 const Profile: React.FC = () => {
@@ -23,7 +24,7 @@ const Profile: React.FC = () => {
 
   
   const currentUserId = getCurrentUserId();
-  const API_URL = process.env.API_URL;
+  const API_URL = process.env.API_URL||"http://localhost:5000";
 
 
   useEffect(() => {
@@ -62,6 +63,21 @@ const Profile: React.FC = () => {
       }
     } catch (error) {
       console.error('Error updating username:', error);
+    }
+  };
+
+  const handleDeletePet = async (petId: string) => {
+    try {
+      const response = await fetch(`${API_URL}/api/pets/${petId}`, {
+        method: 'DELETE',
+      });
+      if (response.ok) {
+        setPets(pets.filter((pet: any) => pet._id !== petId));
+      } else {
+        console.error('Failed to delete pet');
+      }
+    } catch (error) {
+      console.error('Error deleting pet:', error);
     }
   };
 
@@ -154,6 +170,15 @@ const Profile: React.FC = () => {
           <div className="card-header">Pet Profile</div>
           <div className="card-body">
             <h5 className="card-title">{pet.name}</h5>
+            {isOwnProfile && (
+              <button
+                className="btn btn-link text-danger p-0"
+                onClick={() => handleDeletePet(pet._id)}
+                title="Delete pet"
+              >
+                <FaTrash />
+              </button>
+            )}
             <span className={`badge ${
                         pet.status === 'Lost' ? 'bg-danger' : 'bg-success'
                       }`}>

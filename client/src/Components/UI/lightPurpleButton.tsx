@@ -4,12 +4,15 @@ interface PurpleButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement
   variant?: 'solid' | 'outline';
   children: React.ReactNode;
   className?: string;
+  size?: 'sm' | 'md' | 'lg';
 }
 
 const PurpleButton: React.FC<PurpleButtonProps> = ({ 
   variant = 'solid', 
   children, 
   className = '',
+  color = '#9F7AEA',
+  size = 'md',
   ...props 
 }) => {
   const baseClasses = 'btn rounded-pill px-4 py-2 d-inline-flex align-items-center gap-2';
