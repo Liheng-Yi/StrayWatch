@@ -1,13 +1,15 @@
 import express from 'express';
 import { client } from '../db/connector.js';
+import { ObjectId } from 'mongodb';
 
 const router = express.Router();
+// routes in this page start with /api/users
 
 // update username
 router.patch('/:id', async (req, res) => {
     try {
         const { username } = req.body;
-        const userId = req.params.id;
+        const userId = new ObjectId(req.params.id);
         
         if (!username) {
             return res.status(400).json({ message: 'Username is required' });

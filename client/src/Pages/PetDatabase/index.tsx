@@ -23,6 +23,12 @@ const PetSearch: React.FC = () => {
   ? process.env.API_URL 
   : 'http://localhost:5000';
 
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const API_URL = process.env.NODE_ENV === 'production' 
+  ? process.env.API_URL 
+  : 'http://localhost:5000';
+
   useEffect(() => {
     const fetchPets = async () => {
       try {
