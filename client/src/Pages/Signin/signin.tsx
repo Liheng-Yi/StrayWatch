@@ -3,41 +3,37 @@ import { useNavigate, Link } from "react-router-dom";
 import * as client from "./client";
 import { UserCircle } from "lucide-react";
 import "./signin.css";
+import { useAppDispatch } from "../../store/hooks";
+import { setUser, setLoading, setError } from "./reducer";
 
 function SignIn() {
   const [credentials, setCredentials] = useState({
     username: "",
     password: "",
   });
-  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError("");
-    setIsLoading(true);
+    dispatch(setLoading(true));
 
     try {
       const user = await client.signin(credentials);
-
-      // Make sure user data includes necessary fields
-      const userData = {
-        ...user,
-        username: user.username || credentials.username, // Fallback to entered username
-        firstName: user.firstName || user.username, // Fallback to username if firstName isn't available
-      };
-
-      // Store user info in localStorage
-      localStorage.setItem("currentUser", JSON.stringify(userData));
-      setIsLoading(false);
-
-      // Force a page reload to ensure the navigation bar updates
-      window.location.href = "/home"; // This will force a full page reload
+      dispatch(
+        setUser({
+          ...user,
+          role: user.role as "user" | "shelter" | "admin",
+        })
+      );
+      localStorage.setItem("currentUser", JSON.stringify(user));
+      window.location.href = "/home";
     } catch (err: any) {
-      setIsLoading(false);
-      setError(err.message || "Invalid credentials");
-      console.error("Sign in error:", err);
+      const errorMessage = err.message || "Invalid credentials";
+      dispatch(setError(errorMessage));
+    } finally {
+      dispatch(setLoading(false));
     }
   };
 
@@ -61,12 +57,6 @@ function SignIn() {
           <UserCircle className="mb-3" size={50} />
           <div>Sign In</div>
         </h2>
-
-        {error && (
-          <div className="alert alert-danger" role="alert">
-            {error}
-          </div>
-        )}
 
         <div className="mb-3">
           <label htmlFor="username" className="form-label">

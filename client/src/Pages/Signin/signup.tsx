@@ -7,9 +7,8 @@ interface UserData {
   username: string;
   password: string;
   email: string;
-  firstName: string;
-  lastName: string;
-  roles: string[];
+  phone: string;
+  role: "user" | "shelter" | "admin";
 }
 
 function SignUp() {
@@ -17,20 +16,17 @@ function SignUp() {
     username: "",
     password: "",
     email: "",
-    firstName: "",
-    lastName: "",
-    roles: ["USER"],
+    phone: "",
+    role: "user",
   });
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleRoleChange = (role: string) => {
+  const handleRoleChange = (newRole: "user" | "shelter" | "admin") => {
     setUserData((prev) => ({
       ...prev,
-      roles: prev.roles.includes(role)
-        ? prev.roles.filter((r) => r !== role)
-        : [...prev.roles, role],
+      role: newRole,
     }));
   };
 
@@ -100,39 +96,21 @@ function SignUp() {
           />
         </div>
 
-        <div className="row mb-3">
-          <div className="col">
-            <label htmlFor="firstName" className="form-label">
-              First Name
-            </label>
-            <input
-              type="text"
-              className="form-control"
-              id="firstName"
-              placeholder="First name"
-              value={userData.firstName}
-              onChange={(e) =>
-                setUserData({ ...userData, firstName: e.target.value })
-              }
-              required
-            />
-          </div>
-          <div className="col">
-            <label htmlFor="lastName" className="form-label">
-              Last Name
-            </label>
-            <input
-              type="text"
-              className="form-control"
-              id="lastName"
-              placeholder="Last name"
-              value={userData.lastName}
-              onChange={(e) =>
-                setUserData({ ...userData, lastName: e.target.value })
-              }
-              required
-            />
-          </div>
+        <div className="mb-3">
+          <label htmlFor="phone" className="form-label">
+            Phone
+          </label>
+          <input
+            type="tel"
+            className="form-control"
+            id="phone"
+            placeholder="Enter your phone number"
+            value={userData.phone}
+            onChange={(e) =>
+              setUserData({ ...userData, phone: e.target.value })
+            }
+            required
+          />
         </div>
 
         <div className="mb-3">
@@ -171,38 +149,38 @@ function SignUp() {
           <label className="form-label d-block">Choose Role(s)</label>
           <div className="form-check">
             <input
-              type="checkbox"
+              type="radio"
+              className="form-check-input"
+              id="roleUser"
+              checked={userData.role === "user"}
+              onChange={() => handleRoleChange("user")}
+            />
+            <label className="form-check-label" htmlFor="roleUser">
+              User
+            </label>
+          </div>
+          <div className="form-check">
+            <input
+              type="radio"
+              className="form-check-input"
+              id="roleShelter"
+              checked={userData.role === "shelter"}
+              onChange={() => handleRoleChange("shelter")}
+            />
+            <label className="form-check-label" htmlFor="roleShelter">
+              Shelter
+            </label>
+          </div>
+          <div className="form-check">
+            <input
+              type="radio"
               className="form-check-input"
               id="roleAdmin"
-              checked={userData.roles.includes("USER")}
-              onChange={() => handleRoleChange("USER")}
+              checked={userData.role === "admin"}
+              onChange={() => handleRoleChange("admin")}
             />
             <label className="form-check-label" htmlFor="roleAdmin">
               Admin
-            </label>
-          </div>
-          <div className="form-check">
-            <input
-              type="checkbox"
-              className="form-check-input"
-              id="rolePetOwner"
-              checked={userData.roles.includes("PET_OWNER")}
-              onChange={() => handleRoleChange("PET_OWNER")}
-            />
-            <label className="form-check-label" htmlFor="rolePetOwner">
-              Pet Owner
-            </label>
-          </div>
-          <div className="form-check">
-            <input
-              type="checkbox"
-              className="form-check-input"
-              id="roleShelterWorker"
-              checked={userData.roles.includes("SHELTER_WORKER")}
-              onChange={() => handleRoleChange("SHELTER_WORKER")}
-            />
-            <label className="form-check-label" htmlFor="roleShelterWorker">
-              Shelter Worker
             </label>
           </div>
         </div>

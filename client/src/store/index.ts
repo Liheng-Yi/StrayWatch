@@ -1,11 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
-import userReducer from "./Signin/reducer";
-
-interface UserState {
-  currentUser: any;
-  isLoading: boolean;
-  error: string | null;
-}
+import userReducer from "../Pages/Signin/reducer";
 
 export const store = configureStore({
   reducer: {
@@ -14,3 +8,4 @@ export const store = configureStore({
 });
 
 export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;
