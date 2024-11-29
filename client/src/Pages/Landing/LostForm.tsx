@@ -3,10 +3,23 @@ import { useMapsLibrary } from '@vis.gl/react-google-maps';
 import { Upload } from 'lucide-react';
 import './styles.css';
 import { submitLostPet } from './client';
+import { useAppSelector } from '../../store/hooks';
+import { useNavigate } from 'react-router-dom';
 
 interface Location {
   lat: number;
   lng: number;
+}
+
+interface LostPetFormData {
+  name: string;
+  kind: string;
+  color: string;
+  location: string;
+  description: string;
+  image: File | null;
+  status: 'Lost';
+  userId: string;
 }
 
 const PlaceAutocomplete = () => {
@@ -29,8 +42,13 @@ const PlaceAutocomplete = () => {
     location: '',
     description: '',
     image: null as File | null,
-    status: 'Lost'
+    status: 'Lost' as const,
+    userId: ''
   });
+
+  const navigate = useNavigate();
+  const currentUser = useAppSelector((state) => state.user.currentUser);
+  console.log("[LostForm]--currentUser", currentUser);
 
   useEffect(() => {
     if (!places || !inputRef.current) return;
@@ -127,6 +145,13 @@ const PlaceAutocomplete = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
+    console.log("Submitting form with currentUser:", currentUser?._id);
+    if (currentUser?._id === undefined) {
+      navigate('/login');
+      return;
+    }
+
     try {
       const address = selectedPlace?.formatted_address || inputRef.current?.value;
       await submitLostPet({
@@ -136,7 +161,8 @@ const PlaceAutocomplete = () => {
         location: address || '',
         description: formData.description,
         image: formData.image,
-        status: 'Lost'
+        status: 'Lost',
+        userId: currentUser._id
       });
       
       // Clear form
@@ -147,7 +173,8 @@ const PlaceAutocomplete = () => {
         location: '',
         description: '',
         image: null,
-        status: 'Lost'
+        status: 'Lost',
+        userId: ''
       });
       setImagePreview(null);
       alert('Pet information submitted successfully!');

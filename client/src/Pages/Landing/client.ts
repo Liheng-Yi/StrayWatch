@@ -12,6 +12,7 @@ export interface LostPetFormData {
   status: 'Lost';
   color?: string;
   description: string;
+  userId: string;
 }
 
 export interface SpotPetFormData {
@@ -36,11 +37,6 @@ const uploadImage = async (image: File) => {
 };
 
 export const submitLostPet = async (formData: LostPetFormData) => {
-  try {
-    const userId = localStorage.getItem('userId');
-    if (!userId) {
-      throw new Error('Please sign in to report a lost pet');
-    }
 
     const requestFormData = new FormData();
     requestFormData.append('name', formData.name);
@@ -49,13 +45,14 @@ export const submitLostPet = async (formData: LostPetFormData) => {
     requestFormData.append('description', formData.description);
     requestFormData.append('color', formData.color || '');
     requestFormData.append('location', formData.location);
+    requestFormData.append('userId', formData.userId);
     
     if (formData.image) {
       requestFormData.append('image', formData.image);
     }
 
     const response = await axios.post(
-      `${API_URL}/api/pets/add/${userId}`, 
+      `${API_URL}/api/pets/add/${formData.userId}`, 
       requestFormData,
       {
         headers: {
@@ -65,12 +62,7 @@ export const submitLostPet = async (formData: LostPetFormData) => {
     );
 
     return response.data;
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      throw new Error(error.response?.data?.message || 'Failed to submit lost pet report');
-    }
-    throw error;
-  }
+
 };
 
 export const submitFoundPet = async (formData: SpotPetFormData) => {

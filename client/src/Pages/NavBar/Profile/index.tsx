@@ -156,7 +156,7 @@ const Profile: React.FC = () => {
       <div className="d-flex align-items-center gap-3">
         <h2 className="color: #C5E0DC;--a: 45deg;--t:.15em mb-0"><span>Pets</span></h2>
         {isOwnProfile && (
-          <PurpleButton onClick={() => navigate('/add-pet')}>
+          <PurpleButton onClick={() => navigate('/home/lost')}>
             Add Pet
           </PurpleButton>
         )}
