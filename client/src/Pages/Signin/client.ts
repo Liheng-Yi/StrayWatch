@@ -1,5 +1,3 @@
-import * as db from "../../Database";
-
 export const signup = async (userData: {
   username: string;
   password: string;
@@ -7,33 +5,50 @@ export const signup = async (userData: {
   phone: string;
   role?: "user" | "shelter" | "admin";
 }) => {
-  const newUser = db.createUser({
-    ...userData,
-    role: userData.role || "user", // default to 'user' if not specified
-    pets: [], // initialize empty pets array
-  });
+  try {
+    const response = await fetch('/api/users/signup', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(userData)
+    });
 
-  const { password, ...userWithoutPassword } = newUser;
-  return userWithoutPassword;
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Signup failed');
+    }
+
+    const userWithoutPassword = await response.json();
+    return userWithoutPassword;
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const signin = async (credentials: {
   username: string;
   password: string;
 }) => {
-  // Find user by credentials
-  const user = db.findUserByCredentials(
-    credentials.username,
-    credentials.password
-  );
+  try {
+    const response = await fetch('/api/users/signin', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(credentials)
+    });
 
-  if (!user) {
-    throw new Error("Invalid credentials");
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Signin failed');
+    }
+
+    const userWithoutPassword = await response.json();
+    return userWithoutPassword;
+  } catch (error) {
+    throw error;
   }
-
-  // Don't send password back
-  const { password, ...userWithoutPassword } = user;
-  return userWithoutPassword;
 };
 
 export const signout = async () => {
@@ -55,13 +70,13 @@ export const checkAuth = async () => {
 
 // Additional functions for user management
 export const updateProfile = async (userId: string, updates: any) => {
-  return db.updateUser(userId, updates);
+  
 };
 
 export const getAllUsers = async () => {
-  return db.findAllUsers();
+  
 };
 
 export const getUserById = async (userId: string) => {
-  return db.findUserById(userId);
+  
 };
