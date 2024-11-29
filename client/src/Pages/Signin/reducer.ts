@@ -3,29 +3,30 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 interface User {
   _id: string;
   username: string;
-  role: "user" | "shelter" | "admin";
+  role: string;
   phone: string;
   email: string;
-  pets: string[];
+  pets?: string[];
+  password?: string;
 }
 
 interface UserState {
   currentUser: User | null;
-  isLoading: boolean;
   error: string | null;
+  isLoading: boolean;
 }
 
 const initialState: UserState = {
   currentUser: null,
-  isLoading: false,
   error: null,
+  isLoading: false,
 };
 
 const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
-    setUser: (state, action: PayloadAction<User>) => {
+    setUser: (state, action: PayloadAction<User | null>) => {
       state.currentUser = action.payload;
       state.error = null;
     },

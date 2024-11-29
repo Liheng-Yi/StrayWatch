@@ -1,6 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Routes, Route, Navigate, Link } from "react-router-dom";
 import { UserCircle, PawPrint } from "lucide-react";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { setUser } from "./Signin/reducer"; // Assuming this is where your user reducer is
 import Map from "./Map";
 import Landing from "./Landing";
 import SignIn from "./Signin/signin";
@@ -12,7 +14,8 @@ import "./styles.css";
 import SearchBar from "./NavBar";
 
 export default function MainPage() {
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  const dispatch = useAppDispatch();
+  const { currentUser } = useAppSelector((state) => state.user);
 
   useEffect(() => {
     // Check for user in localStorage when component mounts
@@ -20,29 +23,18 @@ export default function MainPage() {
     if (userStr) {
       try {
         const user = JSON.parse(userStr);
-        setCurrentUser(user);
+        dispatch(setUser(user));
       } catch (e) {
         console.error("Error parsing user data:", e);
         localStorage.removeItem("currentUser");
       }
     }
-  }, []);
-
-  // Add this function to help with debugging
-  const checkCurrentUser = () => {
-    console.log("Current user:", currentUser);
-    console.log("LocalStorage user:", localStorage.getItem("currentUser"));
-  };
+  }, [dispatch]);
 
   const handleSignOut = () => {
     localStorage.removeItem("currentUser");
-    setCurrentUser(null);
+    dispatch(setUser(null));
   };
-
-  // For debugging purposes
-  useEffect(() => {
-    console.log("currentUser state updated:", currentUser);
-  }, [currentUser]);
 
   return (
     <div
@@ -84,7 +76,7 @@ export default function MainPage() {
               <>
                 <li className="nav-item">
                   <span className="nav-link">
-                    Welcome, {currentUser.firstName || currentUser.username}
+                    Welcome, {currentUser.username}
                   </span>
                 </li>
                 <li className="nav-item">
