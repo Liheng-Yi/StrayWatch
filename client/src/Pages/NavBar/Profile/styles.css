@@ -24,7 +24,7 @@
   font-weight: 600;
   border: none;
   cursor: pointer;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+  box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1),
     0 2px 4px -1px rgba(0, 0, 0, 0.06);
   width: 200px;
 }
@@ -52,7 +52,7 @@ h2 {
     --a: -45deg; /* control the angle */
     --t: .15em; /* thickness of the underline */ 
     color: #453064;
-    margin-left: 16vw;
+    /* margin-left: 16vw; */
   }
   
   h2 span {
@@ -76,4 +76,93 @@ h2 {
     font-weight: bold;
     line-height: 1.5;
     text-transform: capitalize;
+  }
+
+  /* pet card */
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem;
+  }
+  .profile-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem;
+    width: 100%;
+}
+
+  .pets-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    padding: 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .pet-card {
+    background: #f4effa;
+    border-radius: 0.8rem;
+    overflow: hidden;
+    border: 0.1rem solid;
+    box-shadow: 0.35rem 0.35rem 0 #bbacd9;
+    transition: transform 0.2s ease;
+    margin-bottom: 2rem;
+  }
+  
+  .pet-card:hover {
+    transform: translateY(-5px);
+  }
+  
+  .pet-card__image {
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+  }
+  
+  .pet-card__content {
+    padding: 1.5rem;
+  }
+  .profile-card_content{
+    padding: 0.8rem;;
+  }
+  
+  .pet-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  .pet-card__title {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+  }
+  
+  .pet-card__status {
+    margin-left: 0.5rem;
+  }
+  
+  .pet-card__description {
+    color: #666;
+    margin: 0.5rem 0;
+  }
+  
+  .pet-card__location {
+    font-size: 0.9rem;
+    color: #444;
+    margin-top: 0.5rem;
+  }
+  
+  .delete-button {
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+  
+  .delete-button:hover {
+    color: #dc3545;
   }

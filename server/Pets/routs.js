@@ -113,7 +113,6 @@ router.post('/add/:userId', upload.single('image'), async (req, res) => {
 });
 
 // Get user's pets by userId
-
 router.get('/user/:userId', async (req, res) => {
     try {
         const db = client.db("appDB");
