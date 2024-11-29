@@ -16,7 +16,7 @@ const Profile: React.FC = () => {
     phone: "123456",
   });
   
-  const [pets,setPets] = useState<any>([{name:"Catty",status:"Lost",location:"SF",description:"Cute!!"},{name:"Missy",status:false,location:"SF",description:"Cute!!"}])
+  const [pets,setPets] = useState<any>([])
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [newUsername, setNewUsername] = useState("");
@@ -30,10 +30,12 @@ const Profile: React.FC = () => {
   useEffect(() => {
     const fetchUserPets = async () => {
       try {
-        const response = await fetch(`${API_URL}/api/pets/user/${userId}`);
+        const targetId = userId || currentUserId;
+        const response = await fetch(`${API_URL}/api/pets/user/${targetId}`);
         if (!response.ok) {
           throw new Error('Failed to fetch pets');
         }
+        console.log("fetchPets",response);
         const data = await response.json();
         setPets(data);
       } catch (error) {
