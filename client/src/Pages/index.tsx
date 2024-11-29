@@ -8,8 +8,8 @@ import SignUp from "./Signin/signup";
 import Profile from "./Profile/index";
 import AddPet from "./Profile/AddPet";
 import PetSearch from "./PetDatabase";
+import Shelter from "./Shelter";
 import "./styles.css";
-import SearchBar from "./NavBar";
 
 export default function MainPage() {
   const [currentUser, setCurrentUser] = useState<any>(null);
@@ -76,6 +76,11 @@ export default function MainPage() {
                   Nearby Shelters
                 </Link>
               </li>
+              <li className="nav-item">
+                <Link className="nav-link mx-2 custom-nav-link" to="/shelter">
+                  Shelters
+                </Link>
+              </li>
             </ul>
           </div>
           {/* Right Side Menu */}
@@ -126,6 +131,7 @@ export default function MainPage() {
           <Route path="/map" element={<Map />} />
           <Route path="/home/*" element={<Landing />} />
           <Route path="/petdatabase" element={<PetSearch />} />
+          <Route path="/shelter" element={<Shelter />} />
           <Route
             path="/login"
             element={currentUser ? <Navigate to="/" /> : <SignIn />}
