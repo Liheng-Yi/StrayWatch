@@ -1,8 +1,8 @@
 import React, { useState,useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { APIProvider,useMapsLibrary } from '@vis.gl/react-google-maps';
-import PurpleButton from "../../Components/UI/lightPurpleButton";
-import { getCurrentUserId } from "../../Components/UI/auth";
+import PurpleButton from "../../../Components/UI/lightPurpleButton";
+import { getCurrentUserId } from "../../../Components/UI/auth";
 
 const AddPet: React.FC = () => {
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);

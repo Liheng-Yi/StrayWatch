@@ -1,8 +1,28 @@
 import express from 'express';
 import { client } from '../db/connector.js';
 import { ObjectId } from 'mongodb';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
 
 const router = express.Router();
+
+// Configure multer for pet image uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const dir = './pic';
+    // Create directory if it doesn't exist
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    cb(null, dir);
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ storage });
 
 // Get all pets or filter by type
 router.get('/', async (req, res) => {
@@ -57,8 +77,8 @@ router.delete('/:id',async(req,res)=>{
     }
 });
 
-// Add pet for user
-router.post('/add/:userId', async (req, res) => {
+// Add pet for user with image upload
+router.post('/add/:userId', upload.single('image'), async (req, res) => {
     try {
         const db = client.db("appDB");
         const petsCollection = db.collection("pets");
@@ -71,15 +91,17 @@ router.post('/add/:userId', async (req, res) => {
             color: req.body.color,
             status: req.body.status,
             description: req.body.description,
+            picture: req.file ? `/Pets/pic/${req.file.filename}` : null,
+            location: req.body.location,
             createdAt: new Date()
         };
+        
         const result = await petsCollection.insertOne(newPet);
         
         if (!result.acknowledged) {
             return res.status(400).json({ message: 'Failed to add pet' });
         }
-        console.log('Pet added successfully:',result.insertedId);
-
+        
         res.status(201).json({ 
             message: 'Pet added successfully',
             pet: { ...newPet, _id: result.insertedId }

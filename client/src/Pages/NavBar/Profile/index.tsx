@@ -2,8 +2,8 @@ import React, { useState,useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import './styles.css';
-import PurpleButton from "../../Components/UI/lightPurpleButton";
-import {getCurrentUserId} from "../../Components/UI/auth";
+import PurpleButton from "../../../Components/UI/lightPurpleButton";
+import {getCurrentUserId} from "../../../Components/UI/auth";
 import { FaTrash } from 'react-icons/fa';
 
 // TODO: fetch profile from database

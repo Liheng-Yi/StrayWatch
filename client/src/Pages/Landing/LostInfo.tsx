@@ -25,7 +25,7 @@ const LostInfo = () => {
 
         <APIProvider
           apiKey={(() => {
-            console.log("API Key:", process.env.REACT_APP_GOOGLE_MAPS_API_KEY);
+            //console.log("API Key:", process.env.REACT_APP_GOOGLE_MAPS_API_KEY);
             return process.env.REACT_APP_GOOGLE_MAPS_API_KEY ?? "";
           })()}
           solutionChannel="GMP_devsite_samples_v3_rgmautocomplete"

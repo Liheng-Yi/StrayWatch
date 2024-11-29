@@ -61,6 +61,8 @@ app.use("/api/profile", profileRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/shelters", shelterRoutes);
 
+app.use('/Pets/pic', express.static('Pets/pic'));
+
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });

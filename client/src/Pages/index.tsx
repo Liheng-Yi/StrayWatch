@@ -1,48 +1,27 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Routes, Route, Navigate, Link } from "react-router-dom";
 import { UserCircle, PawPrint } from "lucide-react";
+import { useAppSelector, useAppDispatch } from "../store/hooks";
 import Map from "./Map";
 import Landing from "./Landing";
-import SignIn from "./Signin/signin";
-import SignUp from "./Signin/signup";
-import Profile from "./Profile/index";
-import AddPet from "./Profile/AddPet";
+import SignIn from "./NavBar/Signin/signin";
+import SignUp from "./NavBar/Signin/signup";
+import Profile from "./NavBar/Profile/index";
+import AddPet from "./NavBar/Profile/AddPet";
 import PetSearch from "./PetDatabase";
 import Shelter from "./Shelter";
 import "./styles.css";
+import { logout } from "./NavBar/Signin/reducer";
 
 export default function MainPage() {
-  const [currentUser, setCurrentUser] = useState<any>(null);
-
-  useEffect(() => {
-    // Check for user in localStorage when component mounts
-    const userStr = localStorage.getItem("currentUser");
-    if (userStr) {
-      try {
-        const user = JSON.parse(userStr);
-        setCurrentUser(user);
-      } catch (e) {
-        console.error("Error parsing user data:", e);
-        localStorage.removeItem("currentUser");
-      }
-    }
-  }, []);
-
-  // Add this function to help with debugging
-  const checkCurrentUser = () => {
-    console.log("Current user:", currentUser);
-    console.log("LocalStorage user:", localStorage.getItem("currentUser"));
-  };
-
+  const currentUser = useAppSelector((state) => state.user.currentUser);
+  const dispatch = useAppDispatch();
+  console.log("--currentUser", currentUser);
   const handleSignOut = () => {
+    dispatch(logout());
     localStorage.removeItem("currentUser");
-    setCurrentUser(null);
+    window.location.href = "/home";
   };
-
-  // For debugging purposes
-  useEffect(() => {
-    console.log("currentUser state updated:", currentUser);
-  }, [currentUser]);
 
   return (
     <div
@@ -89,7 +68,7 @@ export default function MainPage() {
               <>
                 <li className="nav-item">
                   <span className="nav-link">
-                    Welcome, {currentUser.firstName || currentUser.username}
+                    Welcome, {currentUser.username}
                   </span>
                 </li>
                 <li className="nav-item">

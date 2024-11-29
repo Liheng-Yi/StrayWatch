@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import * as client from "./client";
 import { UserCircle } from "lucide-react";
 import "./signin.css";
-import { useAppDispatch } from "../../store/hooks";
+import { useAppDispatch } from "../../../store/hooks";
 import { setUser, setLoading, setError } from "./reducer";
 
 function SignIn() {
@@ -28,7 +28,7 @@ function SignIn() {
         })
       );
       localStorage.setItem("currentUser", JSON.stringify(user));
-      window.location.href = "/home";
+      navigate("/home");
     } catch (err: any) {
       const errorMessage = err.message || "Invalid credentials";
       dispatch(setError(errorMessage));

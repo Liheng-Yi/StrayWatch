@@ -1,5 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
-import userReducer from "../Pages/Signin/reducer";
+import userReducer from "../Pages/NavBar/Signin/reducer";
 
 export const store = configureStore({
   reducer: {

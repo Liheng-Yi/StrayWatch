@@ -21,8 +21,8 @@ async function connectToDb() {
         db = client.db("appDB");
         
         // Delete all documents in the shelter collection
-        await db.collection("shelters").deleteMany({});
-        console.log("Cleared shelter collection");
+        // await db.collection("shelters").deleteMany({});
+        // console.log("Cleared shelter collection");
         // Check if collection exists and has documents
         const collections = await db.listCollections({ name: "pets" }).toArray();
         if (collections.length === 0) {

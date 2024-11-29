@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useMapsLibrary } from '@vis.gl/react-google-maps';
 import { Upload } from 'lucide-react';
 import './styles.css';
+import { submitLostPet } from './client';
+
 interface Location {
   lat: number;
   lng: number;
@@ -21,12 +23,13 @@ const PlaceAutocomplete = () => {
   const [isDragging, setIsDragging] = useState(false);
 
   const [formData, setFormData] = useState({
-    petName: '',
-    petType: '',
-    lastSeenAddress: '',
-    email: '',
-    phone: '',
-    image: null as File | null
+    name: '',
+    kind: '',
+    color: '',
+    location: '',
+    description: '',
+    image: null as File | null,
+    status: 'Lost'
   });
 
   useEffect(() => {
@@ -47,12 +50,13 @@ const PlaceAutocomplete = () => {
     });
   }, [placeAutocomplete]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
   };
 
   const handleImageChange = (input: React.ChangeEvent<HTMLInputElement> | File) => {
@@ -121,10 +125,39 @@ const PlaceAutocomplete = () => {
     );
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Handle form submission here
-    console.log('Form submitted:', formData);
+    try {
+      const address = selectedPlace?.formatted_address || inputRef.current?.value;
+      await submitLostPet({
+        name: formData.name,
+        kind: formData.kind,
+        color: formData.color,
+        location: address || '',
+        description: formData.description,
+        image: formData.image,
+        status: 'Lost'
+      });
+      
+      // Clear form
+      setFormData({
+        name: '',
+        kind: '',
+        color: '',
+        location: '',
+        description: '',
+        image: null,
+        status: 'Lost'
+      });
+      setImagePreview(null);
+      alert('Pet information submitted successfully!');
+    } catch (error) {
+      if (error instanceof Error) {
+        alert(error.message);
+      } else {
+        alert('An unexpected error occurred');
+      }
+    }
   };
 
   return (
@@ -177,27 +210,27 @@ const PlaceAutocomplete = () => {
             )}
 
             <div className="row mb-3">
-              <div className="col-md-6">
+              <div className="col-md-4">
                 <label className="form-label fw-semibold">
                   Pet Name<span className="text-primary">*</span>
                 </label>
                 <input
                   type="text"
-                  name="petName"
+                  name="name"
                   placeholder="if unsure, put unknown"
-                  value={formData.petName}
+                  value={formData.name}
                   onChange={handleChange}
                   className="form-control"
                   required
                 />
               </div>
-              <div className="col-md-6">
+              <div className="col-md-4">
                 <label className="form-label fw-semibold">
                   Kind of Pet<span className="text-primary">*</span>
                 </label>
                 <select
-                  name="petType"
-                  value={formData.petType}
+                  name="kind"
+                  value={formData.kind}
                   onChange={handleChange}
                   className="form-select"
                   required
@@ -207,105 +240,104 @@ const PlaceAutocomplete = () => {
                   <option value="Cat">Cat</option>
                 </select>
               </div>
+              <div className="col-md-4">
+                <label className="form-label fw-semibold">
+                  Pet Color<span className="text-primary">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="color"
+                  value={formData.color}
+                  onChange={handleChange}
+                  className="form-control"
+                  required
+                />
+              </div>
             </div>
 
             <div className="row mb-3">
-              <div className="col-md-6">
+              <div className="col-12">
                 <label className="form-label fw-semibold">
-                  Phone<span className="text-primary">*</span>
+                  Description
                 </label>
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
+                <textarea
+                  name="description"
+                  placeholder="More details help us find your pet!"
+                  value={formData.description}
                   onChange={handleChange}
                   className="form-control"
-                  required
-                />
-              </div>
-              <div className="col-md-6">
-                <label className="form-label fw-semibold">
-                  Email Address<span className="text-primary">*</span>
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="form-control"
-                  required
+                  rows={3}
                 />
               </div>
             </div>
 
+            <div className="mb-3">
+              <div
+                className={`
+                  
+                  d-flex
+                  flex-column
+                  align-items-center
+                  justify-content-center
+                  rounded
+                  border-2
+                  border-dashed
+                  p-4
+                `}
+                style={{
+                  height: '280px',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                }}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setIsDragging(true);
+                }}
+                onDragLeave={() => setIsDragging(false)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setIsDragging(false);
+                  if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                    handleImageChange(e.dataTransfer.files[0]);
+                  }
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fff'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f4effa'}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  style={{ display: 'none' }}
+                  accept="image/*"
+                  onChange={(e) => {
+                    if (e.target.files?.[0]) {
+                      handleImageChange(e.target.files[0]);
+                    }
+                  }}
+                />
 
-<div className="mb-3">
-  <div
-    className={`
-      
-      d-flex
-      flex-column
-      align-items-center
-      justify-content-center
-      rounded
-      border-2
-      border-dashed
-      p-4
-    `}
-    style={{
-      height: '280px',
-      cursor: 'pointer',
-      transition: 'all 0.3s ease',
-    }}
-    onDragOver={(e) => {
-      e.preventDefault();
-      setIsDragging(true);
-    }}
-    onDragLeave={() => setIsDragging(false)}
-    onDrop={(e) => {
-      e.preventDefault();
-      setIsDragging(false);
-      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-        handleImageChange(e.dataTransfer.files[0]);
-      }
-    }}
-    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fff'}
-    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f4effa'}
-    onClick={() => fileInputRef.current?.click()}
-  >
-    <input
-      ref={fileInputRef}
-      type="file"
-      style={{ display: 'none' }}
-      accept="image/*"
-      onChange={(e) => {
-        if (e.target.files?.[0]) {
-          handleImageChange(e.target.files[0]);
-        }
-      }}
-    />
-
-    {imagePreview ? (
-      <img 
-        src={imagePreview} 
-        alt="Preview" 
-        className="w-100 h-100"
-        style={{ objectFit: 'cover' }}
-      />
-    ) : (
-      <>
-        <i className="" ></i>
-        <h3 className="fs-4 fw-semibold text-dark mb-2">
-          Photo Upload
-        </h3>
-        <p className="text-secondary">
-          Drag and drop to upload or{' '}
-          <span className="text-secondary text-decoration-underline">browse</span>
-        </p>
-      </>
-    )}
-  </div>
-</div>
+                {imagePreview ? (
+                  <img 
+                    src={imagePreview} 
+                    alt="Preview" 
+                    className="w-100 h-100"
+                    style={{ objectFit: 'cover' }}
+                  />
+                ) : (
+                  <>
+                    <i className="" ></i>
+                    <h3 className="fs-4 fw-semibold text-dark mb-2">
+                      Photo Upload
+                    </h3>
+                    <p className="text-secondary">
+                      Drag and drop to upload or{' '}
+                      <span className="text-secondary text-decoration-underline">browse</span>
+                    </p>
+                  </>
+                )}
+              </div>
+            </div>
             
 
             <div className="text-center">
