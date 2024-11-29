@@ -25,18 +25,18 @@ const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
-    setUser: (state, action: PayloadAction<User>) => {
+    setUser: (state:any, action: PayloadAction<User>) => {
       state.currentUser = action.payload;
       state.error = null;
     },
-    setLoading: (state, action: PayloadAction<boolean>) => {
+    setLoading: (state:any, action: PayloadAction<boolean>) => {
       state.isLoading = action.payload;
     },
-    setError: (state, action: PayloadAction<string>) => {
+    setError: (state:any, action: PayloadAction<string>) => {
       state.error = action.payload;
       return state;
     },
-    logout: (state) => {
+    logout: (state:any) => {
       state.currentUser = null;
       state.error = null;
     },
