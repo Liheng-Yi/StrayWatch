@@ -16,6 +16,7 @@ const Profile: React.FC = () => {
     phone: "123456",
   });
 
+
   const [pets, setPets] = useState<any>([]);
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
@@ -33,7 +34,8 @@ const Profile: React.FC = () => {
         if (!response.ok) {
           throw new Error("Failed to fetch pets");
         }
-        console.log("fetchPets", response);
+
+        console.log("fetchPets",response);
         const data = await response.json();
         setPets(data);
       } catch (error) {
