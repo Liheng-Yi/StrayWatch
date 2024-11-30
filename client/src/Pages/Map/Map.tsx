@@ -1,21 +1,21 @@
-import React from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-import './styles.css';
-import { useEffect, useState } from 'react';
-import './shelterForm';
-import ShelterList from './shelterList';
-import { Modal } from 'bootstrap';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import ShelterForm from './shelterForm';
-import { APIProvider } from '@vis.gl/react-google-maps';
+import React from "react";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import "./styles.css";
+import { useEffect, useState } from "react";
+import "./shelterForm";
+import ShelterList from "./shelterList";
+
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
+import ShelterForm from "./shelterForm";
+import { APIProvider } from "@vis.gl/react-google-maps";
 
 // Import the necessary images
-import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
-import iconUrl from 'leaflet/dist/images/marker-icon.png';
-import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
+import iconRetinaUrl from "leaflet/dist/images/marker-icon-2x.png";
+import iconUrl from "leaflet/dist/images/marker-icon.png";
+import shadowUrl from "leaflet/dist/images/marker-shadow.png";
 
 // Create a new default icon instance using L.icon
 const defaultIcon = L.icon({
@@ -47,14 +47,14 @@ const Map: React.FC = () => {
 
   const fetchShelters = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/shelters');
+      const response = await fetch("http://localhost:5000/api/shelters");
       if (!response.ok) {
-        throw new Error('Failed to fetch shelters');
+        throw new Error("Failed to fetch shelters");
       }
       const data = await response.json();
       setShelters(data);
     } catch (error) {
-      console.error('Error fetching shelters:', error);
+      console.error("Error fetching shelters:", error);
     }
   };
 
@@ -72,43 +72,52 @@ const Map: React.FC = () => {
       {/* Map Section */}
       <div className="row mb-4">
         <div className="col-12">
-          <div className="map-container position-relative" style={{ height: '500px' }}>
-            <MapContainer 
-              center={mapCenter} 
-              zoom={13} 
+          <div
+            className="map-container position-relative"
+            style={{ height: "500px" }}
+          >
+            <MapContainer
+              center={mapCenter}
+              zoom={13}
               scrollWheelZoom={true}
-              style={{ height: '100%', width: '100%' }}
+              style={{ height: "100%", width: "100%" }}
               className="rounded shadow-sm"
             >
               <TileLayer
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               />
-              {shelters.map(shelter => shelter.location && (
-                <Marker 
-                  key={shelter._id} 
-                  position={[shelter.location.coordinates[1], shelter.location.coordinates[0]]}
-                >
-                  <Popup>{shelter.name}</Popup>
-                </Marker>
-              ))}
+              {shelters.map(
+                (shelter) =>
+                  shelter.location && (
+                    <Marker
+                      key={shelter._id}
+                      position={[
+                        shelter.location.coordinates[1],
+                        shelter.location.coordinates[0],
+                      ]}
+                    >
+                      <Popup>{shelter.name}</Popup>
+                    </Marker>
+                  )
+              )}
             </MapContainer>
-            
+
             {/* Bootstrap Floating Action Button */}
             <button
               className="btn rounded-circle position-fixed"
               style={{
-                bottom: '2rem',
-                right: '2rem',
-                width: '4rem',
-                height: '4rem',
-                backgroundColor: '#6f42c1',
-                color: 'white',
-                boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
+                bottom: "2rem",
+                right: "2rem",
+                width: "4rem",
+                height: "4rem",
+                backgroundColor: "#6f42c1",
+                color: "white",
+                boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
                 zIndex: 1000,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
               }}
               onClick={() => setShowForm(true)}
               title="Add New Shelter"
@@ -127,18 +136,20 @@ const Map: React.FC = () => {
       </div>
 
       {/* Bootstrap Modal */}
-      <div 
-        className={`modal fade ${showForm ? 'show' : ''}`} 
+      <div
+        className={`modal fade ${showForm ? "show" : ""}`}
         id="shelterFormModal"
         tabIndex={-1}
         aria-labelledby="shelterFormModalLabel"
         aria-hidden={!showForm}
-        style={{ display: showForm ? 'block' : 'none' }}
+        style={{ display: showForm ? "block" : "none" }}
       >
         <div className="modal-dialog modal-dialog-centered modal-lg">
           <div className="modal-content">
             <div className="modal-header">
-              <h5 className="modal-title" id="shelterFormModalLabel">Add New Shelter</h5>
+              <h5 className="modal-title" id="shelterFormModalLabel">
+                Add New Shelter
+              </h5>
               <button
                 type="button"
                 className="btn-close"
@@ -149,7 +160,10 @@ const Map: React.FC = () => {
             <div className="modal-body">
               <APIProvider
                 apiKey={(() => {
-                  console.log("[map]API Key:", process.env.REACT_APP_GOOGLE_MAPS_API_KEY);
+                  console.log(
+                    "[map]API Key:",
+                    process.env.REACT_APP_GOOGLE_MAPS_API_KEY
+                  );
                   return process.env.REACT_APP_GOOGLE_MAPS_API_KEY ?? "";
                 })()}
                 solutionChannel="GMP_devsite_samples_v3_rgmautocomplete"
@@ -167,8 +181,8 @@ const Map: React.FC = () => {
 
       {/* Modal Backdrop */}
       {showForm && (
-        <div 
-          className="modal-backdrop fade show" 
+        <div
+          className="modal-backdrop fade show"
           onClick={() => setShowForm(false)}
         ></div>
       )}

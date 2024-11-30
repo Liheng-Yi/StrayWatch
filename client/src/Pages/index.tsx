@@ -1,4 +1,3 @@
-import React, { useEffect } from "react";
 import { Routes, Route, Navigate, Link } from "react-router-dom";
 import { UserCircle, PawPrint } from "lucide-react";
 import { useAppSelector, useAppDispatch } from "../store/hooks";

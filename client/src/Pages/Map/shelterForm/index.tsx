@@ -1,44 +1,46 @@
-import React, { useState, useEffect, useRef } from 'react';
-import PurpleButton from '../../../Components/UI/lightPurpleButton';
-import { registerShelter } from './client';
-import { APIProvider, useMapsLibrary } from '@vis.gl/react-google-maps';
+import React, { useState, useEffect, useRef } from "react";
+import PurpleButton from "../../../Components/UI/lightPurpleButton";
+import { registerShelter } from "./client";
+import { useMapsLibrary } from "@vis.gl/react-google-maps";
 
 interface ShelterFormProps {
   onClose: () => void;
 }
 
 const ShelterForm = ({ onClose }: ShelterFormProps) => {
-  const [placeAutocomplete, setPlaceAutocomplete] = useState<google.maps.places.Autocomplete | null>(null);
+  const [placeAutocomplete, setPlaceAutocomplete] =
+    useState<google.maps.places.Autocomplete | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
-  const [selectedPlace, setSelectedPlace] = useState<google.maps.places.PlaceResult | null>(null);
-  const places = useMapsLibrary('places');
+  const [selectedPlace, setSelectedPlace] =
+    useState<google.maps.places.PlaceResult | null>(null);
+  const places = useMapsLibrary("places");
   const inputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
-    shelterName: '',
-    shelterAddress: '',
-    shelterPhone: '',
-    shelterEmail: '',
-    shelterWebsite: '',
-    verified: false
+    shelterName: "",
+    shelterAddress: "",
+    shelterPhone: "",
+    shelterEmail: "",
+    shelterWebsite: "",
+    verified: false,
   });
 
   const formRef = useRef<HTMLDivElement>(null);
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
 
-    useEffect(() => {
+  useEffect(() => {
     if (!places || !inputRef.current) return;
 
     const options = {
-      fields: ['geometry', 'formatted_address'],
-      types: ['address'],
-      componentRestrictions: { country: 'us' }
+      fields: ["geometry", "formatted_address"],
+      types: ["address"],
+      componentRestrictions: { country: "us" },
     };
     setPlaceAutocomplete(new places.Autocomplete(inputRef.current, options));
   }, [places]);
 
   useEffect(() => {
     if (!placeAutocomplete) return;
-    placeAutocomplete.addListener('place_changed', () => {
+    placeAutocomplete.addListener("place_changed", () => {
       const place = placeAutocomplete.getPlace();
       handlePlaceSelect(place);
       setSelectedPlace(place);
@@ -49,7 +51,7 @@ const ShelterForm = ({ onClose }: ShelterFormProps) => {
     const handleClickOutside = (event: MouseEvent) => {
       // Check if the click is on a Google Places autocomplete element
       const target = event.target as HTMLElement;
-      if (target.closest('.pac-container')) {
+      if (target.closest(".pac-container")) {
         return;
       }
 
@@ -58,24 +60,24 @@ const ShelterForm = ({ onClose }: ShelterFormProps) => {
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [onClose]);
 
   // Fill form data with dummy data for debugging
   useEffect(() => {
     setFormData({
-      shelterName: 'Debug Shelter',
-      shelterAddress: '123 Debug St, Debug City, DB 12345',
-      shelterPhone: '(123) 456-7890',
-      shelterEmail: 'debug@shelter.com',
-      shelterWebsite: 'https://www.debugshelter.com',
-      verified: false
+      shelterName: "Debug Shelter",
+      shelterAddress: "123 Debug St, Debug City, DB 12345",
+      shelterPhone: "(123) 456-7890",
+      shelterEmail: "debug@shelter.com",
+      shelterWebsite: "https://www.debugshelter.com",
+      verified: false,
     });
   }, []);
-    const getCurrentLocation = () => {
+  const getCurrentLocation = () => {
     setIsLoadingLocation(true);
     setLocationError(null);
 
@@ -93,7 +95,7 @@ const ShelterForm = ({ onClose }: ShelterFormProps) => {
             `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}`
           );
           const data = await response.json();
-          
+
           if (data.results && data.results[0]) {
             const address = data.results[0].formatted_address;
             if (inputRef.current) {
@@ -121,12 +123,13 @@ const ShelterForm = ({ onClose }: ShelterFormProps) => {
     setSelectedPlace(place);
     //console.log('[Sform]API Key:', process.env.REACT_APP_GOOGLE_MAPS_API_KEY);
     // Update form data with place information
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      shelterAddress: place.formatted_address || '',
+      shelterAddress: place.formatted_address || "",
       shelterPhone: place.formatted_phone_number || prev.shelterPhone,
       shelterWebsite: place.website || prev.shelterWebsite,
-      shelterName: !prev.shelterName && place.name ? place.name : prev.shelterName
+      shelterName:
+        !prev.shelterName && place.name ? place.name : prev.shelterName,
     }));
 
     // Clear any previous location errors
@@ -137,66 +140,72 @@ const ShelterForm = ({ onClose }: ShelterFormProps) => {
     setLocationError(error);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value, type } = e.target as HTMLInputElement;
-    
-    if (type === 'checkbox') {
+
+    if (type === "checkbox") {
       const { checked } = e.target as HTMLInputElement;
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
       }));
     } else {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        [name]: value
+        [name]: value,
       }));
     }
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
+
     try {
       if (!selectedPlace?.geometry?.location) {
-        setLocationError('Please select a valid address');
+        setLocationError("Please select a valid address");
         return;
       }
 
       // Get the lat/lng values by calling the methods
-      const lat = typeof selectedPlace.geometry.location.lat === 'function' 
-        ? selectedPlace.geometry.location.lat() 
-        : selectedPlace.geometry.location.lat;
-      
-      const lng = typeof selectedPlace.geometry.location.lng === 'function' 
-        ? selectedPlace.geometry.location.lng() 
-        : selectedPlace.geometry.location.lng;
+      const lat =
+        typeof selectedPlace.geometry.location.lat === "function"
+          ? selectedPlace.geometry.location.lat()
+          : selectedPlace.geometry.location.lat;
+
+      const lng =
+        typeof selectedPlace.geometry.location.lng === "function"
+          ? selectedPlace.geometry.location.lng()
+          : selectedPlace.geometry.location.lng;
 
       const location = {
-        type: 'Point',
-        coordinates: [lng, lat]
+        type: "Point",
+        coordinates: [lng, lat],
       };
 
       const shelterData = {
         ...formData,
-        location
+        location,
       };
-      
+
       await registerShelter(shelterData);
-      
+
       // Reset form
       setFormData({
-        shelterName: '',
-        shelterAddress: '',
-        shelterPhone: '',
-        shelterEmail: '',
-        shelterWebsite: '',
-        verified: false
+        shelterName: "",
+        shelterAddress: "",
+        shelterPhone: "",
+        shelterEmail: "",
+        shelterWebsite: "",
+        verified: false,
       });
       setSelectedPlace(null);
       onClose(); // Close the form after successful registration
     } catch (error) {
-      console.error('Error details:', error);
-      setLocationError(error instanceof Error ? error.message : 'Failed to register shelter');
+      console.error("Error details:", error);
+      setLocationError(
+        error instanceof Error ? error.message : "Failed to register shelter"
+      );
     }
   };
 
@@ -206,17 +215,21 @@ const ShelterForm = ({ onClose }: ShelterFormProps) => {
         <div className="col-lg-8">
           <div className="card shadow-sm">
             <div className="card-body p-4">
-              <h3 className="card-title text-center mb-4">Register Your Shelter</h3>
-              
+              <h3 className="card-title text-center mb-4">
+                Register Your Shelter
+              </h3>
+
               <form onSubmit={handleSubmit}>
                 <div className="row g-3">
                   {/* Basic Information Section */}
                   <div className="col-12">
-                    <h5 className="border-bottom pb-2 mb-3">Basic Information</h5>
+                    <h5 className="border-bottom pb-2 mb-3">
+                      Basic Information
+                    </h5>
                   </div>
                   <div className="col-12">
                     <label className="form-label">
-                      Shelter Name <span className='text-danger'>*</span>
+                      Shelter Name <span className="text-danger">*</span>
                     </label>
                     <div className="input-group">
                       <span className="input-group-text">
@@ -236,30 +249,33 @@ const ShelterForm = ({ onClose }: ShelterFormProps) => {
 
                   <div className="col-12">
                     <div className="position-relative">
-
-                <input
-                  type="text"
-                  id="address"
-                  name="address"
-                  className="form-control"
-                  placeholder="Enter address"
-                  required
-                  ref={inputRef}
-                />
-                            <div className="d-flex ms-3 justify-content-start w-100 mb-2">
-              <button
-                type="button"
-                onClick={getCurrentLocation}
-                className="btn btn-link p-0 text-decoration-underline" 
-                disabled={isLoadingLocation}
-              >
-                {isLoadingLocation ? (
-                  <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                ) : (
-                  <span>🐾 Use My Location</span>
-                )}
-              </button>
-            </div>
+                      <input
+                        type="text"
+                        id="address"
+                        name="address"
+                        className="form-control"
+                        placeholder="Enter address"
+                        required
+                        ref={inputRef}
+                      />
+                      <div className="d-flex ms-3 justify-content-start w-100 mb-2">
+                        <button
+                          type="button"
+                          onClick={getCurrentLocation}
+                          className="btn btn-link p-0 text-decoration-underline"
+                          disabled={isLoadingLocation}
+                        >
+                          {isLoadingLocation ? (
+                            <span
+                              className="spinner-border spinner-border-sm me-1"
+                              role="status"
+                              aria-hidden="true"
+                            ></span>
+                          ) : (
+                            <span>🐾 Use My Location</span>
+                          )}
+                        </button>
+                      </div>
 
                       {locationError && (
                         <div className="text-danger small mt-1">
@@ -271,7 +287,9 @@ const ShelterForm = ({ onClose }: ShelterFormProps) => {
 
                   {/* Contact Information Section */}
                   <div className="col-12 mt-4">
-                    <h5 className="border-bottom pb-2 mb-3">Contact Information</h5>
+                    <h5 className="border-bottom pb-2 mb-3">
+                      Contact Information
+                    </h5>
                   </div>
 
                   <div className="col-md-6">
@@ -325,7 +343,6 @@ const ShelterForm = ({ onClose }: ShelterFormProps) => {
                     </div>
                   </div>
 
-                  
                   <div className="col-12 mt-4 text-center">
                     <PurpleButton type="submit" className="btn btn-lg">
                       Register Shelter

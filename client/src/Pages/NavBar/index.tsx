@@ -1,7 +1,5 @@
-import React from "react";
-
 function SearchBar() {
-    return (
+  return (
     <form className="d-flex me-auto">
       <div className="input-group">
         <input
