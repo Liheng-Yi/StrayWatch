@@ -1,0 +1,8 @@
+@startuml
+actor user
+participant backend
+database dataStore 
+user -> backend: 
+backend -> database: 
+MongoDB -> backend:
+@enduml
