@@ -33,13 +33,18 @@ const Landing: React.FC = () => {
               <div className="d-flex flex-column flex-md-row gap-3 justify-content-center">
                 <button
                   onClick={handleLostPetClick}
-                  className="btn btn-primary btn-lg px-4 py-3 d-flex align-items-center justify-content-center gap-2"
+                  className="lost-found-button d-flex align-items-center justify-content-center gap-2"
                 >
                   <PawPrint size={24} />I Lost a Pet
                 </button>
                 <button
                   onClick={handleSpotPetClick}
-                  className="btn btn-outline-primary btn-lg px-4 py-3 d-flex align-items-center justify-content-center gap-2"
+                  className="lost-found-button d-flex align-items-center justify-content-center gap-2"
+                  style={{
+                    backgroundColor: "transparent",
+                    border: "2px solid #7758aa",
+                    color: "#7758aa",
+                  }}
                 >
                   <Search size={24} />I Spot a Pet
                 </button>

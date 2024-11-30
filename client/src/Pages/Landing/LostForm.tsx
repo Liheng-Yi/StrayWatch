@@ -1,10 +1,10 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { useMapsLibrary } from '@vis.gl/react-google-maps';
-import { Upload } from 'lucide-react';
-import './styles.css';
-import { submitLostPet } from './client';
-import { useAppSelector } from '../../store/hooks';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useRef, useEffect, useCallback } from "react";
+import { useMapsLibrary } from "@vis.gl/react-google-maps";
+import { Upload } from "lucide-react";
+import "./styles.css";
+import { submitLostPet } from "./client";
+import { useAppSelector } from "../../store/hooks";
+import { useNavigate } from "react-router-dom";
 
 interface Location {
   lat: number;
@@ -18,15 +18,17 @@ interface LostPetFormData {
   location: string;
   description: string;
   image: File | null;
-  status: 'Lost';
+  status: "Lost";
   userId: string;
 }
 
 const PlaceAutocomplete = () => {
-  const [placeAutocomplete, setPlaceAutocomplete] = useState<google.maps.places.Autocomplete | null>(null);
-  const [selectedPlace, setSelectedPlace] = useState<google.maps.places.PlaceResult | null>(null);
+  const [placeAutocomplete, setPlaceAutocomplete] =
+    useState<google.maps.places.Autocomplete | null>(null);
+  const [selectedPlace, setSelectedPlace] =
+    useState<google.maps.places.PlaceResult | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const places = useMapsLibrary('places');
+  const places = useMapsLibrary("places");
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
   const [currentLocation, setCurrentLocation] = useState<Location | null>(null);
@@ -36,14 +38,14 @@ const PlaceAutocomplete = () => {
   const [isDragging, setIsDragging] = useState(false);
 
   const [formData, setFormData] = useState({
-    name: '',
-    kind: '',
-    color: '',
-    location: '',
-    description: '',
+    name: "",
+    kind: "",
+    color: "",
+    location: "",
+    description: "",
     image: null as File | null,
-    status: 'Lost' as const,
-    userId: ''
+    status: "Lost" as const,
+    userId: "",
   });
 
   const navigate = useNavigate();
@@ -54,35 +56,39 @@ const PlaceAutocomplete = () => {
     if (!places || !inputRef.current) return;
 
     const options = {
-      fields: ['geometry', 'formatted_address'],
-      types: ['address'],
-      componentRestrictions: { country: 'us' }
+      fields: ["geometry", "formatted_address"],
+      types: ["address"],
+      componentRestrictions: { country: "us" },
     };
     setPlaceAutocomplete(new places.Autocomplete(inputRef.current, options));
   }, [places]);
 
   useEffect(() => {
     if (!placeAutocomplete) return;
-    placeAutocomplete.addListener('place_changed', () => {
+    placeAutocomplete.addListener("place_changed", () => {
       setSelectedPlace(placeAutocomplete.getPlace());
     });
   }, [placeAutocomplete]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
   ) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
-  const handleImageChange = (input: React.ChangeEvent<HTMLInputElement> | File) => {
+  const handleImageChange = (
+    input: React.ChangeEvent<HTMLInputElement> | File
+  ) => {
     const file = input instanceof File ? input : input.target.files?.[0];
     if (file) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        image: file
+        image: file,
       }));
       const previewUrl = URL.createObjectURL(file);
       setImagePreview(previewUrl);
@@ -90,9 +96,9 @@ const PlaceAutocomplete = () => {
   };
 
   const removeImage = () => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      image: null
+      image: null,
     }));
     if (imagePreview) {
       URL.revokeObjectURL(imagePreview);
@@ -118,7 +124,7 @@ const PlaceAutocomplete = () => {
             `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}`
           );
           const data = await response.json();
-          
+
           if (data.results && data.results[0]) {
             const address = data.results[0].formatted_address;
             if (inputRef.current) {
@@ -145,44 +151,45 @@ const PlaceAutocomplete = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
+
     console.log("Submitting form with currentUser:", currentUser?._id);
     if (currentUser?._id === undefined) {
-      navigate('/login');
+      navigate("/login");
       return;
     }
 
     try {
-      const address = selectedPlace?.formatted_address || inputRef.current?.value;
+      const address =
+        selectedPlace?.formatted_address || inputRef.current?.value;
       await submitLostPet({
         name: formData.name,
         kind: formData.kind,
         color: formData.color,
-        location: address || '',
+        location: address || "",
         description: formData.description,
         image: formData.image,
-        status: 'Lost',
-        userId: currentUser._id
+        status: "Lost",
+        userId: currentUser._id,
       });
-      
+
       // Clear form
       setFormData({
-        name: '',
-        kind: '',
-        color: '',
-        location: '',
-        description: '',
+        name: "",
+        kind: "",
+        color: "",
+        location: "",
+        description: "",
         image: null,
-        status: 'Lost',
-        userId: ''
+        status: "Lost",
+        userId: "",
       });
       setImagePreview(null);
-      alert('Pet information submitted successfully!');
+      alert("Pet information submitted successfully!");
     } catch (error) {
       if (error instanceof Error) {
         alert(error.message);
       } else {
-        alert('An unexpected error occurred');
+        alert("An unexpected error occurred");
       }
     }
   };
@@ -195,7 +202,8 @@ const PlaceAutocomplete = () => {
             Where did your pet get lost?
           </label>
           <p className="text-muted small mb-2">
-            Please provide a specific street address. We will never share your exact location.
+            Please provide a specific street address. We will never share your
+            exact location.
           </p>
 
           <form onSubmit={handleSubmit} className="mb-3">
@@ -219,21 +227,23 @@ const PlaceAutocomplete = () => {
               <button
                 type="button"
                 onClick={getCurrentLocation}
-                className="btn btn-link p-0 text-decoration-underline" 
+                className="btn btn-link p-0 text-decoration-underline"
                 disabled={isLoadingLocation}
               >
                 {isLoadingLocation ? (
-                  <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                  <span
+                    className="spinner-border spinner-border-sm me-1"
+                    role="status"
+                    aria-hidden="true"
+                  ></span>
                 ) : (
                   <span>🐾 Use My Location</span>
                 )}
               </button>
             </div>
-            
+
             {locationError && (
-              <div className="text-danger small mt-1">
-                {locationError}
-              </div>
+              <div className="text-danger small mt-1">{locationError}</div>
             )}
 
             <div className="row mb-3">
@@ -284,9 +294,7 @@ const PlaceAutocomplete = () => {
 
             <div className="row mb-3">
               <div className="col-12">
-                <label className="form-label fw-semibold">
-                  Description
-                </label>
+                <label className="form-label fw-semibold">Description</label>
                 <textarea
                   name="description"
                   placeholder="More details help us find your pet!"
@@ -312,9 +320,9 @@ const PlaceAutocomplete = () => {
                   p-4
                 `}
                 style={{
-                  height: '280px',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
+                  height: "280px",
+                  cursor: "pointer",
+                  transition: "all 0.3s ease",
                 }}
                 onDragOver={(e) => {
                   e.preventDefault();
@@ -328,14 +336,18 @@ const PlaceAutocomplete = () => {
                     handleImageChange(e.dataTransfer.files[0]);
                   }
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fff'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f4effa'}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.backgroundColor = "#fff")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.backgroundColor = "#f4effa")
+                }
                 onClick={() => fileInputRef.current?.click()}
               >
                 <input
                   ref={fileInputRef}
                   type="file"
-                  style={{ display: 'none' }}
+                  style={{ display: "none" }}
                   accept="image/*"
                   onChange={(e) => {
                     if (e.target.files?.[0]) {
@@ -345,27 +357,28 @@ const PlaceAutocomplete = () => {
                 />
 
                 {imagePreview ? (
-                  <img 
-                    src={imagePreview} 
-                    alt="Preview" 
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
                     className="w-100 h-100"
-                    style={{ objectFit: 'cover' }}
+                    style={{ objectFit: "cover" }}
                   />
                 ) : (
                   <>
-                    <i className="" ></i>
+                    <i className=""></i>
                     <h3 className="fs-4 fw-semibold text-dark mb-2">
                       Photo Upload
                     </h3>
                     <p className="text-secondary">
-                      Drag and drop to upload or{' '}
-                      <span className="text-secondary text-decoration-underline">browse</span>
+                      Drag and drop to upload or{" "}
+                      <span className="text-secondary text-decoration-underline">
+                        browse
+                      </span>
                     </p>
                   </>
                 )}
               </div>
             </div>
-            
 
             <div className="text-center">
               <button type="submit" className="lost-found-button">

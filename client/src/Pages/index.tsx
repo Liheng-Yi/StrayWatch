@@ -37,9 +37,12 @@ export default function MainPage() {
           {/* Brand/Home - Now in its own div */}
           <div className="navbar-brand-container">
             <Link
-              className="navbar-brand fw-bold text-primary hover-opacity"
+              className="navbar-brand fw-bold custom-nav-link"
               to="/home"
-              style={{ fontSize: "1.3rem" }}
+              style={{
+                fontSize: "1.3rem",
+                color: "#4a2589",
+              }}
             >
               Home
             </Link>

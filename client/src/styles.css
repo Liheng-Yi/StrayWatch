@@ -82,3 +82,34 @@
 
 /* If you want to keep your existing lost-found-button styles, 
    you can merge them with these or keep them separate */
+
+/* Add or update these styles */
+.btn-lost-pet {
+  background-color: #6b46c1; /* Purple color */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.btn-lost-pet:hover {
+  background-color: #553c9a; /* Darker purple on hover */
+  color: white;
+}
+
+.btn-spot-pet {
+  background-color: white;
+  color: #6b46c1; /* Purple text */
+  border: 2px solid #6b46c1; /* Purple border */
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-spot-pet:hover {
+  background-color: #6b46c1;
+  color: white;
+}
