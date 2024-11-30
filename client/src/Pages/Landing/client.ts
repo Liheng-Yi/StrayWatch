@@ -14,6 +14,7 @@ export interface LostPetFormData {
   color?: string;
   description: string;
   userId: string;
+  coordinates: { type: 'Point', coordinates: [number, number] } | null;
 }
 
 export interface SpotPetFormData {
@@ -24,6 +25,7 @@ export interface SpotPetFormData {
   status: "Found";
   color?: string;
   description: string;
+  coordinates: { type: 'Point', coordinates: [number, number] } | null;
 }
 
 const uploadImage = async (image: File) => {
@@ -46,11 +48,11 @@ export const submitLostPet = async (formData: LostPetFormData) => {
   requestFormData.append("color", formData.color || "");
   requestFormData.append("location", formData.location);
   requestFormData.append("userId", formData.userId); // Changed: userId now in form data
-
+  requestFormData.append("coordinates", JSON.stringify(formData.coordinates));
   if (formData.image) {
     requestFormData.append("image", formData.image);
   }
-
+  console.log("[submitLostPet]--coordinates", formData.coordinates);
   const response = await axios.post(
     //     // BEFORE:
     // `${API_URL}/api/pets/add/${formData.userId}`  // userId was in URL

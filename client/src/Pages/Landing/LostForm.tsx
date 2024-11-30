@@ -11,17 +11,6 @@ interface Location {
   lng: number;
 }
 
-interface LostPetFormData {
-  name: string;
-  kind: string;
-  color: string;
-  location: string;
-  description: string;
-  image: File | null;
-  status: "Lost";
-  userId: string;
-}
-
 const PlaceAutocomplete = () => {
   const [placeAutocomplete, setPlaceAutocomplete] =
     useState<google.maps.places.Autocomplete | null>(null);
@@ -46,11 +35,12 @@ const PlaceAutocomplete = () => {
     image: null as File | null,
     status: "Lost" as const,
     userId: "",
+    coordinates: null as { type: 'Point', coordinates: [number, number] } | null
   });
 
   const navigate = useNavigate();
   const currentUser = useAppSelector((state) => state.user.currentUser);
-  console.log("[LostForm]--currentUser", currentUser);
+  // console.log("[LostForm]--currentUser", currentUser);
 
   useEffect(() => {
     if (!places || !inputRef.current) return;
@@ -66,7 +56,9 @@ const PlaceAutocomplete = () => {
   useEffect(() => {
     if (!placeAutocomplete) return;
     placeAutocomplete.addListener("place_changed", () => {
-      setSelectedPlace(placeAutocomplete.getPlace());
+      const place = placeAutocomplete.getPlace();
+
+      setSelectedPlace(place);
     });
   }, [placeAutocomplete]);
 
@@ -106,6 +98,8 @@ const PlaceAutocomplete = () => {
     }
   };
 
+
+
   const getCurrentLocation = () => {
     setIsLoadingLocation(true);
     setLocationError(null);
@@ -124,13 +118,21 @@ const PlaceAutocomplete = () => {
             `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}`
           );
           const data = await response.json();
-
+          
           if (data.results && data.results[0]) {
             const address = data.results[0].formatted_address;
             if (inputRef.current) {
               inputRef.current.value = address;
             }
             setSelectedPlace(data.results[0]);
+            setFormData(prev => ({
+              ...prev,
+              location: address,
+              coordinates: {
+                type: 'Point',
+                coordinates: [longitude, latitude] // Note: GeoJSON uses [lng, lat] order
+              }
+            }));
           }
         } catch (error) {
           setLocationError("Failed to get address from coordinates");
@@ -152,24 +154,23 @@ const PlaceAutocomplete = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    console.log("Submitting form with currentUser:", currentUser?._id);
+    
     if (currentUser?._id === undefined) {
       navigate("/login");
       return;
     }
 
     try {
-      const address =
-        selectedPlace?.formatted_address || inputRef.current?.value;
       await submitLostPet({
         name: formData.name,
         kind: formData.kind,
         color: formData.color,
-        location: address || "",
+        location: formData.location,
         description: formData.description,
         image: formData.image,
         status: "Lost",
         userId: currentUser._id,
+        coordinates: formData.coordinates,
       });
 
       // Clear form
@@ -182,6 +183,7 @@ const PlaceAutocomplete = () => {
         image: null,
         status: "Lost",
         userId: "",
+        coordinates: null,
       });
       setImagePreview(null);
       alert("Pet information submitted successfully!");
