@@ -1,6 +1,6 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useMapsLibrary } from "@vis.gl/react-google-maps";
-import { Upload } from "lucide-react";
+
 import "./styles.css";
 import { submitLostPet } from "./client";
 import { useAppSelector } from "../../store/hooks";
@@ -9,17 +9,6 @@ import { useNavigate } from "react-router-dom";
 interface Location {
   lat: number;
   lng: number;
-}
-
-interface LostPetFormData {
-  name: string;
-  kind: string;
-  color: string;
-  location: string;
-  description: string;
-  image: File | null;
-  status: "Lost";
-  userId: string;
 }
 
 const PlaceAutocomplete = () => {
