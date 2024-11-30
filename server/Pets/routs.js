@@ -1,28 +1,12 @@
 import express from "express";
 import { client } from "../db/connector.js";
 import { ObjectId } from "mongodb";
-import multer from "multer";
-import path from "path";
-import fs from "fs";
+import s3Upload from '../config/s3Config.js';
 
 const router = express.Router();
 
 // Configure multer for pet image uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const dir = "./pic";
-    // Create directory if it doesn't exist
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    cb(null, dir);
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
-  },
-});
-
-const upload = multer({ storage });
+const upload = s3Upload;
 
 // Get all pets or filter by type
 router.get("/", async (req, res) => {
@@ -80,20 +64,19 @@ router.delete("/:id", async (req, res) => {
 // Add pet for user with image upload
 router.post("/add", upload.single("image"), async (req, res) => {
   try {
-    const db = client.db("appDB"); // Added: Get DB reference
-    const petsCollection = db.collection("pets"); // Added: Get collection reference
+    const db = client.db("appDB");
+    const petsCollection = db.collection("pets");
 
     const petData = {
       ...req.body,
-      userId: new ObjectId(req.body.userId), // Added: Convert userId to ObjectId
-      image: req.file ? req.file.path : null, // Added: Handle image path
-      createdAt: new Date(), // Added: Timestamp
+      userId: new ObjectId(req.body.userId),
+      picture: req.file ? req.file.location : null,
+      createdAt: new Date(),
     };
 
-    const result = await petsCollection.insertOne(petData); // Changed: Using MongoDB native operation
+    const result = await petsCollection.insertOne(petData);
 
     res.status(201).json({
-      // Added: Better response structure
       success: true,
       data: result,
     });
