@@ -14,7 +14,7 @@ import "./styles.css";
 import { logout } from "./NavBar/Signin/reducer";
 
 export default function MainPage() {
-  const currentUser = useAppSelector((state:any) => state.user.currentUser);
+  const currentUser = useAppSelector((state: any) => state.user.currentUser);
   const dispatch = useAppDispatch();
   console.log("--currentUser", currentUser);
   const handleSignOut = () => {
@@ -32,75 +32,98 @@ export default function MainPage() {
         <div className="paw-pattern-overlay"></div>
       </div>
 
-      <nav className="navbar navbar-expand navbar-light custom-bg">
-        <div className="container position-relative">
-          {/* Center Links - Using position-absolute for true center */}
-          <div className="position-absolute start-50 translate-middle-x">
-            <ul className="custom-nav navbar-nav fs-5 d-flex flex-row">
-              <li className="nav-item">
-                <Link className="nav-link mx-2 custom-nav-link" to="/home">
-                  Home
-                </Link>
-              </li>
+      <nav className="navbar navbar-expand-lg navbar-light custom-bg shadow-sm">
+        <div className="container-fluid py-2">
+          {/* Brand/Home - Now in its own div */}
+          <div className="navbar-brand-container">
+            <Link
+              className="navbar-brand fw-bold text-primary hover-opacity"
+              to="/home"
+              style={{ fontSize: "1.3rem" }}
+            >
+              Home
+            </Link>
+          </div>
+
+          <button
+            className="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarContent"
+          >
+            <span className="navbar-toggler-icon"></span>
+          </button>
+
+          {/* Collapsible content */}
+          <div className="collapse navbar-collapse" id="navbarContent">
+            {/* Center navigation - Changed from me-auto to mx-auto */}
+            <ul className="navbar-nav mx-auto mb-2 mb-lg-0 gap-4">
               <li className="nav-item">
                 <Link
-                  className="nav-link mx-2 custom-nav-link"
+                  className="nav-link custom-nav-link position-relative hover-underline"
                   to="/petdatabase"
                 >
                   Lost Pets
                 </Link>
               </li>
               <li className="nav-item">
-                <Link className="nav-link mx-2 custom-nav-link" to="/map">
+                <Link
+                  className="nav-link custom-nav-link position-relative hover-underline"
+                  to="/map"
+                >
                   Nearby Shelters
                 </Link>
               </li>
               <li className="nav-item">
-                <Link className="nav-link mx-2 custom-nav-link" to="/shelter">
+                <Link
+                  className="nav-link custom-nav-link position-relative hover-underline"
+                  to="/shelter"
+                >
                   Shelters
                 </Link>
               </li>
             </ul>
-          </div>
-          {/* Right Side Menu */}
-          <ul className="navbar-nav ms-auto">
-            {currentUser ? (
-              <>
-                <li className="nav-item">
-                  <span className="nav-link">
-                    Welcome, {currentUser.username}
-                  </span>
-                </li>
+
+            {/* Right side user menu */}
+            <ul className="navbar-nav align-items-center gap-3">
+              {currentUser ? (
+                <>
+                  <li className="nav-item">
+                    <span className="nav-item text-muted fst-italic text-nowrap">
+                      Welcome, {currentUser.username}
+                    </span>
+                  </li>
+                  <li className="nav-item">
+                    <Link
+                      className="nav-link d-flex align-items-center hover-opacity"
+                      to="/profile"
+                    >
+                      <PawPrint size={18} className="me-1" />
+                      Profile
+                    </Link>
+                  </li>
+                  <li className="nav-item">
+                    <button
+                      onClick={handleSignOut}
+                      className="btn btn-outline-primary btn-sm rounded-pill px-3 hover-scale"
+                    >
+                      Sign Out
+                    </button>
+                  </li>
+                </>
+              ) : (
                 <li className="nav-item">
                   <Link
-                    className="nav-link d-flex align-items-center"
-                    to="/profile"
+                    className="nav-link d-flex align-items-center hover-opacity"
+                    to="/login"
                   >
-                    <PawPrint size={20} className="me-1" />
-                    Profile
+                    <UserCircle size={18} className="me-1" />
+                    Sign in
                   </Link>
                 </li>
-                <li className="nav-item">
-                  <button
-                    onClick={handleSignOut}
-                    className="btn btn-outline-primary ms-2"
-                  >
-                    Sign Out
-                  </button>
-                </li>
-              </>
-            ) : (
-              <li className="nav-item">
-                <Link
-                  className="nav-link d-flex align-items-center"
-                  to="/login"
-                >
-                  <UserCircle size={20} className="me-1" />
-                  Sign in
-                </Link>
-              </li>
-            )}
-          </ul>
+              )}
+            </ul>
+          </div>
         </div>
       </nav>
 
