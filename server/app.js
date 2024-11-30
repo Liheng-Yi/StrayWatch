@@ -19,7 +19,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
     credentials: true,
-    origin: process.env.NETLIFY_URL || "http://localhost:3000",
+    origin: [
+      process.env.NETLIFY_URL || "https://straywatch.netlify.app",
+      "http://localhost:3000",
+    ],
   })
 );
 const port = process.env.PORT || 5000;
@@ -61,7 +64,7 @@ app.use("/api/profile", profileRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/shelters", shelterRoutes);
 
-app.use('/Pets/pic', express.static('Pets/pic'));
+app.use("/Pets/pic", express.static("Pets/pic"));
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);

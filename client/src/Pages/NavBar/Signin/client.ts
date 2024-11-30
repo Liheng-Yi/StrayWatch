@@ -6,17 +6,17 @@ export const signup = async (userData: {
   role?: "user" | "shelter" | "admin";
 }) => {
   try {
-    const response = await fetch('/api/users/signup', {
-      method: 'POST',
+    const response = await fetch("/api/users/signup", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(userData)
+      body: JSON.stringify(userData),
     });
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || 'Signup failed');
+      throw new Error(error.message || "Signup failed");
     }
 
     const userWithoutPassword = await response.json();
@@ -31,17 +31,17 @@ export const signin = async (credentials: {
   password: string;
 }) => {
   try {
-    const response = await fetch('/api/users/signin', {
-      method: 'POST',
+    const response = await fetch("/api/users/signin", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(credentials)
+      body: JSON.stringify(credentials),
     });
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || 'Signin failed');
+      throw new Error(error.message || "Signin failed");
     }
 
     const userWithoutPassword = await response.json();
@@ -69,14 +69,10 @@ export const checkAuth = async () => {
 };
 
 // Additional functions for user management
-export const updateProfile = async (userId: string, updates: any) => {
-  
-};
+export const updateProfile = async (userId: string, updates: any) => {};
 
-export const getAllUsers = async () => {
-  
-};
+export const getAllUsers = async () => {};
 
-export const getUserById = async (userId: string) => {
-  
-};
+export const getUserById = async (userId: string) => {};
+
+//just for pushing to github branch

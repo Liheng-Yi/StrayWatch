@@ -1,6 +1,6 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useMapsLibrary } from "@vis.gl/react-google-maps";
-import { Upload } from "lucide-react";
+
 import "./styles.css";
 import { submitLostPet } from "./client";
 import { useAppSelector } from "../../store/hooks";
