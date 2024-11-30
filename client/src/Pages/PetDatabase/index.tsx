@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Share2, MapPin, Search } from 'lucide-react';
 import PurpleButton from '../../Components/UI/lightPurpleButton';
+import { FaTrash } from "react-icons/fa";
 
 interface Pet {
   _id: string;
@@ -22,6 +23,27 @@ const PetSearch: React.FC = () => {
   const API_URL = process.env.NODE_ENV === 'production' 
   ? process.env.API_URL 
   : 'http://localhost:5000';
+
+  const handleDeletePet = async (petId: string) => {
+    if (!window.confirm('Are you sure you want to delete this pet?')) {
+      return;
+    }
+    
+    try {
+      const response = await fetch(`${API_URL}/api/pets/${petId}`, {
+        method: 'DELETE',
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to delete pet');
+      }
+
+      // Remove the deleted pet from the state
+      setPets(pets.filter(pet => pet._id !== petId));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete pet');
+    }
+  };
 
   useEffect(() => {
     const fetchPets = async () => {
@@ -137,11 +159,20 @@ const PetSearch: React.FC = () => {
                           {pet.location}
                         </small>
                       </div>
-                      <span className={`badge ${
-                        pet.status === 'Lost' ? 'bg-danger' : 'bg-success'
-                      }`}>
-                        {pet.status}
-                      </span>
+                      <div className="d-flex align-items-center gap-2">
+                        <span className={`badge ${
+                          pet.status === 'Lost' ? 'bg-danger' : 'bg-success'
+                        }`}>
+                          {pet.status}
+                        </span>
+                        <button
+                          className="btn btn-link text-secondary p-0 border-0"
+                          onClick={() => handleDeletePet(pet._id)}
+                          title="Delete pet"
+                        >
+                          <FaTrash />
+                        </button>
+                      </div>
                     </div>
                     
                     <div className="mb-3">
