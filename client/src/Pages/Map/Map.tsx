@@ -11,6 +11,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import ShelterForm from "./shelterForm";
 import { APIProvider } from "@vis.gl/react-google-maps";
+import { useLocation } from "react-router-dom";
 
 // Import the necessary images
 import iconRetinaUrl from "leaflet/dist/images/marker-icon-2x.png";
@@ -41,8 +42,11 @@ type Shelter = {
 L.Marker.prototype.options.icon = defaultIcon;
 
 const Map: React.FC = () => {
+  const location = useLocation();
   const mapCenter: [number, number] = [37.3387, -121.8853];
-  const [showForm, setShowForm] = useState(false);
+  const [showForm, setShowForm] = useState(
+    location.state?.openShelterForm || false
+  );
   const [shelters, setShelters] = useState<Shelter[]>([]);
 
   const fetchShelters = async () => {
@@ -60,7 +64,10 @@ const Map: React.FC = () => {
 
   useEffect(() => {
     fetchShelters();
-  }, []);
+    if (location.state?.openShelterForm) {
+      setShowForm(true);
+    }
+  }, [location.state]);
 
   const handleShelterAdded = () => {
     fetchShelters();

@@ -1,0 +1,124 @@
+/* Custom Bootstrap button variant for purple */
+.btn-outline-purple {
+  color: #6b4eff;
+  border-color: #6b4eff;
+  background-color: transparent;
+  padding: 0.5rem 1.5rem;
+}
+
+.btn-outline-purple:hover {
+  color: #fff;
+  background-color: #6b4eff;
+  border-color: #6b4eff;
+}
+
+/* Button group styling */
+.btn-group .btn {
+  border-width: 2px;
+}
+
+.btn-group .btn:not(:last-child) {
+  border-right-width: 1px;
+}
+
+.btn-group .btn:not(:first-child) {
+  border-left-width: 1px;
+}
+
+.shelter-container {
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.content-wrapper {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 4rem;
+}
+
+.left-content {
+  flex: 0 0 40%;
+  padding-top: 2rem;
+}
+
+.dashboard-title {
+  font-size: 2.5rem;
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.subtitle {
+  font-size: 1.25rem;
+  color: #666;
+  margin-bottom: 2rem;
+}
+
+.action-buttons {
+  display: inline-flex;
+  border: 2px solid #6b4eff;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.action-button {
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  border: none;
+  color: #6b4eff;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.action-button:first-child {
+  border-right: 2px solid #6b4eff;
+}
+
+.action-button:hover {
+  background: #6b4eff;
+  color: white;
+}
+
+.images-grid {
+  flex: 0 0 50%;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+.feature-image {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 20px;
+}
+
+@media (max-width: 1024px) {
+  .content-wrapper {
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  .left-content {
+    flex: 0 0 100%;
+    text-align: center;
+  }
+
+  .images-grid {
+    flex: 0 0 100%;
+    max-width: 800px;
+  }
+}
+
+@media (max-width: 640px) {
+  .images-grid {
+    grid-template-columns: 1fr;
+  }
+}
