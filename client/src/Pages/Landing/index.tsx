@@ -84,8 +84,11 @@ const Landing: React.FC = () => {
             </div>
           </div>
           
-          {/* Map Component */}
-          <Map pets={pets} />
+          {/* Map Section */}
+          <div className="mt-5">
+            <h2 className="text-center">Recent Lost Pet Map</h2>
+            <Map pets={pets} />
+          </div>
         </div>
       ) : null}
 

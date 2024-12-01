@@ -35,10 +35,10 @@ const Map: React.FC<MapProps> = ({ pets }) => {
   const mapCenter: [number, number] = [37.3387, -121.8853];
   return (
     <>
-      <div className="row mt-5">
+      <div className="row">
         <div className="col-12">
           <div className="card shadow-sm">
-            <div className="card-body p-0" style={{ height: '400px' }}>
+            <div className="card-body p-0" style={{ height: '500px' }}>
               <MapContainer
                 center={mapCenter}
                 scrollWheelZoom={true}

@@ -39,3 +39,24 @@
   transition: all 0.3s ease;
   background-color: #f4effa;
 }
+.map-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.map-header {
+  border: 1px solid rgba(0,0,0,0.1);
+}
+
+.marker-dot {
+  width: 12px;
+  height: 12px;
+  background-color: #4285F4;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.map-wrapper {
+  border: 1px solid rgba(0,0,0,0.1);
+  height: 500px; /* Adjust based on your needs */
+}
