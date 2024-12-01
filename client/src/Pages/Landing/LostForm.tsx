@@ -57,10 +57,43 @@ const PlaceAutocomplete = () => {
     if (!placeAutocomplete) return;
     placeAutocomplete.addListener("place_changed", () => {
       const place = placeAutocomplete.getPlace();
-
+      handlePlaceSelect(place);
       setSelectedPlace(place);
     });
   }, [placeAutocomplete]);
+
+  const handlePlaceSelect = (place: google.maps.places.PlaceResult) => {
+    if (!place.geometry?.location) {
+      setLocationError('Please select a valid address');
+      return;
+    }
+
+    const lat: number = typeof place.geometry.location.lat === 'function' 
+      ? place.geometry.location.lat() 
+      : Number(place.geometry.location.lat);
+    
+    const lng: number = typeof place.geometry.location.lng === 'function' 
+      ? place.geometry.location.lng() 
+      : Number(place.geometry.location.lng);
+
+    setFormData(prev => ({
+      ...prev,
+      location: place.formatted_address || '',
+      coordinates: {
+        type: 'Point' as const,
+        coordinates: [lng, lat] as [number, number]
+      }
+    }));
+
+    setLocationError(null);
+  };
+
+  const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData(prev => ({
+      ...prev,
+      location: e.target.value
+    }));
+  };
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -186,7 +219,8 @@ const PlaceAutocomplete = () => {
         coordinates: null,
       });
       setImagePreview(null);
-      alert("Pet information submitted successfully!");
+
+      navigate("/home");
     } catch (error) {
       if (error instanceof Error) {
         alert(error.message);
@@ -222,6 +256,8 @@ const PlaceAutocomplete = () => {
                   placeholder="Enter address"
                   required
                   ref={inputRef}
+                  value={formData.location}
+                  onChange={handleAddressChange}
                 />
               </div>
             </div>

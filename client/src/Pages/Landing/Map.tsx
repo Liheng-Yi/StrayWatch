@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
+import PurpleButton from '../../Components/UI/lightPurpleButton';
+import ContactModal, { ContactFormData } from '../../Components/util/Contact';
 
 interface Pet {
   _id: string;
@@ -11,10 +13,8 @@ interface Pet {
   location: string;
   picture: string;
   description: string;
-  coordinates?: {
-    lat: number;
-    lng: number;
-  };
+  lat: string;
+  lng: string;
 }
 
 interface MapProps {
@@ -22,60 +22,86 @@ interface MapProps {
 }
 
 const Map: React.FC<MapProps> = ({ pets }) => {
+  const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
+  const [showContactModal, setShowContactModal] = useState(false);
+
+  const handleContactSubmit = (formData: ContactFormData) => {
+    console.log('Contact form submitted:', formData);
+    alert('Message sent! (To be implemented)');
+  };
+
   console.log("[landing map], pets:", pets);
+
   const mapCenter: [number, number] = [37.3387, -121.8853];
   return (
-    <div className="row mt-5">
-      <div className="col-12">
-        <div className="card shadow-sm">
-          <div className="card-body p-0" style={{ height: '400px' }}>
-            <MapContainer
-              center={mapCenter}
-              scrollWheelZoom={true}
-              zoom={13}
-              style={{ height: '100%', width: '100%' }}
-            >
-              <TileLayer
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              />
-              {pets.map((pet) => pet.coordinates && (
-                <Marker 
-                  key={pet._id} 
-                  position={[pet.coordinates.lat, pet.coordinates.lng]}
-                >
-                  <Popup>
-                    <div className="card border-0">
-                      <div className="card-body p-2">
-                        <h5 className="card-title mb-2">{pet.name}</h5>
-                        <img 
-                          src={pet.picture || "/api/placeholder/400/320"} 
-                          alt={pet.name} 
-                          className="img-fluid rounded mb-2"
-                          style={{ width: '100%', height: '120px', objectFit: 'cover' }} 
-                        />
-                        <div className="small">
-                          <p className="mb-1">
-                            <strong>Status:</strong> 
-                            <span className={`ms-1 badge ${pet.status === 'Lost' ? 'bg-danger' : 'bg-success'}`}>
+    <>
+      <div className="row mt-5">
+        <div className="col-12">
+          <div className="card shadow-sm">
+            <div className="card-body p-0" style={{ height: '400px' }}>
+              <MapContainer
+                center={mapCenter}
+                scrollWheelZoom={true}
+                zoom={13}
+                style={{ height: '100%', width: '100%' }}
+              >
+                <TileLayer
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                />
+                {pets.map((pet) => pet.lat && pet.lng && (
+                  <Marker 
+                    key={pet._id} 
+                    position={[parseFloat(pet.lat), parseFloat(pet.lng)]}
+                  >
+                    <Popup>
+                      <div className="card border-0" style={{ maxWidth: '160px' }}>
+                        <div className="card-body p-1">
+                          <div className="d-flex justify-content-between align-items-start mb-1">
+                            <h6 className="card-title mb-0" style={{ fontSize: '0.9rem', lineHeight: '1.1' }}>{pet.name}</h6>
+                            <span className={`badge ${pet.status === 'Lost' ? 'bg-danger' : 'bg-success'}`} style={{ fontSize: '0.7rem' }}>
                               {pet.status}
                             </span>
-                          </p>
-                          <p className="mb-1"><strong>Type:</strong> {pet.kind}</p>
-                          <p className="mb-1"><strong>Color:</strong> {pet.color}</p>
-                          <p className="mb-1"><strong>Location:</strong> {pet.location}</p>
-                          <p className="text-muted mb-0 small">{pet.description}</p>
+                          </div>
+                          <img
+                            src={pet.picture || "/api/placeholder/400/320"} 
+                            alt={pet.name} 
+                            className="img-fluid rounded mb-2"
+                            style={{ width: '100%', height: '100px', objectFit: 'cover' }} 
+                          />
+                          <div style={{ fontSize: '0.75rem', lineHeight: '1.1' }}>
+                            <p className="mb-1 mt-0"><strong>Color:</strong> {pet.color}</p>
+                            <p className="mb-1 text-muted" style={{ maxHeight: '2.4em', overflow: 'hidden' }}>{pet.description}</p>
+                            <PurpleButton 
+                              variant="solid" 
+                              className="w-100 py-0"
+                              style={{ fontSize: '0.75rem' }}
+                              onClick={() => {
+                                setSelectedPet(pet);
+                                setShowContactModal(true);
+                              }}
+                            >
+                              Contact Owner
+                            </PurpleButton>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </Popup>
-                </Marker>
-              ))}
-            </MapContainer>
+                    </Popup>
+                  </Marker>
+                ))}
+              </MapContainer>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+
+      <ContactModal
+        isOpen={showContactModal}
+        onClose={() => setShowContactModal(false)}
+        petName={selectedPet?.name || ''}
+        onSubmit={handleContactSubmit}
+      />
+    </>
   );
 };
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Share2, MapPin, Search } from 'lucide-react';
 import PurpleButton from '../../Components/UI/lightPurpleButton';
 import { FaTrash } from "react-icons/fa";
+import ContactModal, { ContactFormData } from '../../Components/util/Contact';
 
 interface Pet {
   _id: string;
@@ -23,6 +24,8 @@ const PetSearch: React.FC = () => {
   const API_URL = process.env.NODE_ENV === 'production' 
   ? process.env.API_URL 
   : 'http://localhost:5000';
+  const [showContactModal, setShowContactModal] = useState(false);
+  const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
 
   const handleDeletePet = async (petId: string) => {
     if (!window.confirm('Are you sure you want to delete this pet?')) {
@@ -76,6 +79,12 @@ const PetSearch: React.FC = () => {
       (pet.description?.toLowerCase() || '').includes(searchTerm)
     );
   }) || [];
+
+  const handleContactSubmit = (formData: ContactFormData) => {
+    console.log('Contact form submitted:', formData);
+    // TODO: Implement actual contact functionality
+    alert('Message sent! The owner will be notified.');
+  };
 
   if (loading) return <div className="text-center py-4">Loading...</div>;
   if (error) return <div className="text-center py-4 text-danger">{error}</div>;
@@ -191,7 +200,13 @@ const PetSearch: React.FC = () => {
                         <Share2 size={16} />
                         Share
                       </PurpleButton>
-                      <PurpleButton variant="solid">
+                      <PurpleButton 
+                        variant="solid"
+                        onClick={() => {
+                          setSelectedPet(pet);
+                          setShowContactModal(true);
+                        }}
+                      >
                         Contact
                       </PurpleButton>
                     </div>
@@ -211,6 +226,13 @@ const PetSearch: React.FC = () => {
           }
         </div>
       )}
+
+      <ContactModal
+        isOpen={showContactModal}
+        onClose={() => setShowContactModal(false)}
+        petName={selectedPet?.name || ''}
+        onSubmit={handleContactSubmit}
+      />
     </div>
   );
 };

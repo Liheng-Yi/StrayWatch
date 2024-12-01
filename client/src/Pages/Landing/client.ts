@@ -47,8 +47,13 @@ export const submitLostPet = async (formData: LostPetFormData) => {
   requestFormData.append("description", formData.description);
   requestFormData.append("color", formData.color || "");
   requestFormData.append("location", formData.location);
-  requestFormData.append("userId", formData.userId); // Changed: userId now in form data
-  requestFormData.append("coordinates", JSON.stringify(formData.coordinates));
+  requestFormData.append("userId", formData.userId);
+  
+  if (formData.coordinates) {
+    requestFormData.append("lat", formData.coordinates.coordinates[1].toString());
+    requestFormData.append("lng", formData.coordinates.coordinates[0].toString());
+  }
+
   if (formData.image) {
     requestFormData.append("image", formData.image);
   }

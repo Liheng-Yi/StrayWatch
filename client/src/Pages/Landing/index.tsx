@@ -14,11 +14,8 @@ interface Pet {
   location: string;
   picture: string;
   description: string;
-  // We'll need to add these for the map
-  coordinates?: {
-    lat: number;
-    lng: number;
-  };
+  lat: string;
+  lng: string;
 }
 
 const Landing: React.FC = () => {
