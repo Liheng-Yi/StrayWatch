@@ -3,17 +3,8 @@ import { Share2, MapPin, Search } from 'lucide-react';
 import PurpleButton from '../../Components/UI/lightPurpleButton';
 import { FaTrash } from "react-icons/fa";
 import ContactModal, { ContactFormData } from '../../Components/util/Contact';
-
-interface Pet {
-  _id: string;
-  color: string;
-  name: string;
-  kind: string;
-  status: string;
-  location: string;
-  picture: string;
-  description: string;
-}
+import { PetClient, Pet } from './clients';
+import './styles.css';
 
 const PetSearch: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'all' | 'dogs' | 'cats'>('all');
@@ -21,9 +12,6 @@ const PetSearch: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const API_URL = process.env.NODE_ENV === 'production' 
-  ? process.env.API_URL 
-  : 'http://localhost:5000';
   const [showContactModal, setShowContactModal] = useState(false);
   const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
   const [statusFilter, setStatusFilter] = useState<'all' | 'lost' | 'found'>('all');
@@ -34,15 +22,7 @@ const PetSearch: React.FC = () => {
     }
     
     try {
-      const response = await fetch(`${API_URL}/api/pets/${petId}`, {
-        method: 'DELETE',
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to delete pet');
-      }
-
-      // Remove the deleted pet from the state
+      await PetClient.deletePet(petId);
       setPets(pets.filter(pet => pet._id !== petId));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete pet');
@@ -53,10 +33,7 @@ const PetSearch: React.FC = () => {
     const fetchPets = async () => {
       try {
         const type = activeTab === 'all' ? 'all' : activeTab.slice(0, -1);
-        console.log("type:", type);
-        const response = await fetch(`${API_URL}/api/pets?type=${type}`);
-        if (!response.ok) throw new Error('Failed to fetch pets');
-        const data = await response.json();
+        const data = await PetClient.fetchPets(type);
         setPets(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
@@ -104,51 +81,27 @@ const PetSearch: React.FC = () => {
             <div className="btn-group" role="group" aria-label="Status filter">
               <button
                 type="button"
-                className={`badge rounded-pill px-3 py-2 ${
-                  statusFilter === 'all' 
-                    ? 'bg-secondary text-white' 
-                    : 'bg-light text-secondary'
+                className={`badge rounded-pill px-3 py-2 status-filter-button all ${
+                  statusFilter !== 'all' ? 'inactive' : ''
                 }`}
-                style={{
-                  fontSize: '0.8rem',
-                  minWidth: '70px',
-                  border: 'none',
-                  cursor: 'pointer'
-                }}
                 onClick={() => setStatusFilter('all')}
               >
                 All
               </button>
               <button
                 type="button"
-                className={`badge rounded-pill px-3 py-2 ms-2 ${
-                  statusFilter === 'lost' 
-                    ? 'bg-danger text-white' 
-                    : 'bg-light text-danger'
+                className={`badge rounded-pill px-3 py-2 ms-2 status-filter-button lost ${
+                  statusFilter !== 'lost' ? 'inactive' : ''
                 }`}
-                style={{
-                  fontSize: '0.8rem',
-                  minWidth: '70px',
-                  border: 'none',
-                  cursor: 'pointer'
-                }}
                 onClick={() => setStatusFilter('lost')}
               >
                 Lost
               </button>
               <button
                 type="button"
-                className={`badge rounded-pill px-3 py-2 ms-2 ${
-                  statusFilter === 'found' 
-                    ? 'bg-success text-white' 
-                    : 'bg-light text-success'
+                className={`badge rounded-pill px-3 py-2 ms-2 status-filter-button found ${
+                  statusFilter !== 'found' ? 'inactive' : ''
                 }`}
-                style={{
-                  fontSize: '0.8rem',
-                  minWidth: '70px',
-                  border: 'none',
-                  cursor: 'pointer'
-                }}
                 onClick={() => setStatusFilter('found')}
               >
                 Found

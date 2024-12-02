@@ -65,7 +65,7 @@ export default function MainPage() {
                   className="nav-link custom-nav-link position-relative hover-underline"
                   to="/petdatabase"
                 >
-                  Lost Pets
+                  Lost/FoundPets
                 </Link>
               </li>
               <li className="nav-item">
