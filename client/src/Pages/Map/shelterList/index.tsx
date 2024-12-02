@@ -1,36 +1,43 @@
 import React, { useEffect, useState } from 'react';
 import { MapPin, Phone, Mail, Globe } from 'lucide-react';
 import PurpleButton from '../../../Components/UI/lightPurpleButton';
+import { ShelterClient, Shelter, Pet } from './client';
 import './styles.css';
-interface Shelter {
-  _id: string;
-  name: string;
-  address: string;
-  phone: string;
-  email: string;
-  website: string;
-  verified: boolean;
-}
 
 interface ShelterListProps {
   onShelterUpdate: () => void;
+  userRole?: string;
+  currentShelterId?: string;
 }
 
-const ShelterList: React.FC<ShelterListProps> = ({ onShelterUpdate }) => {
+const ShelterList: React.FC<ShelterListProps> = ({ 
+  onShelterUpdate, 
+  userRole, 
+  currentShelterId 
+}) => {
   const [shelters, setShelters] = useState<Shelter[]>([]);
+  const [shelterPets, setShelterPets] = useState<Pet[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<'all' | 'verified'>('all');
 
   useEffect(() => {
-    const fetchShelters = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/shelters');
-        if (!response.ok) {
-          throw new Error('Failed to fetch shelters');
+        setLoading(true);
+        if (userRole === 'Shelter' && currentShelterId) {
+          // Fetch only current shelter's data and its pets
+          const [shelterData, petsData] = await Promise.all([
+            ShelterClient.fetchShelters(),
+            ShelterClient.fetchShelterPets(currentShelterId)
+          ]);
+          setShelters(shelterData.filter(s => s._id === currentShelterId));
+          setShelterPets(petsData);
+        } else {
+          // Fetch all shelters for non-shelter users
+          const shelterData = await ShelterClient.fetchShelters();
+          setShelters(shelterData);
         }
-        const data = await response.json();
-        setShelters(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
@@ -38,8 +45,8 @@ const ShelterList: React.FC<ShelterListProps> = ({ onShelterUpdate }) => {
       }
     };
 
-    fetchShelters();
-  }, []);
+    fetchData();
+  }, [userRole, currentShelterId]);
 
   // Filter shelters based on activeFilter
   const filteredShelters = shelters.filter(shelter => {
@@ -79,27 +86,30 @@ const ShelterList: React.FC<ShelterListProps> = ({ onShelterUpdate }) => {
 
   return (
     <div className="container py-4">
-      <h1 className="text-center mb-4">Animal Shelters Directory</h1>
+      <h1 className="text-center mb-4">
+        {userRole === 'Shelter' ? 'My Shelter Profile' : 'Animal Shelters Directory'}
+      </h1>
       
-      {/* Navigation Tabs */}
-      <ul className="nav nav-pills justify-content-center mb-4">
-        <li className="nav-item mx-2">
-          <PurpleButton
-            variant={activeFilter === 'all' ? 'solid' : 'outline'}
-            onClick={() => setActiveFilter('all')}
-          >
-            All Shelters
-          </PurpleButton>
-        </li>
-        <li className="nav-item mx-2">
-          <PurpleButton
-            variant={activeFilter === 'verified' ? 'solid' : 'outline'}
-            onClick={() => setActiveFilter('verified')}
-          >
-            Verified Partners
-          </PurpleButton>
-        </li>
-      </ul>
+      {userRole !== 'Shelter' && (
+        <ul className="nav nav-pills justify-content-center mb-4">
+          <li className="nav-item mx-2">
+            <PurpleButton
+              variant={activeFilter === 'all' ? 'solid' : 'outline'}
+              onClick={() => setActiveFilter('all')}
+            >
+              All Shelters
+            </PurpleButton>
+          </li>
+          <li className="nav-item mx-2">
+            <PurpleButton
+              variant={activeFilter === 'verified' ? 'solid' : 'outline'}
+              onClick={() => setActiveFilter('verified')}
+            >
+              Verified Partners
+            </PurpleButton>
+          </li>
+        </ul>
+      )}
 
       <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         {filteredShelters.map((shelter) => (
@@ -148,6 +158,38 @@ const ShelterList: React.FC<ShelterListProps> = ({ onShelterUpdate }) => {
                   </PurpleButton>
                 </div>
               </div>
+              
+              {userRole === 'Shelter' && shelter._id === currentShelterId && (
+                <div className="mt-4">
+                  <h6 className="border-bottom pb-2">Found Pets in This Shelter</h6>
+                  <div className="shelter-pets-list">
+                    {shelterPets.length > 0 ? (
+                      shelterPets.map(pet => (
+                        <div key={pet._id} className="pet-item p-2 border-bottom">
+                          <div className="d-flex align-items-center">
+                            <img 
+                              src={pet.picture || "/api/placeholder/50/50"} 
+                              alt={pet.name}
+                              className="rounded-circle me-2"
+                              style={{ width: '40px', height: '40px', objectFit: 'cover' }}
+                            />
+                            <div>
+                              <h6 className="mb-0">{pet.name}</h6>
+                              <small className="text-muted">
+                                {pet.kind} • {pet.color}
+                              </small>
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-muted text-center py-2">
+                        No pets currently in this shelter
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         ))}

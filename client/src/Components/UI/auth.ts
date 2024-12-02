@@ -9,3 +9,20 @@ export const getCurrentUserId = () => {
     }
   }
 };
+
+export const getCurrentUser = () => {
+  const userStr = localStorage.getItem("currentUser");
+  if (userStr) {
+    try {
+      return JSON.parse(userStr);
+    } catch (e) {
+      return null;
+    }
+  }
+  return null;
+};
+
+export const isAdmin = () => {
+  const user = getCurrentUser();
+  return user?.role === "admin";
+};

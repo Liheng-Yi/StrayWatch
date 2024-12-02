@@ -1,24 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import { Share2, MapPin, Search, Pencil } from 'lucide-react';
+import { Share2, MapPin, Search } from 'lucide-react';
 import PurpleButton from '../../Components/UI/lightPurpleButton';
 import { FaTrash } from "react-icons/fa";
 import ContactModal, { ContactFormData } from '../../Components/util/Contact';
-import { PetClient, Pet } from './clients';
-import './styles.css';
-import PetUpdateModal from './PetUpdateModal';
-import { isAdmin } from '../../Components/UI/auth';
 
-const PetSearch: React.FC = () => {
+interface Pet {
+  _id: string;
+  color: string;
+  name: string;
+  kind: string;
+  status: string;
+  location: string;
+  picture: string;
+  description: string;
+}
+
+const PetFoundSearch: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'all' | 'dogs' | 'cats'>('all');
   const [pets, setPets] = useState<Pet[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const API_URL = process.env.NODE_ENV === 'production' 
+  ? process.env.API_URL 
+  : 'http://localhost:5000';
   const [showContactModal, setShowContactModal] = useState(false);
   const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
-  const [statusFilter, setStatusFilter] = useState<'all' | 'lost' | 'found'>('all');
-  const [showUpdateModal, setShowUpdateModal] = useState(false);
-  const showEditButton = isAdmin();
 
   const handleDeletePet = async (petId: string) => {
     if (!window.confirm('Are you sure you want to delete this pet?')) {
@@ -26,7 +33,13 @@ const PetSearch: React.FC = () => {
     }
     
     try {
-      await PetClient.deletePet(petId);
+      const response = await fetch(`${API_URL}/api/pets/${petId}`, {
+        method: 'DELETE',
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to delete pet');
+      }
       setPets(pets.filter(pet => pet._id !== petId));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete pet');
@@ -37,7 +50,10 @@ const PetSearch: React.FC = () => {
     const fetchPets = async () => {
       try {
         const type = activeTab === 'all' ? 'all' : activeTab.slice(0, -1);
-        const data = await PetClient.fetchPets(type);
+        console.log("type:", type);
+        const response = await fetch(`${API_URL}/api/pets/found?type=${type}`);
+        if (!response.ok) throw new Error('Failed to fetch pets');
+        const data = await response.json();
         setPets(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
@@ -53,39 +69,19 @@ const PetSearch: React.FC = () => {
     if (!pet) return false;
     
     const searchTerm = searchQuery.toLowerCase();
-    const matchesSearch = (
+    return (
       (pet.name?.toLowerCase() || '').includes(searchTerm) ||
       (pet.color?.toLowerCase() || '').includes(searchTerm) ||
       (pet.kind?.toLowerCase() || '').includes(searchTerm) ||
       (pet.location?.toLowerCase() || '').includes(searchTerm) ||
       (pet.description?.toLowerCase() || '').includes(searchTerm)
     );
-
-    const matchesStatus = statusFilter === 'all' || 
-      pet.status.toLowerCase() === statusFilter;
-
-    return matchesSearch && matchesStatus;
   }) || [];
 
   const handleContactSubmit = (formData: ContactFormData) => {
     console.log('Contact form submitted:', formData);
+    // TODO: Implement actual contact functionality
     alert('Message sent! The owner will be notified.');
-  };
-
-  const handleUpdatePet = async (petId: string, data: FormData) => {
-    console.log('Updating pet with ID:', petId);
-    try {
-      const updatedPet = await PetClient.updatePet(petId, data);
-      setPets(prevPets => 
-        prevPets.map(pet => 
-          pet._id === petId ? updatedPet : pet
-        )
-      );
-      setShowUpdateModal(false);
-    } catch (err) {
-      console.error('Update failed:', err);
-      setError(err instanceof Error ? err.message : 'Failed to update pet');
-    }
   };
 
   if (loading) return <div className="text-center py-4">Loading...</div>;
@@ -93,53 +89,21 @@ const PetSearch: React.FC = () => {
 
   return (
     <div className="container py-4">
-      <h1 className="text-center mb-4">Lost Pets Search Database</h1>
+      <h1 className="text-center mb-4">Found Pets Database</h1>
       
       <div className="row mb-4">
-        <div className="col-md-8 mx-auto">
-          <div className="d-flex gap-3">
-            <div className="btn-group" role="group" aria-label="Status filter">
-              <button
-                type="button"
-                className={`badge rounded-pill px-3 py-2 status-filter-button all ${
-                  statusFilter !== 'all' ? 'inactive' : ''
-                }`}
-                onClick={() => setStatusFilter('all')}
-              >
-                All
-              </button>
-              <button
-                type="button"
-                className={`badge rounded-pill px-3 py-2 ms-2 status-filter-button lost ${
-                  statusFilter !== 'lost' ? 'inactive' : ''
-                }`}
-                onClick={() => setStatusFilter('lost')}
-              >
-                Lost
-              </button>
-              <button
-                type="button"
-                className={`badge rounded-pill px-3 py-2 ms-2 status-filter-button found ${
-                  statusFilter !== 'found' ? 'inactive' : ''
-                }`}
-                onClick={() => setStatusFilter('found')}
-              >
-                Found
-              </button>
-            </div>
-
-            <div className="input-group flex-grow-1">
-              <span className="input-group-text bg-white">
-                <Search size={18} className="text-muted" />
-              </span>
-              <input
-                type="text"
-                className="form-control border-start-0"
-                placeholder="Search by name, color, type..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
+        <div className="col-md-6 mx-auto">
+          <div className="input-group">
+            <span className="input-group-text bg-white">
+              <Search size={18} className="text-muted" />
+            </span>
+            <input
+              type="text"
+              className="form-control border-start-0"
+              placeholder="Search by name, color, type..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
           </div>
         </div>
       </div>
@@ -208,27 +172,13 @@ const PetSearch: React.FC = () => {
                         }`}>
                           {pet.status}
                         </span>
-                        {showEditButton && (
-                          <>
-                            <button
-                              className="btn btn-link text-secondary p-0 border-0"
-                              onClick={() => {
-                                setSelectedPet(pet);
-                                setShowUpdateModal(true);
-                              }}
-                              title="Edit pet"
-                            >
-                              <Pencil size={16} />
-                            </button>
-                            <button
-                              className="btn btn-link text-secondary p-0 border-0"
-                              onClick={() => handleDeletePet(pet._id)}
-                              title="Delete pet"
-                            >
-                              <FaTrash />
-                            </button>
-                          </>
-                        )}
+                        <button
+                          className="btn btn-link text-secondary p-0 border-0"
+                          onClick={() => handleDeletePet(pet._id)}
+                          title="Delete pet"
+                        >
+                          <FaTrash />
+                        </button>
                       </div>
                     </div>
                     
@@ -281,15 +231,8 @@ const PetSearch: React.FC = () => {
         petName={selectedPet?.name || ''}
         onSubmit={handleContactSubmit}
       />
-
-      <PetUpdateModal
-        isOpen={showUpdateModal}
-        onClose={() => setShowUpdateModal(false)}
-        onSubmit={handleUpdatePet}
-        pet={selectedPet}
-      />
     </div>
   );
 };
 
-export default PetSearch;
+export default PetFoundSearch;

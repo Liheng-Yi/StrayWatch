@@ -121,4 +121,46 @@ router.get("/user/:userId", async (req, res) => {
   }
 });
 
+// Update pet by ID
+router.put("/:id", upload.single("image"), async (req, res) => {
+  try {
+    if (!ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid pet ID format" });
+    }
+
+    const db = client.db("appDB");
+    const petsCollection = db.collection("pets");
+    const petId = new ObjectId(req.params.id);
+    
+    const updateData = {
+      name: req.body.name,
+      kind: req.body.kind,
+      color: req.body.color,
+      status: req.body.status,
+      location: req.body.location,
+      description: req.body.description
+    };
+
+    if (req.file) {
+      updateData.picture = req.file.location;
+    }
+
+    const result = await petsCollection.findOneAndUpdate(
+      { _id: petId },
+      { $set: updateData },
+      { returnDocument: 'after' }
+    );
+
+    if (!result) {
+      return res.status(404).json({ message: "Pet not found" });
+    }
+
+    res.json(result);
+
+  } catch (err) {
+    console.error("Error updating pet:", err);
+    res.status(500).json({ message: "Error updating pet" });
+  }
+});
+
 export default router;
