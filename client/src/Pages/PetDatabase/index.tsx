@@ -26,6 +26,7 @@ const PetSearch: React.FC = () => {
   : 'http://localhost:5000';
   const [showContactModal, setShowContactModal] = useState(false);
   const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
+  const [statusFilter, setStatusFilter] = useState<'all' | 'lost' | 'found'>('all');
 
   const handleDeletePet = async (petId: string) => {
     if (!window.confirm('Are you sure you want to delete this pet?')) {
@@ -71,18 +72,22 @@ const PetSearch: React.FC = () => {
     if (!pet) return false;
     
     const searchTerm = searchQuery.toLowerCase();
-    return (
+    const matchesSearch = (
       (pet.name?.toLowerCase() || '').includes(searchTerm) ||
       (pet.color?.toLowerCase() || '').includes(searchTerm) ||
       (pet.kind?.toLowerCase() || '').includes(searchTerm) ||
       (pet.location?.toLowerCase() || '').includes(searchTerm) ||
       (pet.description?.toLowerCase() || '').includes(searchTerm)
     );
+
+    const matchesStatus = statusFilter === 'all' || 
+      pet.status.toLowerCase() === statusFilter;
+
+    return matchesSearch && matchesStatus;
   }) || [];
 
   const handleContactSubmit = (formData: ContactFormData) => {
     console.log('Contact form submitted:', formData);
-    // TODO: Implement actual contact functionality
     alert('Message sent! The owner will be notified.');
   };
 
@@ -94,18 +99,74 @@ const PetSearch: React.FC = () => {
       <h1 className="text-center mb-4">Lost Pets Search Database</h1>
       
       <div className="row mb-4">
-        <div className="col-md-6 mx-auto">
-          <div className="input-group">
-            <span className="input-group-text bg-white">
-              <Search size={18} className="text-muted" />
-            </span>
-            <input
-              type="text"
-              className="form-control border-start-0"
-              placeholder="Search by name, color, type..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+        <div className="col-md-8 mx-auto">
+          <div className="d-flex gap-3">
+            <div className="btn-group" role="group" aria-label="Status filter">
+              <button
+                type="button"
+                className={`badge rounded-pill px-3 py-2 ${
+                  statusFilter === 'all' 
+                    ? 'bg-secondary text-white' 
+                    : 'bg-light text-secondary'
+                }`}
+                style={{
+                  fontSize: '0.8rem',
+                  minWidth: '70px',
+                  border: 'none',
+                  cursor: 'pointer'
+                }}
+                onClick={() => setStatusFilter('all')}
+              >
+                All
+              </button>
+              <button
+                type="button"
+                className={`badge rounded-pill px-3 py-2 ms-2 ${
+                  statusFilter === 'lost' 
+                    ? 'bg-danger text-white' 
+                    : 'bg-light text-danger'
+                }`}
+                style={{
+                  fontSize: '0.8rem',
+                  minWidth: '70px',
+                  border: 'none',
+                  cursor: 'pointer'
+                }}
+                onClick={() => setStatusFilter('lost')}
+              >
+                Lost
+              </button>
+              <button
+                type="button"
+                className={`badge rounded-pill px-3 py-2 ms-2 ${
+                  statusFilter === 'found' 
+                    ? 'bg-success text-white' 
+                    : 'bg-light text-success'
+                }`}
+                style={{
+                  fontSize: '0.8rem',
+                  minWidth: '70px',
+                  border: 'none',
+                  cursor: 'pointer'
+                }}
+                onClick={() => setStatusFilter('found')}
+              >
+                Found
+              </button>
+            </div>
+
+            <div className="input-group flex-grow-1">
+              <span className="input-group-text bg-white">
+                <Search size={18} className="text-muted" />
+              </span>
+              <input
+                type="text"
+                className="form-control border-start-0"
+                placeholder="Search by name, color, type..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
           </div>
         </div>
       </div>

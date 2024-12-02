@@ -31,10 +31,16 @@ router.get("/", async (req, res) => {
 // Get pet by petID
 router.get("/:id", async (req, res) => {
   try {
+    // Add ObjectId validation
+    if (!ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid pet ID format" });
+    }
+
     const db = client.db("appDB");
     const petsCollection = db.collection("pets");
     const petId = new ObjectId(req.params.id);
     const pet = await petsCollection.findOne({ _id: petId });
+    
     if (!pet) {
       return res.status(404).json({ message: "Pet not found" });
     }
@@ -48,16 +54,23 @@ router.get("/:id", async (req, res) => {
 // delete pet by petID
 router.delete("/:id", async (req, res) => {
   try {
+    // Add ObjectId validation
+    if (!ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid pet ID format" });
+    }
+
     const db = client.db("appDB");
     const petsCollection = db.collection("pets");
     const petId = new ObjectId(req.params.id);
     const result = await petsCollection.deleteOne({ _id: petId });
+    
     if (result.deletedCount === 0) {
       return res.status(404).json({ message: "Pet not found" });
     }
     res.json({ message: "Pet deleted successfully" });
   } catch (err) {
     console.error("Error deleting pet:", err);
+    res.status(500).json({ message: "Error deleting pet" });
   }
 });
 
