@@ -93,7 +93,7 @@ const PetSearch: React.FC = () => {
 
   return (
     <div className="container py-4">
-      <h1 className="text-center mb-4">Lost Pets Search Database</h1>
+      <h1 className="text-center mb-4">Pets Search Database</h1>
       
       <div className="row mb-4">
         <div className="col-md-8 mx-auto">
