@@ -7,12 +7,14 @@ import { PetClient, Pet } from './clients';
 import './styles.css';
 import PetUpdateModal from './PetUpdateModal';
 import { isAdmin } from '../../Components/UI/auth';
+import { useReducer } from 'react';
+import { petReducer, initialState } from './petReducer';
 
 const PetSearch: React.FC = () => {
+  const [state, dispatch] = useReducer(petReducer, initialState);
+  const { pets, loading, error } = state;
+  
   const [activeTab, setActiveTab] = useState<'all' | 'dogs' | 'cats'>('all');
-  const [pets, setPets] = useState<Pet[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showContactModal, setShowContactModal] = useState(false);
   const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
@@ -27,22 +29,27 @@ const PetSearch: React.FC = () => {
     
     try {
       await PetClient.deletePet(petId);
-      setPets(pets.filter(pet => pet._id !== petId));
+      dispatch({ type: 'DELETE_PET', payload: petId });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete pet');
+      dispatch({ 
+        type: 'SET_ERROR', 
+        payload: err instanceof Error ? err.message : 'Failed to delete pet'
+      });
     }
   };
 
   useEffect(() => {
     const fetchPets = async () => {
       try {
+        dispatch({ type: 'SET_LOADING', payload: true });
         const type = activeTab === 'all' ? 'all' : activeTab.slice(0, -1);
         const data = await PetClient.fetchPets(type);
-        setPets(data);
+        dispatch({ type: 'SET_PETS', payload: data });
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
-      } finally {
-        setLoading(false);
+        dispatch({ 
+          type: 'SET_ERROR', 
+          payload: err instanceof Error ? err.message : 'An error occurred'
+        });
       }
     };
 
@@ -73,18 +80,16 @@ const PetSearch: React.FC = () => {
   };
 
   const handleUpdatePet = async (petId: string, data: FormData) => {
-    console.log('Updating pet with ID:', petId);
     try {
       const updatedPet = await PetClient.updatePet(petId, data);
-      setPets(prevPets => 
-        prevPets.map(pet => 
-          pet._id === petId ? updatedPet : pet
-        )
-      );
+      dispatch({ type: 'UPDATE_PET', payload: updatedPet });
       setShowUpdateModal(false);
     } catch (err) {
       console.error('Update failed:', err);
-      setError(err instanceof Error ? err.message : 'Failed to update pet');
+      dispatch({ 
+        type: 'SET_ERROR', 
+        payload: err instanceof Error ? err.message : 'Failed to update pet'
+      });
     }
   };
 
