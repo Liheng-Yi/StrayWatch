@@ -44,6 +44,32 @@ export const PetClient = {
     }
     
     return response.json();
+  },
+
+  searchPets: async (searchQuery: string): Promise<Pet[]> => {
+    const response = await fetch(`${API_URL}/api/pets/search?query=${encodeURIComponent(searchQuery)}`);
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Search error response:', errorText);
+      throw new Error('Failed to search pets');
+    }
+    
+    return response.json();
+  },
+
+  searchPetsByCriteria: async (searchQuery: string, criteria: string): Promise<Pet[]> => {
+    const response = await fetch(
+      `${API_URL}/api/pets/search?query=${encodeURIComponent(searchQuery)}&criteria=${criteria}`
+    );
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Search error response:', errorText);
+      throw new Error('Failed to search pets');
+    }
+    
+    return response.json();
   }
 };
 

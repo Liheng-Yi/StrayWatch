@@ -21,6 +21,8 @@ const PetSearch: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<'all' | 'lost' | 'found'>('all');
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const showEditButton = isAdmin();
+  const [searchCriteria, setSearchCriteria] = useState<'all' | 'name' | 'color' | 'kind' | 'location' | 'description'>('all');
+  const [searchInput, setSearchInput] = useState('');
 
   const handleDeletePet = async (petId: string) => {
     if (!window.confirm('Are you sure you want to delete this pet?')) {
@@ -42,37 +44,36 @@ const PetSearch: React.FC = () => {
     const fetchPets = async () => {
       try {
         dispatch({ type: 'SET_LOADING', payload: true });
-        const type = activeTab === 'all' ? 'all' : activeTab.slice(0, -1);
-        const data = await PetClient.fetchPets(type);
-        dispatch({ type: 'SET_PETS', payload: data });
+        if (searchQuery.trim()) {
+          let searchResults;
+          if (searchCriteria === 'all') {
+            searchResults = await PetClient.searchPets(searchQuery);
+          } else {
+            searchResults = await PetClient.searchPetsByCriteria(searchQuery, searchCriteria);
+          }
+          dispatch({ type: 'SET_PETS', payload: searchResults });
+        } else {
+          const type = activeTab === 'all' ? 'all' : activeTab.slice(0, -1);
+          const data = await PetClient.fetchPets(type);
+          dispatch({ type: 'SET_PETS', payload: data });
+        }
       } catch (err) {
         dispatch({ 
           type: 'SET_ERROR', 
           payload: err instanceof Error ? err.message : 'An error occurred'
         });
+      } finally {
+        dispatch({ type: 'SET_LOADING', payload: false });
       }
     };
 
-    fetchPets();
-  }, [activeTab]);
+    const debounceTimer = setTimeout(fetchPets, 300);
+    return () => clearTimeout(debounceTimer);
+  }, [activeTab, searchQuery, searchCriteria]);
 
-  const filteredPets = pets?.filter((pet) => {
-    if (!pet) return false;
-    
-    const searchTerm = searchQuery.toLowerCase();
-    const matchesSearch = (
-      (pet.name?.toLowerCase() || '').includes(searchTerm) ||
-      (pet.color?.toLowerCase() || '').includes(searchTerm) ||
-      (pet.kind?.toLowerCase() || '').includes(searchTerm) ||
-      (pet.location?.toLowerCase() || '').includes(searchTerm) ||
-      (pet.description?.toLowerCase() || '').includes(searchTerm)
-    );
-
-    const matchesStatus = statusFilter === 'all' || 
-      pet.status.toLowerCase() === statusFilter;
-
-    return matchesSearch && matchesStatus;
-  }) || [];
+  const displayedPets = pets.filter(pet => 
+    statusFilter === 'all' || pet.status.toLowerCase() === statusFilter
+  );
 
   const handleContactSubmit = (formData: ContactFormData) => {
     console.log('Contact form submitted:', formData);
@@ -91,6 +92,10 @@ const PetSearch: React.FC = () => {
         payload: err instanceof Error ? err.message : 'Failed to update pet'
       });
     }
+  };
+
+  const handleSearch = () => {
+    setSearchQuery(searchInput);
   };
 
   if (loading) return <div className="text-center py-4">Loading...</div>;
@@ -140,10 +145,33 @@ const PetSearch: React.FC = () => {
               <input
                 type="text"
                 className="form-control border-start-0"
-                placeholder="Search by name, color, type..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={`Search by ${searchCriteria === 'all' ? 'all criteria' : searchCriteria}...`}
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
               />
+              <button
+                className="btn btn-primary"
+                onClick={handleSearch}
+              >
+                Search
+              </button>
+              <button
+                className="btn btn-outline-secondary dropdown-toggle"
+                type="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                {searchCriteria.charAt(0).toUpperCase() + searchCriteria.slice(1)}
+              </button>
+              <ul className="dropdown-menu dropdown-menu-end">
+                <li><button className="dropdown-item" onClick={() => setSearchCriteria('all')}>All Criteria</button></li>
+                <li><button className="dropdown-item" onClick={() => setSearchCriteria('name')}>Name</button></li>
+                <li><button className="dropdown-item" onClick={() => setSearchCriteria('color')}>Color</button></li>
+                <li><button className="dropdown-item" onClick={() => setSearchCriteria('kind')}>Type</button></li>
+                <li><button className="dropdown-item" onClick={() => setSearchCriteria('location')}>Location</button></li>
+                <li><button className="dropdown-item" onClick={() => setSearchCriteria('description')}>Description</button></li>
+              </ul>
             </div>
           </div>
         </div>
@@ -185,7 +213,7 @@ const PetSearch: React.FC = () => {
 
       {/* Pet Cards Grid */}
       <div className="row row-cols-1 row-cols-md-2 g-4">
-        {filteredPets.map((pet) => (
+        {displayedPets.map((pet) => (
           <div key={pet._id} className="col">
             <div className="card h-100">
               <div className="row g-0">
@@ -271,7 +299,7 @@ const PetSearch: React.FC = () => {
         ))}
       </div>
 
-      {filteredPets.length === 0 && (
+      {displayedPets.length === 0 && (
         <div className="text-center py-4 text-muted">
           {searchQuery 
             ? `No pets found matching "${searchQuery}"`

@@ -77,4 +77,30 @@ async function initializeData() {
   }
 }
 
+async function createIndexes() {
+  const db = client.db("appDB");
+  await db.collection("pets").dropIndexes();
+  
+  
+  await db.collection("pets").createIndex({
+    name: "text",
+    description: "text",
+    kind: "text",
+    color: "text",  
+    location: "text",
+    status: "text"  
+  }, {
+    weights: {
+      name: 10,        
+      kind: 5,         
+      description: 3, 
+      color: 3,
+      location: 2,
+      status: 2
+    }
+  });
+}
+
+createIndexes().catch(console.error);
+
 export { connectToDb, client };

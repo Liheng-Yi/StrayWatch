@@ -8,6 +8,47 @@ const router = express.Router();
 // Configure multer for pet image uploads
 const upload = s3Upload;
 
+// Move this route BEFORE the /:id route to prevent conflicts
+router.get("/search", async (req, res) => {
+  try {
+    const { query, criteria } = req.query;
+    console.log("Received search query:", query, "criteria:", criteria);
+    
+    const db = client.db("appDB");
+    const petsCollection = db.collection("pets");
+
+    let searchQuery = {};
+    if (query && query.trim()) {
+      if (criteria && criteria !== 'all') {
+        // Specific field search
+        searchQuery = { [criteria]: { $regex: new RegExp(query, 'i') } };
+      } else {
+        // Full-text search across all fields
+        searchQuery = { 
+          $text: { 
+            $search: query,
+            $caseSensitive: false,
+            $diacriticSensitive: false
+          }
+        };
+      }
+    }
+    
+    console.log("MongoDB search query:", searchQuery);
+
+    const pets = await petsCollection
+      .find(searchQuery)
+      .sort(criteria === 'all' ? { score: { $meta: "textScore" } } : {})
+      .toArray();
+    
+    console.log("Search results:", pets.length);
+    res.json(pets);
+  } catch (err) {
+    console.error("Error searching pets:", err);
+    res.status(500).json({ message: "Error searching pets" });
+  }
+});
+
 // Get all pets or filter by type
 router.get("/", async (req, res) => {
   try {
