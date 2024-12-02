@@ -1,21 +1,31 @@
 interface Pet {
   _id: string;
-  color: string;
   name: string;
   kind: string;
   status: string;
-  location: string;
-  picture: string;
   description: string;
+  color: string;
+  location: string;
+  userId: string;
+  lat: string;
+  lng: string;
+  picture: string;
+  createdAt: string;
 }
 
-const API_URL = process.env.NODE_ENV === 'production' 
-  ? process.env.API_URL 
-  : 'http://localhost:5000';
+const API_URL =
+  process.env.NODE_ENV === "production"
+    ? process.env.REACT_APP_API_URL
+    : "http://localhost:5000";
 
 export const PetClient = {
   fetchPets: async (type: string): Promise<Pet[]> => {
-    const response = await fetch(`${API_URL}/api/pets?type=${type}`);
+    const response = await fetch(`${API_URL}/api/pets?type=${encodeURIComponent(type)}`, {
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      }
+    });
     if (!response.ok) throw new Error('Failed to fetch pets');
     return response.json();
   },
@@ -34,7 +44,6 @@ export const PetClient = {
     const response = await fetch(`${API_URL}/api/pets/${petId}`, {
       method: 'PUT',
       body: petData,
-      credentials: 'include'
     });
     
     if (!response.ok) {
@@ -47,7 +56,15 @@ export const PetClient = {
   },
 
   searchPets: async (searchQuery: string): Promise<Pet[]> => {
-    const response = await fetch(`${API_URL}/api/pets/search?query=${encodeURIComponent(searchQuery)}`);
+    const response = await fetch(
+      `${API_URL}/api/pets/search?query=${encodeURIComponent(searchQuery)}`,
+      {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      }
+    );
     
     if (!response.ok) {
       const errorText = await response.text();
@@ -60,7 +77,13 @@ export const PetClient = {
 
   searchPetsByCriteria: async (searchQuery: string, criteria: string): Promise<Pet[]> => {
     const response = await fetch(
-      `${API_URL}/api/pets/search?query=${encodeURIComponent(searchQuery)}&criteria=${criteria}`
+      `${API_URL}/api/pets/search?query=${encodeURIComponent(searchQuery)}&criteria=${criteria}`,
+      {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      }
     );
     
     if (!response.ok) {

@@ -1,6 +1,5 @@
 import { Pet } from './clients';
 
-// Define action types
 export type PetAction = 
   | { type: 'SET_PETS'; payload: Pet[] }
   | { type: 'UPDATE_PET'; payload: Pet }
@@ -8,7 +7,6 @@ export type PetAction =
   | { type: 'SET_ERROR'; payload: string | null }
   | { type: 'SET_LOADING'; payload: boolean };
 
-// Define state type
 export interface PetState {
   pets: Pet[];
   loading: boolean;
@@ -22,7 +20,6 @@ export const initialState: PetState = {
   error: null
 };
 
-// Reducer function
 export const petReducer = (state: PetState, action: PetAction): PetState => {
   switch (action.type) {
     case 'SET_PETS':

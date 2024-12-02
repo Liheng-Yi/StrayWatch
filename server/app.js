@@ -21,7 +21,7 @@ app.use(
     credentials: true,
     origin: [
       process.env.NETLIFY_URL || "https://straywatch.netlify.app",
-      "http://localhost:3000",
+      process.env.CLIENT_URL || "http://localhost:3000",
     ],
   })
 );
