@@ -10,7 +10,6 @@ import { ShelterClient, Pet } from "./client";
 import PetUpdateModal from "../PetDatabase/PetUpdateModal";
 import PetCards from './PetCards';
 import ShelterList from '../Map/shelterList';
-import { isAdmin } from '../../Components/UI/auth';
 
 const Shelter = () => {
   const navigate = useNavigate();
@@ -98,7 +97,7 @@ const Shelter = () => {
           <h1 className="dashboard-title">Shelter Dashboard</h1>
           <p className="subtitle">Help pets find their forever homes</p>
 
-          <div className="action-buttons">
+          <div className="action-buttons mt-3">
             <button onClick={handleAddPetClick} className="action-button">
               <span>🐾</span>
               Add Pet
@@ -110,7 +109,7 @@ const Shelter = () => {
           </div>
         </div>
 
-        <div className="images-grid">
+        <div className="images-grid hide-on-mobile">
           <img
             src={`${process.env.PUBLIC_URL}/pic/shelterPage.jpg`}
             alt="Child hugging dog"
