@@ -148,7 +148,6 @@ const PetSearch: React.FC = () => {
                 placeholder={`Search by ${searchCriteria === 'all' ? 'all criteria' : searchCriteria}...`}
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
               />
               <button
                 className="btn btn-primary"

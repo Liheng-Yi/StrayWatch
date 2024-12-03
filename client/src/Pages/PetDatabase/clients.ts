@@ -93,6 +93,19 @@ export const PetClient = {
     }
     
     return response.json();
+  },
+
+  fetchUserPets: async (userId: string): Promise<Pet[]> => {
+    try {
+      const response = await fetch(`/api/pets/user/${userId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch user pets');
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching user pets:', error);
+      throw error;
+    }
   }
 };
 
