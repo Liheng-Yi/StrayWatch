@@ -86,6 +86,15 @@ interface Pet {
         console.error('Error fetching user pets:', error);
         throw error;
       }
+    },
+  
+    getUserRole: async (userId: string): Promise<string> => {
+      const response = await fetch(`/api/users/${userId}/role`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch user role');
+      }
+      const data = await response.json();
+      return data.role;
     }
   };
   
