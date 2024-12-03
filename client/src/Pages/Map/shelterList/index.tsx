@@ -5,12 +5,14 @@ import { ShelterClient, Shelter, Pet } from './client';
 import './styles.css';
 
 interface ShelterListProps {
+  onShelterClick?: (shelterId: string) => void;
   onShelterUpdate: () => void;
   userRole?: string;
   currentShelterId?: string;
 }
 
 const ShelterList: React.FC<ShelterListProps> = ({ 
+  onShelterClick, 
   onShelterUpdate, 
   userRole, 
   currentShelterId 
@@ -81,6 +83,12 @@ const ShelterList: React.FC<ShelterListProps> = ({
     }
   };
 
+  const handleShelterClick = (shelterId: string) => {
+    if (onShelterClick) {
+      onShelterClick(shelterId);
+    }
+  };
+
   if (loading) return <div className="text-center py-4">Loading shelters...</div>;
   if (error) return <div className="text-center py-4 text-danger">{error}</div>;
 
@@ -113,7 +121,12 @@ const ShelterList: React.FC<ShelterListProps> = ({
 
       <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         {filteredShelters.map((shelter) => (
-          <div key={shelter._id} className="col">
+          <div 
+            key={shelter._id} 
+            className="col"
+            onClick={() => handleShelterClick(shelter._id)}
+            style={{ cursor: 'pointer' }}
+          >
             <div className="card h-100 shadow-sm shelter-card">
               <div className="card-body">
                 <div className="d-flex justify-content-between align-items-start mb-3">

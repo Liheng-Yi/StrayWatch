@@ -95,6 +95,14 @@ interface Pet {
       }
       const data = await response.json();
       return data.role;
+    },
+  
+    fetchShelterPets: async (shelterId: string): Promise<Pet[]> => {
+      const response = await fetch(`${API_URL}/api/pets/shelter/${shelterId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch shelter pets');
+      }
+      return response.json();
     }
   };
   

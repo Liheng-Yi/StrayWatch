@@ -5,10 +5,12 @@ import PurpleButton from "../../Components/UI/lightPurpleButton";
 import { MapPin, Pencil, Share2 } from "lucide-react";
 import { FaTrash } from "react-icons/fa";
 import { useState, useEffect } from "react";
-import { getCurrentUserId } from "../../Components/UI/auth";
+import { getCurrentUserId, getCurrentUser } from "../../Components/UI/auth";
 import { ShelterClient, Pet } from "./client";
 import PetUpdateModal from "../PetDatabase/PetUpdateModal";
 import PetCards from './PetCards';
+import ShelterList from '../Map/shelterList';
+import { isAdmin } from '../../Components/UI/auth';
 
 const Shelter = () => {
   const navigate = useNavigate();
@@ -19,6 +21,8 @@ const Shelter = () => {
   const [activeTab] = useState("all");
   const [showEditButton, setShowEditButton] = useState(false);
   const [isShelter, setIsShelter] = useState(false);
+  const [isAdminUser, setIsAdminUser] = useState(false);
+  const [selectedShelterId, setSelectedShelterId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchUserPets = async () => {
@@ -28,10 +32,11 @@ const Shelter = () => {
           navigate("/login");
           return;
         }
-        const userRole = await ShelterClient.getUserRole(userId);
-        setIsShelter(userRole === 'shelter');
+        const user = getCurrentUser();
+        setIsShelter(user?.role === 'shelter');
+        setIsAdminUser(user?.role === 'admin');
         
-        if (userRole === 'shelter') {
+        if (user?.role === 'shelter') {
           const pets = await ShelterClient.fetchUserPets(userId);
           setDisplayedPets(pets);
           setShowEditButton(true);
@@ -48,7 +53,6 @@ const Shelter = () => {
     if (!window.confirm("Are you sure you want to delete this pet?")) {
       return;
     }
-    
     try {
       await ShelterClient.deletePet(petId);
       setDisplayedPets(prev => prev.filter(pet => pet._id !== petId));
@@ -75,6 +79,16 @@ const Shelter = () => {
 
   const handleNewShelterClick = () => {
     navigate("/map", { state: { openShelterForm: true } });
+  };
+
+  const handleShelterClick = async (shelterId: string) => {
+    try {
+      const pets = await ShelterClient.fetchShelterPets(shelterId);
+      setDisplayedPets(pets);
+      setSelectedShelterId(shelterId);
+    } catch (error) {
+      console.error("Error fetching shelter's pets:", error);
+    }
   };
 
   return (
@@ -110,7 +124,30 @@ const Shelter = () => {
         </div>
       </div>
 
-      {isShelter ? (
+      {isAdminUser ? (
+        <>
+          <h3 className="text-start mb-4">All Shelters</h3>
+          <ShelterList 
+            onShelterClick={handleShelterClick}
+            onShelterUpdate={() => {}}
+            userRole="admin"
+          />
+          {selectedShelterId && (
+            <>
+              <h3 className="text-start mb-4">Shelter Pets: {displayedPets.length}</h3>
+              <PetCards
+                pets={displayedPets}
+                showEditButton={showEditButton}
+                onDeletePet={handleDeletePet}
+                onEditPet={(pet) => {
+                  setSelectedPet(pet);
+                  setShowUpdateModal(true);
+                }}
+              />
+            </>
+          )}
+        </>
+      ) : isShelter ? (
         <>
           <h3 className="text-start mb-4">Shelter Pets: {displayedPets.length}</h3>
           <PetCards
