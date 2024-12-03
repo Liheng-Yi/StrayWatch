@@ -14,7 +14,6 @@ const Shelter = () => {
   const [displayedPets, setDisplayedPets] = useState<Pet[]>([]);
   const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
-  const [showContactModal, setShowContactModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab] = useState("all");
   const [showEditButton, setShowEditButton] = useState(false);
@@ -104,7 +103,7 @@ const Shelter = () => {
         </div>
       </div>
 
-      <h3 className="text-start mb-4">Shelter Pets:</h3>
+      <h3 className="text-start mb-4">Shelter Pets: {displayedPets.length}</h3>
 
       {/* Pet Cards Grid */}
       <div className="row row-cols-1 row-cols-md-2 g-4">
@@ -169,11 +168,11 @@ const Shelter = () => {
                     </div>
 
                     <div className="d-flex gap-2">
-                      <PurpleButton
+                    <PurpleButton
                         variant="outline"
                         className="d-flex align-items-center"
                       >
-                        <Share2 size={16} />
+                        <Share2 size={12} />
                         Share
                       </PurpleButton>
                     </div>
@@ -193,15 +192,13 @@ const Shelter = () => {
           }
         </div>
       )}
-
+  
       <PetUpdateModal
         isOpen={showUpdateModal}
         onClose={() => setShowUpdateModal(false)}
         onSubmit={handleUpdatePet}
         pet={selectedPet}
       />
-
-
     </div>
   );
 };
