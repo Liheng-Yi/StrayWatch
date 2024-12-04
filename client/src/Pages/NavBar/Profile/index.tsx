@@ -188,7 +188,7 @@ const Profile: React.FC = () => {
       <div className="col-lg-8 mx-auto">
         <div className="d-flex align-items-center gap-3">
           <h2 className="color: #C5E0DC;--a: 45deg;--t:.15em mb-0">
-            <span>Pets</span>
+            <span>Pets: {pets.length}</span>
           </h2>
           {isOwnProfile && (
             <PurpleButton onClick={() => navigate("/add-pet")}>
@@ -231,7 +231,7 @@ const Profile: React.FC = () => {
                   )}
                 </div>
               </div>
-              <p className="pet-card__location">📍 {pet.location}</p>
+             { isOwnProfile && (<p className="pet-card__location">📍 {pet.location}</p>)}
               <p className="pet-card__description">{pet.description}</p>
             </div>
           </div>

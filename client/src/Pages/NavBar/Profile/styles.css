@@ -104,9 +104,13 @@ h2 {
     background: #f4effa;
     border-radius: 0.8rem;
     overflow: hidden;
+<<<<<<< HEAD
+    border:none;
+=======
     /* border: 0.1rem solid; */
     border:none;
     /* box-shadow: 0.35rem 0.35rem 0 #bbacd9; */
+>>>>>>> main
     transition: transform 0.2s ease;
     margin-bottom: 2rem;
   }

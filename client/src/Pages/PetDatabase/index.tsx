@@ -9,10 +9,12 @@ import PetUpdateModal from './PetUpdateModal';
 import { isAdmin } from '../../Components/UI/auth';
 import { useReducer } from 'react';
 import { petReducer, initialState } from './petReducer';
+import { useNavigate } from 'react-router';
 
 const PetSearch: React.FC = () => {
   const [state, dispatch] = useReducer(petReducer, initialState);
   const { pets, loading, error } = state;
+  const navigate= useNavigate();
   
   const [activeTab, setActiveTab] = useState<'all' | 'dogs' | 'cats'>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -283,8 +285,7 @@ const PetSearch: React.FC = () => {
                       <PurpleButton 
                         variant="solid"
                         onClick={() => {
-                          setSelectedPet(pet);
-                          setShowContactModal(true);
+                          navigate(`/profile/${pet.userId}`);
                         }}
                       >
                         Contact
