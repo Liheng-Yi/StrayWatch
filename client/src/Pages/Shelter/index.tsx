@@ -1,9 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import "./styles.css";
-import PurpleButton from "../../Components/UI/lightPurpleButton";
-import { MapPin, Pencil, Share2 } from "lucide-react";
-import { FaTrash } from "react-icons/fa";
 import { useState, useEffect } from "react";
 import { getCurrentUserId, getCurrentUser } from "../../Components/UI/auth";
 import { ShelterClient, Pet } from "./client";
