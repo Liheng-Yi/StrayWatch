@@ -231,7 +231,7 @@ const Profile: React.FC = () => {
                   )}
                 </div>
               </div>
-              <p className="pet-card__location">📍 {pet.location}</p>
+             { isOwnProfile && (<p className="pet-card__location">📍 {pet.location}</p>)}
               <p className="pet-card__description">{pet.description}</p>
             </div>
           </div>
