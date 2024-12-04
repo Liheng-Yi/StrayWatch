@@ -3,6 +3,8 @@ import { Share2, MapPin, Search } from 'lucide-react';
 import PurpleButton from '../../Components/UI/lightPurpleButton';
 import { FaTrash } from "react-icons/fa";
 import ContactModal, { ContactFormData } from '../../Components/util/Contact';
+import { useNavigate } from 'react-router';
+
 
 interface Pet {
   _id: string;
@@ -13,6 +15,7 @@ interface Pet {
   location: string;
   picture: string;
   description: string;
+  userId:string
 }
 
 const PetFoundSearch: React.FC = () => {
@@ -26,6 +29,7 @@ const PetFoundSearch: React.FC = () => {
   : 'http://localhost:5000';
   const [showContactModal, setShowContactModal] = useState(false);
   const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
+  const navigate = useNavigate();
 
   const handleDeletePet = async (petId: string) => {
     if (!window.confirm('Are you sure you want to delete this pet?')) {
@@ -201,8 +205,7 @@ const PetFoundSearch: React.FC = () => {
                       <PurpleButton 
                         variant="solid"
                         onClick={() => {
-                          setSelectedPet(pet);
-                          setShowContactModal(true);
+                          navigate(`/profile/${pet.userId}`);
                         }}
                       >
                         Contact
