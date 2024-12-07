@@ -106,7 +106,18 @@ export const PetClient = {
       console.error('Error fetching user pets:', error);
       throw error;
     }
-  }
+  },
+
+  fetchPetById: async (petId: string): Promise<Pet> => {
+    const response = await fetch(`${API_URL}/api/pets/${petId}`, {
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      }
+    });
+    if (!response.ok) throw new Error('Failed to fetch pet details');
+    return response.json();
+  },
 };
 
 export type { Pet }; 

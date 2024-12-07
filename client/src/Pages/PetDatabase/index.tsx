@@ -278,10 +278,14 @@ const PetSearch: React.FC = () => {
                       <PurpleButton
                         variant="outline"
                         className="d-flex align-items-center"
+                        onClick={() => {
+                          navigate(`/pet/${pet._id}`);
+                        }}
                       >
                         <Share2 size={16} />
-                        Share
+                        Details
                       </PurpleButton>
+
                       <PurpleButton 
                         variant="solid"
                         onClick={() => {

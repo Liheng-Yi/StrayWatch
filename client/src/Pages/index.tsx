@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate, Link } from "react-router-dom";
 import { UserCircle, PawPrint } from "lucide-react";
 import { useAppSelector, useAppDispatch } from "../store/hooks";
+import PurpleButton from "../Components/UI/lightPurpleButton";
 import Map from "./Map";
 import Landing from "./Landing";
 import SignIn from "./NavBar/Signin/signin";
@@ -11,11 +12,12 @@ import PetSearch from "./PetDatabase";
 import Shelter from "./Shelter";
 import "./styles.css";
 import { logout } from "./NavBar/Signin/reducer";
+import PetDetails from './PetDatabase/details';
 
 export default function MainPage() {
   const currentUser = useAppSelector((state: any) => state.user.currentUser);
   const dispatch = useAppDispatch();
-  
+
   console.log("--currentUser", currentUser);
   const handleSignOut = () => {
     dispatch(logout());
@@ -106,12 +108,12 @@ export default function MainPage() {
                     </Link>
                   </li>
                   <li className="nav-item">
-                    <button
+                    <PurpleButton
                       onClick={handleSignOut}
                       className="btn btn-outline-primary btn-sm rounded-pill px-3 hover-scale"
                     >
                       Sign Out
-                    </button>
+                    </PurpleButton>
                   </li>
                 </>
               ) : (
@@ -151,6 +153,7 @@ export default function MainPage() {
           />
           <Route path="/profile/:userId" element={<Profile />} />
           <Route path="/add-pet" element={<AddPet />} />
+          <Route path="/pet/:petId" element={<PetDetails />} />
         </Routes>
       </div>
     </div>

@@ -81,7 +81,7 @@ router.get("/:id", async (req, res) => {
     const petsCollection = db.collection("pets");
     const petId = new ObjectId(req.params.id);
     const pet = await petsCollection.findOne({ _id: petId });
-    
+    console.log("Pet found:", pet);
     if (!pet) {
       return res.status(404).json({ message: "Pet not found" });
     }
