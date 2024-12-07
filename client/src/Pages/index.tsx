@@ -15,6 +15,7 @@ import { logout } from "./NavBar/Signin/reducer";
 export default function MainPage() {
   const currentUser = useAppSelector((state: any) => state.user.currentUser);
   const dispatch = useAppDispatch();
+  
   console.log("--currentUser", currentUser);
   const handleSignOut = () => {
     dispatch(logout());

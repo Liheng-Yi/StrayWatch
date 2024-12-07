@@ -167,10 +167,10 @@ const Map: React.FC = () => {
             <div className="modal-body">
               <APIProvider
                 apiKey={(() => {
-                  console.log(
-                    "[map]API Key:",
-                    process.env.REACT_APP_GOOGLE_MAPS_API_KEY
-                  );
+                  // console.log(
+                  //   "[map]API Key:",
+                  //   process.env.REACT_APP_GOOGLE_MAPS_API_KEY
+                  // );
                   return process.env.REACT_APP_GOOGLE_MAPS_API_KEY ?? "";
                 })()}
                 solutionChannel="GMP_devsite_samples_v3_rgmautocomplete"

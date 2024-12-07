@@ -12,13 +12,6 @@ const AddPet = () => {
 
   return (
     <div>
-      <button 
-        onClick={handleBack}
-        className="btn btn-link d-flex align-items-center text-primary ps-0 mb-4"
-      >
-        <span className="me-2">←</span>
-        Back to Main Page
-      </button>
       
       <div className="text-center max-w-4xl mx-auto p-6">
         <h1 className="text-3xl font-bold mb-4">Record My Pet</h1>

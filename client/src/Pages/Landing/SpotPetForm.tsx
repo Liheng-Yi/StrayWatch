@@ -12,12 +12,6 @@ const SpotPetForm = () => {
 
   return (
     <div>
-      <button 
-        onClick={handleBack}
-        className="mb-6 text-blue-500 hover:text-blue-600"
-      >
-        ← Back to Main Page
-      </button>
       <div className="text-center max-w-4xl mx-auto p-6">
         <h1 className="text-3xl font-bold mb-4">Report Found Pet</h1>
 
