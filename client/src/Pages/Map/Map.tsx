@@ -12,6 +12,7 @@ import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import ShelterForm from "./shelterForm";
 import { APIProvider } from "@vis.gl/react-google-maps";
 import { useLocation } from "react-router-dom";
+import { getCurrentUser } from "../../Components/UI/auth";
 
 // Import the necessary images
 import iconRetinaUrl from "leaflet/dist/images/marker-icon-2x.png";
@@ -48,6 +49,7 @@ const Map: React.FC = () => {
     location.state?.openShelterForm || false
   );
   const [shelters, setShelters] = useState<Shelter[]>([]);
+  const [isShelter, setIsShelter] = useState(false);
 
   const fetchShelters = async () => {
     try {
@@ -68,6 +70,11 @@ const Map: React.FC = () => {
       setShowForm(true);
     }
   }, [location.state]);
+
+  useEffect(() => {
+    const user = getCurrentUser();
+    setIsShelter(user?.role === 'shelter');
+  }, []);
 
   const handleShelterAdded = () => {
     fetchShelters();
@@ -110,27 +117,29 @@ const Map: React.FC = () => {
               )}
             </MapContainer>
 
-            {/* Bootstrap Floating Action Button */}
-            <button
-              className="btn rounded-circle position-fixed"
-              style={{
-                bottom: "2rem",
-                right: "2rem",
-                width: "4rem",
-                height: "4rem",
-                backgroundColor: "#6f42c1",
-                color: "white",
-                boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
-                zIndex: 1000,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-              onClick={() => setShowForm(true)}
-              title="Add New Shelter"
-            >
-              New Shelter
-            </button>
+
+            {isShelter && (
+              <button
+                className="btn rounded-circle position-fixed"
+                style={{
+                  bottom: "2rem",
+                  right: "2rem",
+                  width: "4rem",
+                  height: "4rem",
+                  backgroundColor: "#6f42c1",
+                  color: "white",
+                  boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
+                  zIndex: 1000,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+                onClick={() => setShowForm(true)}
+                title="Add New Shelter"
+              >
+                New Shelter
+              </button>
+            )}
           </div>
         </div>
       </div>

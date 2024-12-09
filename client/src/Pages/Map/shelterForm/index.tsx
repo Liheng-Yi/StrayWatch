@@ -29,7 +29,6 @@ const ShelterForm = ({ onClose }: ShelterFormProps) => {
 
   useEffect(() => {
     if (!places || !inputRef.current) return;
-
     const options = {
       fields: ["geometry", "formatted_address"],
       types: ["address"],

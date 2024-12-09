@@ -90,4 +90,37 @@ router.patch('/:id/toggle-verification', async (req, res) => {
   }
 });
 
+// Delete shelter by ID
+router.delete('/:id', async (req, res) => {
+  try {
+    // Validate ObjectId format
+    if (!ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: 'Invalid shelter ID format' });
+    }
+
+    const db = client.db("appDB");
+    const sheltersCollection = db.collection("shelters");
+    const petsCollection = db.collection("pets");
+    
+    const shelterId = new ObjectId(req.params.id);
+
+    // First, delete all pets associated with this shelter
+    await petsCollection.deleteMany({ shelterId: shelterId });
+
+    // Then delete the shelter
+    const result = await sheltersCollection.deleteOne({ _id: shelterId });
+    
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ message: 'Shelter not found' });
+    }
+
+    res.status(200).json({ 
+      message: 'Shelter and associated pets deleted successfully'
+    });
+  } catch (err) {
+    console.error("Error deleting shelter:", err);
+    res.status(500).json({ message: "Error deleting shelter" });
+  }
+});
+
 export default router;

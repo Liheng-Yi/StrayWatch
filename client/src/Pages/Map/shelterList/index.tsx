@@ -3,6 +3,8 @@ import { MapPin, Phone, Mail, Globe } from 'lucide-react';
 import PurpleButton from '../../../Components/UI/lightPurpleButton';
 import { ShelterClient, Shelter, Pet } from './client';
 import './styles.css';
+import { isAdmin } from '../../../Components/UI/auth';
+import { FaTrash } from "react-icons/fa";
 
 interface ShelterListProps {
   onShelterClick?: (shelterId: string) => void;
@@ -83,6 +85,22 @@ const ShelterList: React.FC<ShelterListProps> = ({
     }
   };
 
+  const handleDeleteShelter = async (shelterId: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent shelter card click event
+    
+    if (!window.confirm('Are you sure you want to delete this shelter?')) {
+      return;
+    }
+
+    try {
+      await ShelterClient.deleteShelter(shelterId);
+      setShelters(shelters.filter(shelter => shelter._id !== shelterId));
+      onShelterUpdate();
+    } catch (error) {
+      console.error('Error deleting shelter:', error);
+    }
+  };
+
   const handleShelterClick = (shelterId: string) => {
     if (onShelterClick) {
       onShelterClick(shelterId);
@@ -131,12 +149,26 @@ const ShelterList: React.FC<ShelterListProps> = ({
               <div className="card-body">
                 <div className="d-flex justify-content-between align-items-start mb-3">
                   <h5 className="card-title mb-0">{shelter.name}</h5>
-                  <button
-                    onClick={() => toggleVerification(shelter._id)}
-                    className={`btn btn-sm ${shelter.verified ? 'btn-success' : 'btn-danger'}`}
-                  >
-                    {shelter.verified ? 'Verified' : 'Not Verified'}
-                  </button>
+                  {isAdmin() && (
+                    <div className="d-flex gap-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleVerification(shelter._id);
+                        }}
+                        className={`btn btn-sm ${shelter.verified ? 'btn-success' : 'btn-danger'}`}
+                      >
+                        {shelter.verified ? 'Verified' : 'Not Verified'}
+                      </button>
+                      <button
+                        onClick={(e) => handleDeleteShelter(shelter._id, e)}
+                        className="btn btn-sm btn-danger"
+                        title="Delete shelter"
+                      >
+                        <FaTrash size={12} />
+                      </button>
+                    </div>
+                  )}
                 </div>
                 
                 <div className="shelter-info">
