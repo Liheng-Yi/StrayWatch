@@ -19,11 +19,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
     credentials: true,
-    origin: [
-      process.env.NODE_SERVER_DOMAIN || "https://straywatch.onrender.com",
-      process.env.NETLIFY_URL || "https://straywatch.netlify.app",
-      process.env.CLIENT_URL || "http://localhost:3000",
-    ],
+    origin: ["https://straywatch.netlify.app", "http://localhost:3000"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allowedHeaders: ["Content-Type", "Authorization", "Accept"],
   })
 );
 const port = process.env.PORT || 5000;
