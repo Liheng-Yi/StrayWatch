@@ -1,135 +1,65 @@
-import express from "express";
-import { client } from "../db/connector.js";
-import { ObjectId } from "mongodb";
+import express from 'express';
+import { PetModel } from './model.js';
 import s3Upload from '../config/s3Config.js';
 
 const router = express.Router();
-
-// Configure multer for pet image uploads
+const petModel = new PetModel();
 const upload = s3Upload;
 
-// Move this route BEFORE the /:id route to prevent conflicts
+// Search pets
 router.get("/search", async (req, res) => {
   try {
     const { query, criteria } = req.query;
     console.log("Received search query:", query, "criteria:", criteria);
     
-    const db = client.db("appDB");
-    const petsCollection = db.collection("pets");
-
-    let searchQuery = {};
-    if (query && query.trim()) {
-      if (criteria && criteria !== 'all') {
-        // Specific field search
-        searchQuery = { [criteria]: { $regex: new RegExp(query, 'i') } };
-      } else {
-        // Full-text search across all fields
-        searchQuery = { 
-          $text: { 
-            $search: query,
-            $caseSensitive: false,
-            $diacriticSensitive: false
-          }
-        };
-      }
-    }
-    
-    console.log("MongoDB search query:", searchQuery);
-
-    const pets = await petsCollection
-      .find(searchQuery)
-      .sort(criteria === 'all' ? { score: { $meta: "textScore" } } : {})
-      .toArray();
-    
+    const pets = await petModel.searchPets(query, criteria);
     console.log("Search results:", pets.length);
     res.json(pets);
   } catch (err) {
     console.error("Error searching pets:", err);
-    res.status(500).json({ message: "Error searching pets" });
+    res.status(500).json({ message: err.message || "Error searching pets" });
   }
 });
 
 // Get all pets or filter by type
 router.get("/", async (req, res) => {
   try {
-    const { type } = req.query;
-    const db = client.db("appDB");
-    const petsCollection = db.collection("pets");
-
-    let query = {};
-    if (type && type !== "all") {
-      query = { kind: { $regex: new RegExp(type, "i") } };
-    }
-
-    const pets = await petsCollection.find(query).toArray();
+    const pets = await petModel.getAllPets(req.query.type);
     res.json(pets);
   } catch (err) {
     console.error("Error fetching pets:", err);
-    res.status(500).json({ message: "Error fetching pets" });
+    res.status(500).json({ message: err.message || "Error fetching pets" });
   }
 });
 
-// Get pet by petID
+// Get pet by ID
 router.get("/:id", async (req, res) => {
   try {
-    // Add ObjectId validation
-    if (!ObjectId.isValid(req.params.id)) {
-      return res.status(400).json({ message: "Invalid pet ID format" });
-    }
-
-    const db = client.db("appDB");
-    const petsCollection = db.collection("pets");
-    const petId = new ObjectId(req.params.id);
-    const pet = await petsCollection.findOne({ _id: petId });
-    console.log("Pet found:", pet);
-    if (!pet) {
-      return res.status(404).json({ message: "Pet not found" });
-    }
+    const pet = await petModel.getPetById(req.params.id);
     res.json(pet);
   } catch (err) {
     console.error("Error fetching pet:", err);
-    res.status(500).json({ message: "Error fetching pet" });
+    res.status(err.message.includes('Invalid') ? 400 : 500)
+       .json({ message: err.message || "Error fetching pet" });
   }
 });
 
-// delete pet by petID
+// Delete pet by ID
 router.delete("/:id", async (req, res) => {
   try {
-    // Add ObjectId validation
-    if (!ObjectId.isValid(req.params.id)) {
-      return res.status(400).json({ message: "Invalid pet ID format" });
-    }
-
-    const db = client.db("appDB");
-    const petsCollection = db.collection("pets");
-    const petId = new ObjectId(req.params.id);
-    const result = await petsCollection.deleteOne({ _id: petId });
-    
-    if (result.deletedCount === 0) {
-      return res.status(404).json({ message: "Pet not found" });
-    }
+    await petModel.deletePet(req.params.id);
     res.json({ message: "Pet deleted successfully" });
   } catch (err) {
     console.error("Error deleting pet:", err);
-    res.status(500).json({ message: "Error deleting pet" });
+    res.status(err.message.includes('Invalid') ? 400 : 404)
+       .json({ message: err.message || "Error deleting pet" });
   }
 });
 
-// Add pet for user with image upload
+// Add pet with image upload
 router.post("/add", upload.single("image"), async (req, res) => {
   try {
-    const db = client.db("appDB");
-    const petsCollection = db.collection("pets");
-
-    const petData = {
-      ...req.body,
-      userId: new ObjectId(req.body.userId),
-      picture: req.file ? req.file.location : null,
-      createdAt: new Date(),
-    };
-
-    const result = await petsCollection.insertOne(petData);
-
+    const result = await petModel.createPet(req.body, req.file);
     res.status(201).json({
       success: true,
       data: result,
@@ -143,64 +73,27 @@ router.post("/add", upload.single("image"), async (req, res) => {
   }
 });
 
-// Get user's pets by userId
+// Get user's pets
 router.get("/user/:userId", async (req, res) => {
   try {
-    const db = client.db("appDB");
-    const petsCollection = db.collection("pets");
-    const userObjectId = new ObjectId(req.params.userId);
-    const pets = await petsCollection.find({ userId: userObjectId }).toArray();
-
-    if (!pets.length) {
-      return res.status(404).json({ message: "No pets found for this user" });
-    }
-
+    const pets = await petModel.getUserPets(req.params.userId);
     res.json(pets);
   } catch (err) {
     console.error("Error fetching user's pets:", err);
-    res.status(500).json({ message: "Error fetching user's pets" });
+    res.status(err.message.includes('Invalid') ? 400 : 404)
+       .json({ message: err.message || "Error fetching user's pets" });
   }
 });
 
-// Update pet by ID
+// Update pet
 router.put("/:id", upload.single("image"), async (req, res) => {
   try {
-    if (!ObjectId.isValid(req.params.id)) {
-      return res.status(400).json({ message: "Invalid pet ID format" });
-    }
-
-    const db = client.db("appDB");
-    const petsCollection = db.collection("pets");
-    const petId = new ObjectId(req.params.id);
-    
-    const updateData = {
-      name: req.body.name,
-      kind: req.body.kind,
-      color: req.body.color,
-      status: req.body.status,
-      location: req.body.location,
-      description: req.body.description
-    };
-
-    if (req.file) {
-      updateData.picture = req.file.location;
-    }
-
-    const result = await petsCollection.findOneAndUpdate(
-      { _id: petId },
-      { $set: updateData },
-      { returnDocument: 'after' }
-    );
-
-    if (!result) {
-      return res.status(404).json({ message: "Pet not found" });
-    }
-
+    const result = await petModel.updatePet(req.params.id, req.body, req.file);
     res.json(result);
-
   } catch (err) {
     console.error("Error updating pet:", err);
-    res.status(500).json({ message: "Error updating pet" });
+    res.status(err.message.includes('Invalid') ? 400 : 500)
+       .json({ message: err.message || "Error updating pet" });
   }
 });
 
