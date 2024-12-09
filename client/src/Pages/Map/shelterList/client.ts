@@ -28,21 +28,48 @@ export interface Pet {
 
 export const ShelterClient = {
   fetchShelters: async (): Promise<Shelter[]> => {
-    const response = await fetch(`${API_URL}/api/shelters`);
-    if (!response.ok) throw new Error('Failed to fetch shelters');
-    return response.json();
+    try {
+      const response = await axios.get(`${API_URL}/api/shelters`);
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.message || 'Failed to fetch shelters');
+      }
+      throw error;
+    }
   },
 
   fetchShelterPets: async (shelterId: string): Promise<Pet[]> => {
-    const response = await fetch(`${API_URL}/api/pets/shelter/${shelterId}`);
-    if (!response.ok) throw new Error('Failed to fetch shelter pets');
-    return response.json();
+    try {
+      const response = await axios.get(`${API_URL}/api/pets/shelter/${shelterId}`);
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.message || 'Failed to fetch shelter pets');
+      }
+      throw error;
+    }
   },
 
   toggleVerification: async (shelterId: string): Promise<void> => {
-    const response = await fetch(`${API_URL}/api/shelters/${shelterId}/toggle-verification`, {
-      method: 'PATCH',
-    });
-    if (!response.ok) throw new Error('Failed to update verification status');
+    try {
+      await axios.patch(`${API_URL}/api/shelters/${shelterId}/toggle-verification`);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.message || 'Failed to update verification status');
+      }
+      throw error;
+    }
+  },
+
+  deleteShelter: async (shelterId: string): Promise<void> => {
+    try {
+      await axios.delete(`${API_URL}/api/shelters/${shelterId}`);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.message || 'Failed to delete shelter');
+      }
+      throw error;
+    }
   }
 }; 
