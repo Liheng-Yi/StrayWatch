@@ -6,6 +6,12 @@ import PurpleButton from "../../../Components/UI/lightPurpleButton";
 import { getCurrentUserId } from "../../../Components/UI/auth";
 import { FaTrash } from "react-icons/fa";
 
+// fetch profile from database
+const API_URL =
+  process.env.NODE_ENV === "production"
+    ? process.env.REACT_APP_API_URL || "https://straywatch.onrender.com"
+    : "http://localhost:5000";
+
 // TODO: fetch profile from database
 const Profile: React.FC = () => {
   const { userId } = useParams();
@@ -16,17 +22,16 @@ const Profile: React.FC = () => {
     phone: "123456",
   });
 
-
   const [pets, setPets] = useState<any>([]);
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [newUsername, setNewUsername] = useState("");
   const [newEmail, setNewEmail] = useState("");
-  const [newPhone,setNewPhone] = useState("");
+  const [newPhone, setNewPhone] = useState("");
   const [error, setError] = useState<string>("");
 
   const currentUserId = getCurrentUserId();
-  const API_URL = process.env.API_URL || "http://localhost:5000";
+  // const API_URL = process.env.API_URL || "http://localhost:5000";
 
   useEffect(() => {
     const fetchUserPets = async () => {
@@ -37,7 +42,7 @@ const Profile: React.FC = () => {
           throw new Error("Failed to fetch pets");
         }
 
-        console.log("fetchPets",response);
+        console.log("fetchPets", response);
         const data = await response.json();
         setPets(data);
       } catch (error) {
@@ -48,21 +53,39 @@ const Profile: React.FC = () => {
     fetchUserPets();
   }, [API_URL]);
 
+  // Fix the handleUpdateProfile function
   const handleUpdateProfile = async () => {
     try {
-      const response = await fetch(`/api/users/${userId || currentUserId}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username: newUsername,email:newEmail,phone:newPhone }),
-      });
+      console.log(
+        "Making request to:",
+        `${API_URL}/api/users/${userId || currentUserId}`
+      ); // For debugging
+      const response = await fetch(
+        `${API_URL}/api/users/${userId || currentUserId}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            username: newUsername,
+            email: newEmail,
+            phone: newPhone,
+          }),
+        }
+      );
 
       if (response.ok) {
-        setUser((prev: any) => ({ ...prev, username: newUsername,email:newEmail,phone:newPhone }));
+        setUser((prev: any) => ({
+          ...prev,
+          username: newUsername,
+          email: newEmail,
+          phone: newPhone,
+        }));
         setIsEditing(false);
       } else {
-        console.error("Failed to update profile");
+        const errorData = await response.json();
+        console.error("Failed to update profile:", errorData);
       }
     } catch (error) {
       console.error("Error updating profile:", error);
@@ -89,16 +112,18 @@ const Profile: React.FC = () => {
     // Determine if viewing own profile or someone else's
     setIsOwnProfile(!userId || userId === currentUserId);
 
-    // Fetch user data
+    //  fetch user and pets data for profile using proper API endpoint
     const fetchUserData = async () => {
       try {
-        const response = await fetch(`/api/profile/${userId || currentUserId}`);
+        const response = await fetch(
+          `${API_URL}/api/profile/${userId || currentUserId}`
+        );
         const userData = await response.json();
         console.log("userData", userData);
         setUser(userData);
         if (userData.pets && userData.pets.length > 0) {
           const petPromises = userData.pets.map((petId: string) =>
-            fetch(`/api/pets/${petId}`).then((res) => res.json())
+            fetch(`${API_URL}/api/pets/${petId}`).then((res) => res.json())
           );
           const petData = await Promise.all(petPromises);
           setPets(petData);
@@ -112,78 +137,82 @@ const Profile: React.FC = () => {
   }, [userId]);
 
   return (
-    
-       
     <div className="profile-container">
       <div className="col-lg-8 mx-auto">
-      <h2 className="color: #C5E0DC;--a: 45deg;--t:.15em">
-        <span>{isOwnProfile ? 'My Profile' : `${user.username}'s Profile`}</span>
-      </h2>
-    </div>
-    <br/>
+        <h2 className="color: #C5E0DC;--a: 45deg;--t:.15em">
+          <span>
+            {isOwnProfile ? "My Profile" : `${user.username}'s Profile`}
+          </span>
+        </h2>
+      </div>
+      <br />
       <div className="col-lg-8 mx-auto">
-      <div className="pet-card">
-        <div className="pet-card__content">
-          <div className="pet-card__header">
-            <h5 className="pet-card__title">{user.username}</h5>
-            {isOwnProfile && !isEditing && (
-              <PurpleButton
-                onClick={() => {
-                  setNewUsername(user.username);
-                  setIsEditing(true);
-                }}
-              >
-                update profile
-              </PurpleButton>
+        <div className="pet-card">
+          <div className="pet-card__content">
+            <div className="pet-card__header">
+              <h5 className="pet-card__title">{user.username}</h5>
+              {isOwnProfile && !isEditing && (
+                <PurpleButton
+                  onClick={() => {
+                    setNewUsername(user.username);
+                    setIsEditing(true);
+                  }}
+                >
+                  update profile
+                </PurpleButton>
+              )}
+            </div>
+
+            {isEditing ? (
+              <div className="mb-3">
+                <input
+                  type="text"
+                  className="form-control mb-2"
+                  value={newUsername}
+                  onChange={(e) => setNewUsername(e.target.value)}
+                  placeholder={user.username}
+                />
+                <input
+                  type="email"
+                  className="form-control mb-2"
+                  value={newEmail}
+                  onChange={(e) => setNewEmail(e.target.value)}
+                  placeholder={user.email}
+                />
+                <input
+                  type="text"
+                  className="form-control mb-2"
+                  value={newPhone}
+                  onChange={(e) => setNewPhone(e.target.value)}
+                  placeholder={user.phone}
+                />
+                <div className="d-flex gap-2">
+                  <PurpleButton onClick={handleUpdateProfile}>
+                    Save
+                  </PurpleButton>
+                  <PurpleButton onClick={() => setIsEditing(false)}>
+                    Cancel
+                  </PurpleButton>
+                </div>
+              </div>
+            ) : (
+              isOwnProfile && (
+                <>
+                  <p className="pet-card__description">
+                    📧 Email: {user.email}
+                  </p>
+                  <p className="pet-card__description">
+                    📱 Phone: {user.phone}
+                  </p>
+                </>
+              )
             )}
           </div>
-          
-          {isEditing ? (
-            <div className="mb-3">
-              <input
-                type="text"
-                className="form-control mb-2"
-                value={newUsername}
-                onChange={(e) => setNewUsername(e.target.value)}
-                placeholder={user.username}
-              />
-              <input
-              type="email"
-              className="form-control mb-2"
-              value={newEmail}
-              onChange={(e) => setNewEmail(e.target.value)}
-              placeholder= {user.email}
-              />
-              <input
-              type="text"
-              className="form-control mb-2"
-              value={newPhone}
-              onChange={(e) => setNewPhone(e.target.value)}
-              placeholder={user.phone}
-              />
-              <div className="d-flex gap-2">
-                <PurpleButton onClick={handleUpdateProfile}>
-                  Save
-                </PurpleButton>
-                <PurpleButton onClick={() => setIsEditing(false)}>
-                  Cancel
-                </PurpleButton>
-              </div>
-            </div>
-          ) : (
-            isOwnProfile && (
-              <>
-                <p className="pet-card__description">📧 Email: {user.email}</p>
-                <p className="pet-card__description">📱 Phone: {user.phone}</p>
-              </>
-            )
-          )}
         </div>
       </div>
-    </div>
 
-    <br />
-    <br />
+      <br />
+      <br />
 
       <div className="col-lg-8 mx-auto">
         <div className="d-flex align-items-center gap-3">
@@ -231,7 +260,9 @@ const Profile: React.FC = () => {
                   )}
                 </div>
               </div>
-             { isOwnProfile && (<p className="pet-card__location">📍 {pet.location}</p>)}
+              {isOwnProfile && (
+                <p className="pet-card__location">📍 {pet.location}</p>
+              )}
               <p className="pet-card__description">{pet.description}</p>
             </div>
           </div>
