@@ -1,3 +1,8 @@
+const API_URL =
+  process.env.NODE_ENV === "production"
+    ? process.env.REACT_APP_API_URL || "https://straywatch.onrender.com"
+    : "http://localhost:5000";
+
 export const signup = async (userData: {
   username: string;
   password: string;
@@ -6,7 +11,7 @@ export const signup = async (userData: {
   role?: "user" | "shelter" | "admin";
 }) => {
   try {
-    const response = await fetch("/api/users/signup", {
+    const response = await fetch(`${API_URL}/api/users/signup`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -31,7 +36,7 @@ export const signin = async (credentials: {
   password: string;
 }) => {
   try {
-    const response = await fetch("/api/users/signin", {
+    const response = await fetch(`${API_URL}/api/users/signin`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
