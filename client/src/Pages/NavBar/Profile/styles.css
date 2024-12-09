@@ -104,8 +104,9 @@ h2 {
     background: #f4effa;
     border-radius: 0.8rem;
     overflow: hidden;
-    border: 0.1rem solid;
-    box-shadow: 0.35rem 0.35rem 0 #bbacd9;
+    /* border: 0.1rem solid; */
+    border:none;
+    /* box-shadow: 0.35rem 0.35rem 0 #bbacd9; */
     transition: transform 0.2s ease;
     margin-bottom: 2rem;
   }
@@ -116,7 +117,7 @@ h2 {
   
   .pet-card__image {
     width: 100%;
-    aspect-ratio: 3 / 2;
+    aspect-ratio: 2;
     object-fit: cover;
   }
   

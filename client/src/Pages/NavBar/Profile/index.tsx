@@ -21,6 +21,8 @@ const Profile: React.FC = () => {
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [newUsername, setNewUsername] = useState("");
+  const [newEmail, setNewEmail] = useState("");
+  const [newPhone,setNewPhone] = useState("");
   const [error, setError] = useState<string>("");
 
   const currentUserId = getCurrentUserId();
@@ -46,24 +48,24 @@ const Profile: React.FC = () => {
     fetchUserPets();
   }, [API_URL]);
 
-  const handleUpdateUsername = async () => {
+  const handleUpdateProfile = async () => {
     try {
       const response = await fetch(`/api/users/${userId || currentUserId}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ username: newUsername }),
+        body: JSON.stringify({ username: newUsername,email:newEmail,phone:newPhone }),
       });
 
       if (response.ok) {
-        setUser((prev: any) => ({ ...prev, username: newUsername }));
+        setUser((prev: any) => ({ ...prev, username: newUsername,email:newEmail,phone:newPhone }));
         setIsEditing(false);
       } else {
-        console.error("Failed to update username");
+        console.error("Failed to update profile");
       }
     } catch (error) {
-      console.error("Error updating username:", error);
+      console.error("Error updating profile:", error);
     }
   };
 
@@ -82,6 +84,7 @@ const Profile: React.FC = () => {
     }
   };
 
+  // fetch user and pets data for profile
   useEffect(() => {
     // Determine if viewing own profile or someone else's
     setIsOwnProfile(!userId || userId === currentUserId);
@@ -142,10 +145,24 @@ const Profile: React.FC = () => {
                 className="form-control mb-2"
                 value={newUsername}
                 onChange={(e) => setNewUsername(e.target.value)}
-                placeholder="Enter new username"
+                placeholder={user.username}
+              />
+              <input
+              type="email"
+              className="form-control mb-2"
+              value={newEmail}
+              onChange={(e) => setNewEmail(e.target.value)}
+              placeholder= {user.email}
+              />
+              <input
+              type="text"
+              className="form-control mb-2"
+              value={newPhone}
+              onChange={(e) => setNewPhone(e.target.value)}
+              placeholder={user.phone}
               />
               <div className="d-flex gap-2">
-                <PurpleButton onClick={handleUpdateUsername}>
+                <PurpleButton onClick={handleUpdateProfile}>
                   Save
                 </PurpleButton>
                 <PurpleButton onClick={() => setIsEditing(false)}>
@@ -171,10 +188,10 @@ const Profile: React.FC = () => {
       <div className="col-lg-8 mx-auto">
         <div className="d-flex align-items-center gap-3">
           <h2 className="color: #C5E0DC;--a: 45deg;--t:.15em mb-0">
-            <span>Pets</span>
+            <span>Pets: {pets.length}</span>
           </h2>
           {isOwnProfile && (
-            <PurpleButton onClick={() => navigate("/home/lost")}>
+            <PurpleButton onClick={() => navigate("/add-pet")}>
               Add Pet
             </PurpleButton>
           )}
@@ -214,7 +231,7 @@ const Profile: React.FC = () => {
                   )}
                 </div>
               </div>
-              <p className="pet-card__location">📍 {pet.location}</p>
+             { isOwnProfile && (<p className="pet-card__location">📍 {pet.location}</p>)}
               <p className="pet-card__description">{pet.description}</p>
             </div>
           </div>

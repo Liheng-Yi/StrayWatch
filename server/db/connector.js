@@ -29,6 +29,7 @@ async function connectToDb() {
 
     // Delete all documents in the shelter collection
     // await db.collection("shelters").deleteMany({});
+    //await db.collection("pets").deleteMany({});
     // console.log("Cleared shelter collection");
     // Check if collection exists and has documents
     const collections = await db.listCollections({ name: "pets" }).toArray();
@@ -75,5 +76,31 @@ async function initializeData() {
     throw err;
   }
 }
+
+async function createIndexes() {
+  const db = client.db("appDB");
+  await db.collection("pets").dropIndexes();
+  
+  
+  await db.collection("pets").createIndex({
+    name: "text",
+    description: "text",
+    kind: "text",
+    color: "text",  
+    location: "text",
+    status: "text"  
+  }, {
+    weights: {
+      name: 10,        
+      kind: 5,         
+      description: 3, 
+      color: 3,
+      location: 2,
+      status: 2
+    }
+  });
+}
+
+createIndexes().catch(console.error);
 
 export { connectToDb, client };

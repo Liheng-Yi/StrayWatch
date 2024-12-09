@@ -1,17 +1,25 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { useMapsLibrary } from '@vis.gl/react-google-maps';
-import { Upload } from 'lucide-react';
-import './styles.css';
+import React, { useState, useRef, useEffect } from "react";
+import { useMapsLibrary } from "@vis.gl/react-google-maps";
+
+import "./styles.css";
+import { SpotPetFormData, submitFoundPet } from "./client";
+import { useAppSelector } from "../../store/hooks";
+import { useNavigate } from "react-router-dom";
+
 interface Location {
   lat: number;
   lng: number;
 }
 
-const SpotInfo = () => {
-  const [SpotInfo, setSpotInfo] = useState<google.maps.places.Autocomplete | null>(null);
-  const [selectedPlace, setSelectedPlace] = useState<google.maps.places.PlaceResult | null>(null);
+type PetStatus = "Lost" | "Found";
+
+const PlaceAutocomplete = () => {
+  const [placeAutocomplete, setPlaceAutocomplete] =
+    useState<google.maps.places.Autocomplete | null>(null);
+  const [selectedPlace, setSelectedPlace] =
+    useState<google.maps.places.PlaceResult | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const places = useMapsLibrary('places');
+  const places = useMapsLibrary("places");
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
   const [currentLocation, setCurrentLocation] = useState<Location | null>(null);
@@ -20,49 +28,93 @@ const SpotInfo = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
 
-  const [formData, setFormData] = useState({
-    petName: '',
-    petType: '',
-    lastSeenAddress: '',
-    email: '',
-    phone: '',
-    image: null as File | null
+  const [formData, setFormData] = useState<SpotPetFormData>({
+    name: "",
+    kind: "",
+    color: "",
+    location: "",
+    description: "",
+    image: null,
+    status: "Found",
+    userId: "",
+    coordinates: null
   });
+
+  const navigate = useNavigate();
+  const currentUser = useAppSelector((state) => state.user.currentUser);
 
   useEffect(() => {
     if (!places || !inputRef.current) return;
 
     const options = {
-      fields: ['geometry', 'formatted_address'],
-      types: ['address'],
-      componentRestrictions: { country: 'us' }
+      fields: ["geometry", "formatted_address"],
+      types: ["address"],
+      componentRestrictions: { country: "us" },
     };
-
-    setSpotInfo(new places.Autocomplete(inputRef.current, options));
+    setPlaceAutocomplete(new places.Autocomplete(inputRef.current, options));
   }, [places]);
 
   useEffect(() => {
-    if (!SpotInfo) return;
-
-    SpotInfo.addListener('place_changed', () => {
-      setSelectedPlace(SpotInfo.getPlace());
+    if (!placeAutocomplete) return;
+    placeAutocomplete.addListener("place_changed", () => {
+      const place = placeAutocomplete.getPlace();
+      handlePlaceSelect(place);
+      setSelectedPlace(place);
     });
-  }, [SpotInfo]);
+  }, [placeAutocomplete]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
+  const handlePlaceSelect = (place: google.maps.places.PlaceResult) => {
+    if (!place.geometry?.location) {
+      setLocationError('Please select a valid address');
+      return;
+    }
+
+    const lat: number = typeof place.geometry.location.lat === 'function' 
+      ? place.geometry.location.lat() 
+      : Number(place.geometry.location.lat);
+    
+    const lng: number = typeof place.geometry.location.lng === 'function' 
+      ? place.geometry.location.lng() 
+      : Number(place.geometry.location.lng);
+
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      location: place.formatted_address || '',
+      coordinates: {
+        type: 'Point' as const,
+        coordinates: [lng, lat] as [number, number]
+      }
+    }));
+
+    setLocationError(null);
+  };
+
+  const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData(prev => ({
+      ...prev,
+      location: e.target.value
     }));
   };
 
-  const handleImageChange = (input: React.ChangeEvent<HTMLInputElement> | File) => {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleImageChange = (
+    input: React.ChangeEvent<HTMLInputElement> | File
+  ) => {
     const file = input instanceof File ? input : input.target.files?.[0];
     if (file) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        image: file
+        image: file,
       }));
       const previewUrl = URL.createObjectURL(file);
       setImagePreview(previewUrl);
@@ -70,9 +122,9 @@ const SpotInfo = () => {
   };
 
   const removeImage = () => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      image: null
+      image: null,
     }));
     if (imagePreview) {
       URL.revokeObjectURL(imagePreview);
@@ -105,6 +157,14 @@ const SpotInfo = () => {
               inputRef.current.value = address;
             }
             setSelectedPlace(data.results[0]);
+            setFormData(prev => ({
+              ...prev,
+              location: address,
+              coordinates: {
+                type: 'Point',
+                coordinates: [longitude, latitude]
+              }
+            }));
           }
         } catch (error) {
           setLocationError("Failed to get address from coordinates");
@@ -123,10 +183,49 @@ const SpotInfo = () => {
     );
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Handle form submission here
-    console.log('Form submitted:', formData);
+
+    if (currentUser?._id === undefined) {
+      navigate("/login");
+      return;
+    }
+
+    try {
+      await submitFoundPet({
+        name: formData.name,
+        kind: formData.kind,
+        color: formData.color,
+        location: formData.location,
+        description: formData.description,
+        image: formData.image,
+        status: "Found",
+        userId: currentUser._id,
+        coordinates: formData.coordinates,
+      });
+
+      // Clear form
+      setFormData({
+        name: "",
+        kind: "",
+        color: "",
+        location: "",
+        description: "",
+        image: null,
+        status: "Found",
+        userId: "",
+        coordinates: null,
+      });
+      setImagePreview(null);
+
+      navigate("/home");
+    } catch (error) {
+      if (error instanceof Error) {
+        alert(error.message);
+      } else {
+        alert("An unexpected error occurred");
+      }
+    }
   };
 
   return (
@@ -134,10 +233,11 @@ const SpotInfo = () => {
       <div className="row justify-content-center">
         <div className="col-md-6">
           <label htmlFor="address" className="form-label">
-            Where did your pet get lost?
+            Where did you find this pet?
           </label>
           <p className="text-muted small mb-2">
-            Please provide a specific street address. We will never share your exact location.
+            Please provide a specific street address. We will never share your
+            exact location.
           </p>
 
           <form onSubmit={handleSubmit} className="mb-3">
@@ -154,6 +254,8 @@ const SpotInfo = () => {
                   placeholder="Enter address"
                   required
                   ref={inputRef}
+                  value={formData.location}
+                  onChange={handleAddressChange}
                 />
               </div>
             </div>
@@ -161,31 +263,47 @@ const SpotInfo = () => {
               <button
                 type="button"
                 onClick={getCurrentLocation}
-                className="btn btn-link p-0 text-decoration-underline" 
+                className="btn btn-link p-0 text-decoration-underline"
                 disabled={isLoadingLocation}
               >
                 {isLoadingLocation ? (
-                  <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                  <span
+                    className="spinner-border spinner-border-sm me-1"
+                    role="status"
+                    aria-hidden="true"
+                  ></span>
                 ) : (
                   <span>🐾 Use My Location</span>
                 )}
               </button>
             </div>
-            
+
             {locationError && (
-              <div className="text-danger small mt-1">
-                {locationError}
-              </div>
+              <div className="text-danger small mt-1">{locationError}</div>
             )}
 
             <div className="row mb-3">
               <div className="col-md-4">
                 <label className="form-label fw-semibold">
+                  Pet Name<span className="text-primary">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  placeholder="if unsure, put unknown"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="form-control"
+                  required
+                />
+              </div>
+              <div className="col-md-4">
+                <label className="form-label fw-semibold">
                   Kind of Pet<span className="text-primary">*</span>
                 </label>
                 <select
-                  name="petType"
-                  value={formData.petType}
+                  name="kind"
+                  value={formData.kind}
                   onChange={handleChange}
                   className="form-select"
                   required
@@ -197,101 +315,103 @@ const SpotInfo = () => {
               </div>
               <div className="col-md-4">
                 <label className="form-label fw-semibold">
-                  Phone<span className="text-primary"></span>
+                  Pet Color<span className="text-primary">*</span>
                 </label>
                 <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  className="form-control"
-                />
-              </div>
-              <div className="col-md-4">
-                <label className="form-label fw-semibold">
-                  Email Address<span className="text-primary">*</span>
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
+                  type="text"
+                  name="color"
+                  value={formData.color}
                   onChange={handleChange}
                   className="form-control"
                   required
                 />
               </div>
             </div>
-            
 
+            <div className="row mb-3">
+              <div className="col-12">
+                <label className="form-label fw-semibold">Description</label>
+                <textarea
+                  name="description"
+                  placeholder="More details help us find the pet's owner!"
+                  value={formData.description}
+                  onChange={handleChange}
+                  className="form-control"
+                  rows={3}
+                />
+              </div>
+            </div>
 
-<div className="mb-3">
-  <div
-    className={`
-      
-      d-flex
-      flex-column
-      align-items-center
-      justify-content-center
-      rounded
-      border-2
-      border-dashed
-      p-4
-    `}
-    style={{
-      height: '280px',
-      cursor: 'pointer',
-      transition: 'all 0.3s ease',
-    }}
-    onDragOver={(e) => {
-      e.preventDefault();
-      setIsDragging(true);
-    }}
-    onDragLeave={() => setIsDragging(false)}
-    onDrop={(e) => {
-      e.preventDefault();
-      setIsDragging(false);
-      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-        handleImageChange(e.dataTransfer.files[0]);
-      }
-    }}
-    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fff'}
-    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f4effa'}
-    onClick={() => fileInputRef.current?.click()}
-  >
-    <input
-      ref={fileInputRef}
-      type="file"
-      style={{ display: 'none' }}
-      accept="image/*"
-      onChange={(e) => {
-        if (e.target.files?.[0]) {
-          handleImageChange(e.target.files[0]);
-        }
-      }}
-    />
+            <div className="mb-3">
+              <div
+                className={`
+                  d-flex
+                  flex-column
+                  align-items-center
+                  justify-content-center
+                  rounded
+                  border-2
+                  border-dashed
+                  p-4
+                `}
+                style={{
+                  height: "280px",
+                  cursor: "pointer",
+                  transition: "all 0.3s ease",
+                }}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setIsDragging(true);
+                }}
+                onDragLeave={() => setIsDragging(false)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setIsDragging(false);
+                  if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                    handleImageChange(e.dataTransfer.files[0]);
+                  }
+                }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.backgroundColor = "#fff")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.backgroundColor = "#f4effa")
+                }
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  style={{ display: 'none' }}
+                  accept="image/*"
+                  onChange={(e) => {
+                    if (e.target.files?.[0]) {
+                      handleImageChange(e.target.files[0]);
+                    }
+                  }}
+                />
 
-    {imagePreview ? (
-      <img 
-        src={imagePreview} 
-        alt="Preview" 
-        className="w-100 h-100"
-        style={{ objectFit: 'cover' }}
-      />
-    ) : (
-      <>
-        <i className="" ></i>
-        <h3 className="fs-4 fw-semibold text-dark mb-2">
-          Photo Upload
-        </h3>
-        <p className="text-secondary">
-          Drag and drop to upload or{' '}
-          <span className="text-secondary text-decoration-underline">browse</span>
-        </p>
-      </>
-    )}
-  </div>
-</div>
-            
+                {imagePreview ? (
+                  <img 
+                    src={imagePreview} 
+                    alt="Preview" 
+                    className="w-100 h-100"
+                    style={{ objectFit: 'cover' }}
+                  />
+                ) : (
+                  <>
+                    <i className="" ></i>
+                    <h3 className="fs-4 fw-semibold text-dark mb-2">
+                      Photo Upload
+                    </h3>
+                    <p className="text-secondary">
+                      Drag and drop to upload or{' '}
+                      <span className="text-secondary text-decoration-underline">browse</span>
+                    </p>
+                  </>
+                )}
+              </div>
+            </div>
 
             <div className="text-center">
               <button type="submit" className="lost-found-button w-50">
@@ -305,4 +425,4 @@ const SpotInfo = () => {
   );
 };
 
-export default SpotInfo;
+export default PlaceAutocomplete;

@@ -2,8 +2,8 @@ import React, { useState, useRef, useEffect } from "react";
 import { useMapsLibrary } from "@vis.gl/react-google-maps";
 
 import "./styles.css";
-import { submitLostPet } from "./client";
-import { useAppSelector } from "../../store/hooks";
+import { submitLostPet } from "../../../Pages/Landing/client";
+import { useAppSelector } from "../../../store/hooks";
 import { useNavigate } from "react-router-dom";
 
 interface Location {
@@ -11,7 +11,7 @@ interface Location {
   lng: number;
 }
 
-const PlaceAutocomplete = () => {
+const PetProfileComplete = () => {
   const [placeAutocomplete, setPlaceAutocomplete] =
     useState<google.maps.places.Autocomplete | null>(null);
   const [selectedPlace, setSelectedPlace] =
@@ -33,14 +33,14 @@ const PlaceAutocomplete = () => {
     location: "",
     description: "",
     image: null as File | null,
-    status: "Lost" as const,
+    status: "",
     userId: "",
     coordinates: null as { type: 'Point', coordinates: [number, number] } | null
   });
 
   const navigate = useNavigate();
   const currentUser = useAppSelector((state) => state.user.currentUser);
-  // console.log("[LostForm]--currentUser", currentUser);
+  
 
   useEffect(() => {
     if (!places || !inputRef.current) return;
@@ -214,7 +214,7 @@ const PlaceAutocomplete = () => {
         location: "",
         description: "",
         image: null,
-        status: "Lost",
+        status: "",
         userId: "",
         coordinates: null,
       });
@@ -235,7 +235,7 @@ const PlaceAutocomplete = () => {
       <div className="row justify-content-center">
         <div className="col-md-6">
           <label htmlFor="address" className="form-label">
-            Where did your pet get lost?
+            Where does your pet live?
           </label>
           <p className="text-muted small mb-2">
             Please provide a specific street address. We will never share your
@@ -292,7 +292,7 @@ const PlaceAutocomplete = () => {
                 <input
                   type="text"
                   name="name"
-                  placeholder="if unsure, put unknown"
+                  placeholder=""
                   value={formData.name}
                   onChange={handleChange}
                   className="form-control"
@@ -328,6 +328,21 @@ const PlaceAutocomplete = () => {
                   required
                 />
               </div>
+              <div className="col-md-4">
+              <label className="form-label fw-semibold">
+                Pet Status<span className="text-primary">*</span>
+            </label>
+            <select
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+                className="form-control"
+                required
+            >
+                <option value="Lost">Lost</option>
+                <option value="Found">Found</option>
+            </select>
+              </div>
             </div>
 
             <div className="row mb-3">
@@ -335,7 +350,7 @@ const PlaceAutocomplete = () => {
                 <label className="form-label fw-semibold">Description</label>
                 <textarea
                   name="description"
-                  placeholder="More details help us find your pet!"
+                  placeholder="More details help us find your pet if lost"
                   value={formData.description}
                   onChange={handleChange}
                   className="form-control"
@@ -420,7 +435,7 @@ const PlaceAutocomplete = () => {
 
             <div className="text-center">
               <button type="submit" className="lost-found-button">
-                FIND MY PET
+                ADD MY PET
               </button>
             </div>
           </form>
@@ -430,4 +445,4 @@ const PlaceAutocomplete = () => {
   );
 };
 
-export default PlaceAutocomplete;
+export default PetProfileComplete;

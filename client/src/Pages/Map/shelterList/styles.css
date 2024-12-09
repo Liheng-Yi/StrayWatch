@@ -32,3 +32,20 @@
   border-color: #7758aa;
   color: white;
 }
+
+.shelter-pets-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.pet-item {
+  transition: background-color 0.2s ease;
+}
+
+.pet-item:hover {
+  background-color: rgba(119, 88, 170, 0.05);
+}
+
+.pet-item:last-child {
+  border-bottom: none !important;
+}

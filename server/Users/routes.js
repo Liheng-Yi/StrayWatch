@@ -44,29 +44,29 @@ router.post('/signin', async (req, res) => {
         res.status(500).json({ message: "Error during signin" });
     }
 });
-// update username
+// update user profile
 router.patch('/:id', async (req, res) => {
     try {
-        const { username } = req.body;
+        const { username,email,phone } = req.body;
         const userId = new ObjectId(req.params.id);
-        
-        if (!username) {
-            return res.status(400).json({ message: 'Username is required' });
-        }
-
         const db = client.db("appDB");
         const usersCollection = db.collection("users");
+
+        const updateFields = { }; // Initialize
+        if (username) updateFields.username = username;
+        if (email) updateFields.email = email; // Only add if email is not an empty string
+        if (phone) updateFields.phone = phone; 
         
         const result = await usersCollection.updateOne(
             { _id: userId },
-            { $set: { username: username } }
+            { $set: updateFields }
         );
 
         if (result.matchedCount === 0) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        res.json({ message: 'Username updated successfully' });
+        res.json({ message: 'profile updated now!' });
     } catch (err) {
         console.error("Error updating username:", err);
         res.status(500).json({ message: "Error updating username" });

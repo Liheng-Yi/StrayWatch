@@ -1,0 +1,45 @@
+.status-filter-button {
+  font-size: 0.8rem;
+  min-width: 70px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.status-filter-button:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+/* All status button */
+.status-filter-button.all {
+  background-color: var(--bs-secondary);
+  color: white;
+}
+
+.status-filter-button.all.inactive {
+  background-color: var(--bs-light);
+  color: var(--bs-secondary);
+}
+
+/* Lost status button */
+.status-filter-button.lost {
+  background-color: var(--bs-danger);
+  color: white;
+}
+
+.status-filter-button.lost.inactive {
+  background-color: var(--bs-light);
+  color: var(--bs-danger);
+}
+
+/* Found status button */
+.status-filter-button.found {
+  background-color: var(--bs-success);
+  color: white;
+}
+
+.status-filter-button.found.inactive {
+  background-color: var(--bs-light);
+  color: var(--bs-success);
+} 

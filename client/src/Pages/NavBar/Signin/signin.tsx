@@ -5,6 +5,7 @@ import { UserCircle } from "lucide-react";
 import "./signin.css";
 import { useAppDispatch } from "../../../store/hooks";
 import { setUser, setLoading, setError } from "./reducer";
+import PurpleButton from "../../../Components/UI/lightPurpleButton";
 
 function SignIn() {
   const [credentials, setCredentials] = useState({
@@ -98,13 +99,13 @@ function SignIn() {
           />
         </div>
 
-        <button
+        <PurpleButton
           type="submit"
-          className="btn btn-primary w-100 mb-3"
+          className="btn btn-primary w-100 mb-3 d-flex justify-content-center align-items-center"
           disabled={isLoading}
         >
           {isLoading ? (
-            <span>
+            <span className="d-flex align-items-center">
               <span
                 className="spinner-border spinner-border-sm me-2"
                 role="status"
@@ -115,7 +116,7 @@ function SignIn() {
           ) : (
             "Sign In"
           )}
-        </button>
+        </PurpleButton>
 
         <div className="text-center mb-3">
           <span className="text-muted">Don't have an account? </span>

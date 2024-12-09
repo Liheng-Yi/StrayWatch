@@ -1,13 +1,45 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Routes, useNavigate, Route, useLocation } from "react-router-dom";
 import LostPetForm from "./LostInfo";
 import SpotPetForm from "./SpotPetForm";
 import { PawPrint, Search } from "lucide-react";
+import Map from "./Map";
+
+interface Pet {
+  _id: string;
+  color: string;
+  name: string;
+  kind: string;
+  status: string;
+  location: string;
+  picture: string;
+  description: string;
+  lat: string;
+  lng: string;
+}
 
 const Landing: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const showInitialContent = location.pathname === "/home";
+  const [pets, setPets] = useState<Pet[]>([]);
+  const API_URL = process.env.NODE_ENV === 'production' 
+    ? process.env.API_URL 
+    : 'http://localhost:5000';
+
+  useEffect(() => {
+    const fetchPets = async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/pets?type=all`);
+        if (!response.ok) throw new Error('Failed to fetch pets');
+        const data = await response.json();
+        setPets(data);
+      } catch (error) {
+        console.error('Error fetching pets:', error);
+      }
+    };
+    fetchPets();
+  }, []);
 
   const handleLostPetClick = () => {
     navigate("/home/lost");
@@ -50,6 +82,12 @@ const Landing: React.FC = () => {
                 </button>
               </div>
             </div>
+          </div>
+          
+          {/* Map Section */}
+          <div className="mt-5">
+            <h2 className="text-center">Recent Lost Pet Map</h2>
+            <Map pets={pets} />
           </div>
         </div>
       ) : null}

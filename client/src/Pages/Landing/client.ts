@@ -1,4 +1,5 @@
 import axios from "axios";
+import { store } from "../../store";
 
 const API_URL =
   process.env.NODE_ENV === "production"
@@ -14,6 +15,7 @@ export interface LostPetFormData {
   color?: string;
   description: string;
   userId: string;
+  coordinates: { type: 'Point', coordinates: [number, number] } | null;
 }
 
 export interface SpotPetFormData {
@@ -24,6 +26,8 @@ export interface SpotPetFormData {
   status: "Found";
   color?: string;
   description: string;
+  userId: string;
+  coordinates: { type: 'Point', coordinates: [number, number] } | null;
 }
 
 const uploadImage = async (image: File) => {
@@ -45,12 +49,17 @@ export const submitLostPet = async (formData: LostPetFormData) => {
   requestFormData.append("description", formData.description);
   requestFormData.append("color", formData.color || "");
   requestFormData.append("location", formData.location);
-  requestFormData.append("userId", formData.userId); // Changed: userId now in form data
+  requestFormData.append("userId", formData.userId);
+  
+  if (formData.coordinates) {
+    requestFormData.append("lat", formData.coordinates.coordinates[1].toString());
+    requestFormData.append("lng", formData.coordinates.coordinates[0].toString());
+  }
 
   if (formData.image) {
     requestFormData.append("image", formData.image);
   }
-
+  console.log("[submitLostPet]--coordinates", formData.coordinates);
   const response = await axios.post(
     //     // BEFORE:
     // `${API_URL}/api/pets/add/${formData.userId}`  // userId was in URL
@@ -70,8 +79,11 @@ export const submitLostPet = async (formData: LostPetFormData) => {
 
 export const submitFoundPet = async (formData: SpotPetFormData) => {
   try {
-    const userId = localStorage.getItem("userId");
-    if (!userId) {
+    // Get current user from Redux store
+    const currentUser = store.getState().user.currentUser;
+    console.log("[submitFoundPet]--currentUser", currentUser);
+
+    if (!currentUser?._id) {
       throw new Error("Please sign in to report a found pet");
     }
 
@@ -82,14 +94,14 @@ export const submitFoundPet = async (formData: SpotPetFormData) => {
     requestFormData.append("description", formData.description);
     requestFormData.append("color", formData.color || "");
     requestFormData.append("location", formData.location);
-    requestFormData.append("userId", userId); // Send userId in form data
+    requestFormData.append("userId", currentUser._id); // Use currentUser._id instead of localStorage
 
     if (formData.image) {
       requestFormData.append("image", formData.image);
     }
 
     const response = await axios.post(
-      `${API_URL}/api/pets/add`, // Remove /${userId} from URL
+      `${API_URL}/api/pets/add`,
       requestFormData,
       {
         headers: {
