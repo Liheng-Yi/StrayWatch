@@ -15,43 +15,46 @@ interface Pet {
 
 const API_URL =
   process.env.NODE_ENV === "production"
-    ? process.env.REACT_APP_API_URL
+    ? process.env.REACT_APP_API_URL || "https://straywatch.onrender.com" // Add fallback URL
     : "http://localhost:5000";
 
 export const PetClient = {
   fetchPets: async (type: string): Promise<Pet[]> => {
-    const response = await fetch(`${API_URL}/api/pets?type=${encodeURIComponent(type)}`, {
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
+    const response = await fetch(
+      `${API_URL}/api/pets?type=${encodeURIComponent(type)}`,
+      {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
       }
-    });
-    if (!response.ok) throw new Error('Failed to fetch pets');
+    );
+    if (!response.ok) throw new Error("Failed to fetch pets");
     return response.json();
   },
 
   deletePet: async (petId: string): Promise<void> => {
     const response = await fetch(`${API_URL}/api/pets/${petId}`, {
-      method: 'DELETE',
+      method: "DELETE",
     });
-    
+
     if (!response.ok) {
-      throw new Error('Failed to delete pet');
+      throw new Error("Failed to delete pet");
     }
   },
 
   updatePet: async (petId: string, petData: FormData): Promise<Pet> => {
     const response = await fetch(`${API_URL}/api/pets/${petId}`, {
-      method: 'PUT',
+      method: "PUT",
       body: petData,
     });
-    
+
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Server response:', errorText);
-      throw new Error('Failed to update pet');
+      console.error("Server response:", errorText);
+      throw new Error("Failed to update pet");
     }
-    
+
     return response.json();
   },
 
@@ -60,38 +63,43 @@ export const PetClient = {
       `${API_URL}/api/pets/search?query=${encodeURIComponent(searchQuery)}`,
       {
         headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        }
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
       }
     );
-    
+
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Search error response:', errorText);
-      throw new Error('Failed to search pets');
+      console.error("Search error response:", errorText);
+      throw new Error("Failed to search pets");
     }
-    
+
     return response.json();
   },
 
-  searchPetsByCriteria: async (searchQuery: string, criteria: string): Promise<Pet[]> => {
+  searchPetsByCriteria: async (
+    searchQuery: string,
+    criteria: string
+  ): Promise<Pet[]> => {
     const response = await fetch(
-      `${API_URL}/api/pets/search?query=${encodeURIComponent(searchQuery)}&criteria=${criteria}`,
+      `${API_URL}/api/pets/search?query=${encodeURIComponent(
+        searchQuery
+      )}&criteria=${criteria}`,
       {
         headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        }
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
       }
     );
-    
+
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Search error response:', errorText);
-      throw new Error('Failed to search pets');
+      console.error("Search error response:", errorText);
+      throw new Error("Failed to search pets");
     }
-    
+
     return response.json();
   },
 
@@ -99,11 +107,11 @@ export const PetClient = {
     try {
       const response = await fetch(`/api/pets/user/${userId}`);
       if (!response.ok) {
-        throw new Error('Failed to fetch user pets');
+        throw new Error("Failed to fetch user pets");
       }
       return await response.json();
     } catch (error) {
-      console.error('Error fetching user pets:', error);
+      console.error("Error fetching user pets:", error);
       throw error;
     }
   },
@@ -111,13 +119,13 @@ export const PetClient = {
   fetchPetById: async (petId: string): Promise<Pet> => {
     const response = await fetch(`${API_URL}/api/pets/${petId}`, {
       headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      }
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
     });
-    if (!response.ok) throw new Error('Failed to fetch pet details');
+    if (!response.ok) throw new Error("Failed to fetch pet details");
     return response.json();
   },
 };
 
-export type { Pet }; 
+export type { Pet };
