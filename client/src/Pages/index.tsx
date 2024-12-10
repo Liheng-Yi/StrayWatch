@@ -28,8 +28,8 @@ export default function MainPage() {
   const teamMembers = [
     { name: "Liheng Yi", section: "2" },
     { name: "Chenyang Li", section: "2" },
-    { name: "Linyan Fu", section: "2" },
-    { name: "Chengxu Lan", section: "2" }
+    { name: "Linyan Fu", section: "1" },
+    { name: "Chengxu Lan", section: "1" }
   ];
 
   return (
