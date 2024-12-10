@@ -6,8 +6,8 @@ import "./signin.css";
 interface UserData {
   username: string;
   password: string;
-  email: string;
-  phone: string;
+  email: string | null;
+  phone: string | null;
   role: "user" | "shelter" | "admin";
 }
 
@@ -15,9 +15,9 @@ function SignUp() {
   const [userData, setUserData] = useState<UserData>({
     username: "",
     password: "",
-    email: "",
-    phone: "",
-    role: "user",
+    email: null,
+    phone: null,
+    role: "user" as "user" | "shelter" | "admin",
   });
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
@@ -27,6 +27,8 @@ function SignUp() {
     setUserData((prev) => ({
       ...prev,
       role: newRole,
+      email: newRole === "admin" ? null : prev.email || "",
+      phone: newRole === "admin" ? null : prev.phone || "",
     }));
   };
 
@@ -39,8 +41,14 @@ function SignUp() {
       return;
     }
 
+    const submitData = {
+      ...userData,
+      email: userData.role === "admin" ? undefined : userData.email || "",
+      phone: userData.role === "admin" ? undefined : userData.phone || "",
+    };
+
     try {
-      await client.signup(userData);
+      await client.signup(submitData);
       navigate("/login");
     } catch (err: any) {
       setError(err.response?.data?.message || "Registration failed");
@@ -79,39 +87,43 @@ function SignUp() {
           />
         </div>
 
-        <div className="mb-3">
-          <label htmlFor="email" className="form-label">
-            Email
-          </label>
-          <input
-            type="email"
-            className="form-control"
-            id="email"
-            placeholder="Enter your email"
-            value={userData.email}
-            onChange={(e) =>
-              setUserData({ ...userData, email: e.target.value })
-            }
-            required
-          />
-        </div>
+        {userData.role !== "admin" && (
+          <>
+            <div className="mb-3">
+              <label htmlFor="email" className="form-label">
+                Email
+              </label>
+              <input
+                type="email"
+                className="form-control"
+                id="email"
+                placeholder="Enter your email"
+                value={userData.email || ""}
+                onChange={(e) =>
+                  setUserData({ ...userData, email: e.target.value })
+                }
+                required={["user", "shelter"].includes(userData.role)}
+              />
+            </div>
 
-        <div className="mb-3">
-          <label htmlFor="phone" className="form-label">
-            Phone
-          </label>
-          <input
-            type="tel"
-            className="form-control"
-            id="phone"
-            placeholder="Enter your phone number"
-            value={userData.phone}
-            onChange={(e) =>
-              setUserData({ ...userData, phone: e.target.value })
-            }
-            required
-          />
-        </div>
+            <div className="mb-3">
+              <label htmlFor="phone" className="form-label">
+                Phone
+              </label>
+              <input
+                type="tel"
+                className="form-control"
+                id="phone"
+                placeholder="Enter your phone number"
+                value={userData.phone || ""}
+                onChange={(e) =>
+                  setUserData({ ...userData, phone: e.target.value })
+                }
+                required={["user", "shelter"].includes(userData.role)}
+              />
+            </div>
+          </>
+        )}
 
         <div className="mb-3">
           <label htmlFor="password" className="form-label">

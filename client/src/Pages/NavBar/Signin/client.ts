@@ -6,9 +6,9 @@ const API_URL =
 export const signup = async (userData: {
   username: string;
   password: string;
-  email: string;
-  phone: string;
-  role?: "user" | "shelter" | "admin";
+  email?: string;
+  phone?: string;
+  role: "user" | "shelter" | "admin";
 }) => {
   try {
     const dataToSend = {

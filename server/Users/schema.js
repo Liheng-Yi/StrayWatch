@@ -11,18 +11,27 @@ export const userSchema = {
 export const validateUser = (userData) => {
   const { username, password, email, phone, role = "user" } = userData;
   
-  if (!username || !password || !email) {
-    throw new Error('Username, password, and email are required');
+  if (!username || !password) {
+    throw new Error('Username and password are required');
+  }
+
+  // Only validate email and phone for non-admin roles
+  if (role !== "admin" && (!email || !phone)) {
+    throw new Error('Email and phone are required for non-admin users');
   }
 
   const validatedUser = {
     username,
     password,
-    email,
-    phone,
     role,
     createdAt: new Date()
   };
+
+  // Only add email and phone if not admin
+  if (role !== "admin") {
+    validatedUser.email = email;
+    validatedUser.phone = phone;
+  }
 
   // Only add shelters array if role is shelter
   if (role === "shelter") {

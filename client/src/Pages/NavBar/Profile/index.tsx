@@ -33,6 +33,8 @@ const Profile: React.FC = () => {
   const currentUserId = getCurrentUserId();
   // const API_URL = process.env.API_URL || "http://localhost:5000";
 
+  const [userRole, setUserRole] = useState<string>("user");
+
   useEffect(() => {
     const fetchUserPets = async () => {
       try {
@@ -121,6 +123,7 @@ const Profile: React.FC = () => {
         const userData = await response.json();
         console.log("userData", userData);
         setUser(userData);
+        setUserRole(userData.role || "user");
         if (userData.pets && userData.pets.length > 0) {
           const petPromises = userData.pets.map((petId: string) =>
             fetch(`${API_URL}/api/pets/${petId}`).then((res) => res.json())
@@ -155,6 +158,8 @@ const Profile: React.FC = () => {
                 <PurpleButton
                   onClick={() => {
                     setNewUsername(user.username);
+                    setNewEmail(user.email);
+                    setNewPhone(user.phone);
                     setIsEditing(true);
                   }}
                 >
@@ -172,20 +177,24 @@ const Profile: React.FC = () => {
                   onChange={(e) => setNewUsername(e.target.value)}
                   placeholder={user.username}
                 />
-                <input
-                  type="email"
-                  className="form-control mb-2"
-                  value={newEmail}
-                  onChange={(e) => setNewEmail(e.target.value)}
-                  placeholder={user.email}
-                />
-                <input
-                  type="text"
-                  className="form-control mb-2"
-                  value={newPhone}
-                  onChange={(e) => setNewPhone(e.target.value)}
-                  placeholder={user.phone}
-                />
+                {(!isOwnProfile || userRole !== "admin") && (
+                  <>
+                    <input
+                      type="email"
+                      className="form-control mb-2"
+                      value={newEmail}
+                      onChange={(e) => setNewEmail(e.target.value)}
+                      placeholder={user.email}
+                    />
+                    <input
+                      type="text"
+                      className="form-control mb-2"
+                      value={newPhone}
+                      onChange={(e) => setNewPhone(e.target.value)}
+                      placeholder={user.phone}
+                    />
+                  </>
+                )}
                 <div className="d-flex gap-2">
                   <PurpleButton onClick={handleUpdateProfile}>
                     Save
@@ -198,12 +207,16 @@ const Profile: React.FC = () => {
             ) : (
               isOwnProfile && (
                 <>
-                  <p className="pet-card__description">
-                    📧 Email: {user.email}
-                  </p>
-                  <p className="pet-card__description">
-                    📱 Phone: {user.phone}
-                  </p>
+                  {userRole !== "admin" && (
+                    <>
+                      <p className="pet-card__description">
+                        📧 Email: {user.email}
+                      </p>
+                      <p className="pet-card__description">
+                        📱 Phone: {user.phone}
+                      </p>
+                    </>
+                  )}
                 </>
               )
             )}
