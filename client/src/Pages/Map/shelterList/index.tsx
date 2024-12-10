@@ -5,6 +5,7 @@ import { ShelterClient, Shelter, Pet } from './client';
 import './styles.css';
 import { isAdmin } from '../../../Components/UI/auth';
 import { FaTrash } from "react-icons/fa";
+import ContactModal, { ContactFormData } from '../../../Components/util/Contact';
 
 interface ShelterListProps {
   onShelterClick?: (shelterId: string) => void;
@@ -24,6 +25,8 @@ const ShelterList: React.FC<ShelterListProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<'all' | 'verified'>('all');
+  const [showContactModal, setShowContactModal] = useState(false);
+  const [selectedShelter, setSelectedShelter] = useState<Shelter | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -105,6 +108,18 @@ const ShelterList: React.FC<ShelterListProps> = ({
     if (onShelterClick) {
       onShelterClick(shelterId);
     }
+  };
+
+  const handleContactSubmit = (formData: ContactFormData) => {
+    console.log('Contact form submitted:', formData);
+    // TODO: Implement actual contact functionality
+    alert('Message sent! The shelter will be notified.');
+  };
+
+  const handleContactClick = (e: React.MouseEvent, shelter: Shelter) => {
+    e.stopPropagation(); // Prevent shelter card click event
+    setSelectedShelter(shelter);
+    setShowContactModal(true);
   };
 
   if (loading) return <div className="text-center py-4">Loading shelters...</div>;
@@ -198,7 +213,10 @@ const ShelterList: React.FC<ShelterListProps> = ({
                       Visit Website
                     </button>
                   )}
-                  <PurpleButton className="btn btn-primary d-flex align-items-center justify-content-center flex-grow-1">
+                  <PurpleButton 
+                    className="btn btn-primary d-flex align-items-center justify-content-center flex-grow-1"
+                    onClick={(e) => handleContactClick(e, shelter)}
+                  >
                     Contact
                   </PurpleButton>
                 </div>
@@ -245,6 +263,13 @@ const ShelterList: React.FC<ShelterListProps> = ({
           No shelters found.
         </div>
       )}
+
+      <ContactModal
+        isOpen={showContactModal}
+        onClose={() => setShowContactModal(false)}
+        petName={selectedShelter?.name || ''}
+        onSubmit={handleContactSubmit}
+      />
     </div>
   );
 };

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import PurpleButton from "../../../Components/UI/lightPurpleButton";
 import { registerShelter } from "./client";
 import { useMapsLibrary } from "@vis.gl/react-google-maps";
+import { getCurrentUserId } from "../../../Components/UI/auth";
 
 interface ShelterFormProps {
   onClose: () => void;
@@ -161,21 +162,24 @@ const ShelterForm = ({ onClose }: ShelterFormProps) => {
     e.preventDefault();
 
     try {
+      const userId = getCurrentUserId();
+      if (!userId) {
+        setLocationError("Please login to register a shelter");
+        return;
+      }
+
       if (!selectedPlace?.geometry?.location) {
         setLocationError("Please select a valid address");
         return;
       }
 
-      // Get the lat/lng values by calling the methods
-      const lat =
-        typeof selectedPlace.geometry.location.lat === "function"
-          ? selectedPlace.geometry.location.lat()
-          : selectedPlace.geometry.location.lat;
+      const lat = typeof selectedPlace.geometry.location.lat === "function"
+        ? selectedPlace.geometry.location.lat()
+        : selectedPlace.geometry.location.lat;
 
-      const lng =
-        typeof selectedPlace.geometry.location.lng === "function"
-          ? selectedPlace.geometry.location.lng()
-          : selectedPlace.geometry.location.lng;
+      const lng = typeof selectedPlace.geometry.location.lng === "function"
+        ? selectedPlace.geometry.location.lng()
+        : selectedPlace.geometry.location.lng;
 
       const location = {
         type: "Point",
@@ -185,6 +189,7 @@ const ShelterForm = ({ onClose }: ShelterFormProps) => {
       const shelterData = {
         ...formData,
         location,
+        userId,
       };
 
       await registerShelter(shelterData);

@@ -4,6 +4,7 @@ export const userSchema = {
   email: String,
   phone: String,
   role: String,
+  shelters: Array,
   createdAt: Date
 };
 
@@ -14,14 +15,21 @@ export const validateUser = (userData) => {
     throw new Error('Username, password, and email are required');
   }
 
-  return {
+  const validatedUser = {
     username,
-    password, // Note: Password hashing will be handled in the model
+    password,
     email,
     phone,
     role,
     createdAt: new Date()
   };
+
+  // Only add shelters array if role is shelter
+  if (role === "shelter") {
+    validatedUser.shelters = [];
+  }
+
+  return validatedUser;
 };
 
 export const validateUpdateFields = (updateData) => {

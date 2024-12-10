@@ -25,8 +25,9 @@ router.post('/', async (req, res) => {
         type: "Point",
         coordinates: req.body.location.coordinates
       } : null,
-      pets: [],  // todo: add pets
-      userId: null // todo: add user id
+      pets: [],
+      userId: req.body.userId || null,
+      verified: false
     };
 
     const result = await sheltersCollection.insertOne(newShelter);

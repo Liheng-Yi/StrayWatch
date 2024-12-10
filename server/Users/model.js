@@ -55,6 +55,10 @@ export class UserModel {
       throw new Error('User not found');
     }
 
+    if (result.modifiedCount === 0) {
+      throw new Error('No changes were made');
+    }
+
     return { message: 'Profile updated successfully' };
   }
 } 

@@ -288,6 +288,7 @@ const PetSearch: React.FC = () => {
 
                       <PurpleButton 
                         variant="solid"
+                        className="d-none d-md-block"
                         onClick={() => {
                           navigate(`/profile/${pet.userId}`);
                         }}

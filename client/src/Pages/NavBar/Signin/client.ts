@@ -11,12 +11,17 @@ export const signup = async (userData: {
   role?: "user" | "shelter" | "admin";
 }) => {
   try {
+    const dataToSend = {
+      ...userData,
+      shelters: userData.role === "shelter" ? [] : undefined
+    };
+
     const response = await fetch(`${API_URL}/api/users/signup`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(userData),
+      body: JSON.stringify(dataToSend),
     });
 
     if (!response.ok) {

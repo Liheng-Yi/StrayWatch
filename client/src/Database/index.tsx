@@ -11,6 +11,7 @@ export interface User {
   phone: string;
   email: string;
   pets: string[]; // Array of ObjectIds as strings
+  shelters?: string[];
 }
 
 // Mock database functions

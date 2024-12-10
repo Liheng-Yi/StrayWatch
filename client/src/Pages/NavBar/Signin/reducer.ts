@@ -7,6 +7,7 @@ interface User {
   phone: string;
   email: string;
   pets: string[];
+  shelters?: string[];
 }
 
 interface UserState {

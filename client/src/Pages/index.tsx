@@ -25,6 +25,13 @@ export default function MainPage() {
     window.location.href = "/home";
   };
 
+  const teamMembers = [
+    { name: "Liheng Yi", section: "2" },
+    { name: "Chenyang Li", section: "2" },
+    { name: "Linyan Fu", section: "2" },
+    { name: "Chengxu Lan", section: "2" }
+  ];
+
   return (
     <div
       id="wd-mainpage"
@@ -136,7 +143,39 @@ export default function MainPage() {
         <Routes>
           <Route path="/" element={<Navigate to="/home" />} />
           <Route path="/map" element={<Map />} />
-          <Route path="/home/*" element={<Landing />} />
+          <Route path="/home/*" element={
+            <>
+              <Landing />
+              <div className="container py-3">
+                <div className="row justify-content-center">
+                  <div className="col-md-8">
+                    <div className="card shadow-sm">
+                      <div className="card-body">
+                        <h5 className="text-center mb-3">Team Members</h5>
+                        <div className="row">
+                          {teamMembers.map((member, index) => (
+                            <div key={index} className="col-6 col-md-3 text-center mb-2">
+                              <small>{member.name} (Sec {member.section})</small>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="text-center mt-2">
+                          <a 
+                            href="https://github.com/Liheng-Yi/StrayWatch" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="btn btn-sm btn-primary"
+                          >
+                            GitHub Repository for both frontend and backend
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </>
+          } />
           <Route path="/petdatabase" element={<PetSearch />} />
           <Route path="/shelter" element={<Shelter />} />
           <Route
