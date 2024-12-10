@@ -22,11 +22,35 @@ export class UserDAO {
     return { ...userData, _id: result.insertedId };
   }
 
-  async updateUser(userId, updateFields) {
+  async updateUser(id, updateData) {
+    if (!ObjectId.isValid(id)) {
+      throw new Error('Invalid user ID format');
+    }
+
+    // If it's a $push operation, use it directly as the update operator
+    if (updateData.$push) {
+      const result = await this.collection.updateOne(
+        { _id: new ObjectId(id) },
+        { $push: updateData.$push }
+      );
+      
+      if (!result.acknowledged) {
+        throw new Error('Failed to update user');
+      }
+      
+      return result;
+    }
+
+    // For regular updates, use $set operator
     const result = await this.collection.updateOne(
-      { _id: new ObjectId(userId) },
-      { $set: updateFields }
+      { _id: new ObjectId(id) },
+      { $set: updateData }
     );
+
+    if (!result.acknowledged) {
+      throw new Error('Failed to update user');
+    }
+
     return result;
   }
 

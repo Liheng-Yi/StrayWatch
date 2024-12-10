@@ -31,7 +31,16 @@ router.post('/signup', async (req, res) => {
 // update user profile
 router.patch('/:id', async (req, res) => {
   try {
-    const result = await userModel.updateProfile(req.params.id, req.body);
+    let result;
+    if (req.body.$push && req.body.$push.shelters) {
+      // Handle shelter array update
+      result = await userModel.updateProfile(req.params.id, {
+        $push: { shelters: req.body.$push.shelters }
+      });
+    } else {
+      // Handle regular profile updates
+      result = await userModel.updateProfile(req.params.id, req.body);
+    }
     res.json(result);
   } catch (err) {
     console.error("Error updating profile:", err);

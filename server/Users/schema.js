@@ -33,12 +33,17 @@ export const validateUser = (userData) => {
 };
 
 export const validateUpdateFields = (updateData) => {
-  const { username, email, phone } = updateData;
+  const { username, email, phone, $push } = updateData;
   const updateFields = {};
   
   if (username) updateFields.username = username;
   if (email) updateFields.email = email;
   if (phone) updateFields.phone = phone;
+  
+  // Handle shelter array updates
+  if ($push && $push.shelters) {
+    updateFields.$push = { shelters: $push.shelters };
+  }
   
   return updateFields;
 }; 
